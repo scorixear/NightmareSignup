@@ -32,6 +32,7 @@ abstract class CommandInteractionHandle {
   public async handle(interaction: CommandInteraction) {
     if(this.requirePermissions) {
       const applicationCommand = (await interaction.guild.commands.fetch()).find(command => command.name === this.command);
+
       if(applicationCommand) {
         const member = await (interaction.member as GuildMember).fetch();
         const memberRoles = (member.roles as GuildMemberRoleManager).cache;

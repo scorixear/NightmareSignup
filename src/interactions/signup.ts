@@ -15,7 +15,7 @@ class UnavailableEvent extends ButtonInteractionHandle {
   override async handle(interaction: ButtonInteraction) {
     super.handle(interaction);
     const userId = interaction.member.user.id;
-    const event = parseInt(interaction.customId.slice(this.id.length));
+    const event = parseInt(interaction.customId.slice(this.id.length), 10);
     if (await sqlHandler.isUnavailable(event, userId)) {
       await sqlHandler.removeUnavailable(event, userId);
       updateUnavailable(event, false);
@@ -40,7 +40,7 @@ class SignupEvent extends ButtonInteractionHandle {
     const userId = interaction.member.user.id;
 
     // create or retrieve Discord direct Message Channel between user and bot
-    const event = parseInt(interaction.customId.slice(this.id.length));
+    const event = parseInt(interaction.customId.slice(this.id.length), 10);
     // create or retrieve Discord direct Message Channel between user and bot
     const channel = await (interaction.member as GuildMember).createDM();
     console.log('Signup request received', userId, event);
@@ -64,13 +64,28 @@ class SignupEvent extends ButtonInteractionHandle {
     } else {
       const success = await sqlHandler.signIn(event, userId, dateHandler.getUTCTimestampFromDate(new Date()));
       if (success) {
+        if(await sqlHandler.isUnavailable(event, userId)) {
+          await sqlHandler.removeUnavailable(event, userId);
+          updateUnavailable(event, false);
+        }
         updateSignupMessage(event);
+        try {
+          channel.send(await messageHandler.getRichTextExplicitDefault({
+            guild: interaction.guild,
+            title: languageHandler.language.interactions.signup.success.title,
+            description: languageHandler.language.interactions.signup.success.description,
+            color: 0x00cc00,
+          }));
+        } catch (err) {
+          console.error('Error sending DM', err);
+          interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interaction.signup.error.dmChannel, [userId]), ephemeral: true });
+        }
       } else {
         try {
           channel.send(await messageHandler.getRichTextExplicitDefault({
             guild: interaction.guild,
-            title: languageHandler.language.interactions.signup.error_title,
-            description: languageHandler.language.interactions.signup.error_description,
+            title: languageHandler.language.interactions.signup.error.sql,
+            description: languageHandler.language.interactions.signup.error.sql_desc,
             color: 0xFF8888,
           }));
         } catch (err) {
@@ -87,7 +102,7 @@ class SignoutEvent extends ButtonInteractionHandle {
     super.handle(interaction);
 
     const userId = interaction.member.user.id;
-    const event = parseInt(interaction.customId.slice(this.id.length));
+    const event = parseInt(interaction.customId.slice(this.id.length), 10);
     console.log('User signout received', userId, event);
     // create or retrieve Direct Message channel
     const channel = await (interaction.member as GuildMember).createDM();
@@ -100,7 +115,7 @@ class SignoutEvent extends ButtonInteractionHandle {
           await channel.send(await messageHandler.getRichTextExplicitDefault({
             title: languageHandler.language.interactions.signout.error_title,
             description: languageHandler.language.interactions.signout.error_desc,
-            color: 0x00cc00,
+            color: 0xFF8888,
           }));
         } catch (err) {
           console.error('Error sending DM', err);

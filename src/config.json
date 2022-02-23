@@ -1,5 +1,6 @@
 {
   "repository": "https://github.com/scorixear/n1ghtmaresignup/",
   "botPrefix": "/",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "signupRoles": ["Officers", "Shotcallers", "GM"]
 }

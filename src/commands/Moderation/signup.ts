@@ -28,12 +28,40 @@ declare const interactionHandler: InteractionHandler;
         const msg = await channel.messages.fetch(eventMessage.messageId);
         const embed = msg.embeds[0];
         const signups = await global.sqlHandler.getSignups(eventId);
-        
-        
+        embed.fields = [embed.fields[0], embed.fields[1], embed.fields[2], embed.fields[embed.fields.length-1]];
+
         embed.fields[2].value = signups.length.toString();
-        
-        // TODO: update member names
-        
+
+        let fieldIndex = 3;
+        let currentCount = 0;
+
+        for(const player of signups) {
+          const member = guild.members.cache.find(m => m.id === player.userId);
+          let name = member.nickname;
+          if (name === undefined || name === null) {
+            name = member.user.username;
+          }
+          if (currentCount < 20) {
+            if (currentCount === 0) {
+              embed.fields.splice(fieldIndex, 0, {
+                name: 'Members',
+                value: name,
+                inline: false,
+              });
+            } else {
+              embed.fields[fieldIndex].value += "\n" + name;
+            }
+            currentCount++;
+          } else {
+            currentCount = 0;
+            fieldIndex++;
+            embed.fields.splice(fieldIndex, 0, {
+              name: '\u200b',
+              value: name,
+              inline: true,
+            });
+          }
+        }
         msg.edit({embeds: [embed], components: msg.components});
       } catch (err) {}
     } catch (err) {}
@@ -72,9 +100,9 @@ export default class SignupCommand extends CommandInteractionHandle {
     super(
       'signup',
       ()=>global.languageHandler.language.commands.signup.description,
-      'signup #announcements "Everfall Push" 14.10.2021 12:00 "Sign up for Everfall Push" true',
+      'signup #announcements "CTA" 14.10.2021 12:00 "Sign Up for the upcoming CTA" true',
       'Moderation',
-      'signup <#channel> <eventName> <date> <CET/CEST Time> <Description>',
+      'signup <#channel> <eventName> <date> <UTC Time> <Description>',
       commandOptions,
       true
     );
@@ -84,8 +112,10 @@ export default class SignupCommand extends CommandInteractionHandle {
     try {
       await super.handle(interaction);
     } catch(err) {
+      console.error(err);
       return;
     }
+
     const channel = interaction.options.getChannel('channel') as TextChannel;
     const eventName = interaction.options.getString('event_name');
     const eventDate = interaction.options.getString('event_date');
@@ -93,7 +123,6 @@ export default class SignupCommand extends CommandInteractionHandle {
     const eventDesc = interaction.options.getString('event_description');
     const eventIsCta = interaction.options.getBoolean('event_is_cta', false);
     let eventTimestamp: number;
-    let [dateString, timeString]: string[] = [ undefined, undefined];
     try {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
@@ -129,6 +158,7 @@ export default class SignupCommand extends CommandInteractionHandle {
         description: languageHandler.replaceArgs(languageHandler.language.commands.signup.error.eventDesc, [eventName, eventDate + ' ' + eventTime, config.botPrefix]),
         color: 0xcc0000,
       }));
+      return;
     }
 
     // Create two Buttons for the signup message
@@ -151,22 +181,18 @@ export default class SignupCommand extends CommandInteractionHandle {
     const categories: {title: string, text?: string, inline?: boolean}[]  = [
       {
         title: 'Date',
-        text: dateString,
+        text: eventDate,
         inline: true,
       },
       {
         title: 'Time',
-        text: timeString,
+        text: eventTime+ " UTC",
         inline: true,
       },
       {
         title: 'Sign ups',
         text: '0',
         inline: true,
-      },
-      {
-        title: "",
-        text:  '',
       },
       {
         title: 'Unavailable',
