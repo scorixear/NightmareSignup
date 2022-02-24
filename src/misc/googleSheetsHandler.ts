@@ -1,4 +1,7 @@
 import {Auth, google, sheets_v4} from 'googleapis';
+import { BMSettings } from '../model/BMSettings';
+import { GlobalRole } from '../model/GlobalRole';
+import { Role } from '../model/Role';
 export default class GoogleSheetsHandler {
   private googleSheetsInstance: sheets_v4.Sheets;
 
@@ -22,7 +25,7 @@ export default class GoogleSheetsHandler {
    * @param range
    * @return
    */
-  public async retrieveData() {
+  private async retrieveData() {
     const readData = await this.googleSheetsInstance.spreadsheets.values.get( {
       spreadsheetId: process.env.GOOGLESHEETSID,
       range: "A2:J",
@@ -30,4 +33,44 @@ export default class GoogleSheetsHandler {
     return readData.data;
   }
 
+  public async retrieveCompositionData() {
+    const data = await this.retrieveData();
+    const rolesData = data.values[0]
+    const required = data.values[1];
+    const maximum = data.values[2];
+    const globalRoleAssignment = data.values[3];
+    const globalRolesData = data.values[4];
+    const globalRequired = data.values[5];
+    const globalFillUpPosition = data.values[6];
+    const bmPerParty = data.values[7][0];
+    const bmEveryParty = data.values[8][0];
+    const minimumBms = data.values[9][0];
+    const roles: Role[] = [];
+    const globalRoles: GlobalRole[] = [];
+    const bmSettings: BMSettings = { 
+      BmPerParty: bmPerParty, 
+      BmEveryParty: bmEveryParty, 
+      Minimum: minimumBms
+    };
+    globalRolesData.forEach((value, index) => {
+      globalRoles.push({
+        Name: value,
+        Required: globalRequired[index],
+        FillUpOrder: globalFillUpPosition[index]
+      });
+    });
+    rolesData.forEach((value, index) => {
+      roles.push({
+        DiscordRole: value,
+        Required: required[index],
+        Maximum: maximum[index],
+        GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index])
+      });
+    });
+    return {
+      Roles: roles,
+      GlobalRoles: globalRoles,
+      BmSettings: bmSettings
+    };
+  }
 }
