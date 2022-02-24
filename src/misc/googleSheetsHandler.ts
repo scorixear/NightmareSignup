@@ -25,46 +25,47 @@ export default class GoogleSheetsHandler {
    * @param range
    * @return
    */
-  private async retrieveData() {
+  private async retrieveData(rangeIndex: string) {
     const readData = await this.googleSheetsInstance.spreadsheets.values.get( {
       spreadsheetId: process.env.GOOGLESHEETSID,
-      range: "A2:J",
+      range: rangeIndex,
     });
     return readData.data;
   }
 
   public async retrieveCompositionData() {
-    const data = await this.retrieveData();
-    const rolesData = data.values[0]
-    const required = data.values[1];
-    const maximum = data.values[2];
-    const globalRoleAssignment = data.values[3];
-    const globalRolesData = data.values[4];
-    const globalRequired = data.values[5];
-    const globalFillUpPosition = data.values[6];
-    const bmPerParty = data.values[7][0];
-    const bmEveryParty = data.values[8][0];
-    const minimumBms = data.values[9][0];
+    const rolesData = (await this.retrieveData("A2:A")).values;
+    const required = (await this.retrieveData("B2:B")).values;
+    const maximum = (await this.retrieveData("C2:C")).values;
+    const globalRoleAssignment = (await this.retrieveData("D2:D")).values;
+    const globalRolesData = (await this.retrieveData("E2:E")).values;
+    const globalRequired = (await this.retrieveData("F2:F")).values;
+    const globalFillUpPosition = (await this.retrieveData("G2:G")).values;
+    const bmData = await this.retrieveData("H2:J2");
+    const bmPerParty = bmData.values[0][0];
+    const bmEveryParty = bmData.values[0][1];
+    const minimumBms = bmData.values[0][2];
     const roles: Role[] = [];
     const globalRoles: GlobalRole[] = [];
-    const bmSettings: BMSettings = { 
-      BmPerParty: bmPerParty, 
-      BmEveryParty: bmEveryParty, 
+    const bmSettings: BMSettings = {
+      BmPerParty: bmPerParty,
+      BmEveryParty: bmEveryParty,
       Minimum: minimumBms
     };
+
     globalRolesData.forEach((value, index) => {
       globalRoles.push({
-        Name: value,
-        Required: globalRequired[index],
-        FillUpOrder: globalFillUpPosition[index]
+        Name: value[0],
+        Required: globalRequired[index][0],
+        FillUpOrder: globalFillUpPosition[index][0]
       });
     });
     rolesData.forEach((value, index) => {
       roles.push({
-        DiscordRole: value,
-        Required: required[index],
-        Maximum: maximum[index],
-        GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index])
+        DiscordRole: value[0],
+        Required: required[index]?required[index][0]:undefined,
+        Maximum: maximum[index]?maximum[index][0]:undefined,
+        GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index][0])
       });
     });
     return {
