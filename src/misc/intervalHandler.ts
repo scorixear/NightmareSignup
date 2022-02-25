@@ -1,5 +1,7 @@
 import { MessageActionRow, MessageButton, TextChannel } from "discord.js";
 import dateHandler from "./dateHandler";
+import messageHandler from "./messageHandler";
+import PartyHandler from "./partyHandler";
 import SqlHandler from "./sqlHandler";
 
 declare const sqlHandler: SqlHandler;
@@ -10,13 +12,14 @@ export class IntervalHandlers {
       const now: Date = new Date();
       await this.handleMessageDeletion(now);
       await this.handleButtonRemoval(now);
+      await this.handlePartyPost(now);
     }, 1000*60);
   }
 
   private static async handleMessageDeletion(now: Date) {
     const date = new Date(now.getTime());
     date.setHours(date.getHours() - 1);
-    const events: number[] = await sqlHandler.findDeleteEvents(dateHandler.getUTCTimestampFromDate(date).toString());
+    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCTimestampFromDate(date).toString(), false, true, undefined);
     for (const event of events) {
       const msg = await this.getMessageForEvent(event);
       if(msg) {
@@ -27,12 +30,12 @@ export class IntervalHandlers {
           console.error(`Couldn't delete message for event ${event}`, err);
         }
       }
-      sqlHandler.closeEvent(event);
+      sqlHandler.updateEventFlags(event, true, undefined, undefined);
     }
   }
 
   private static async handleButtonRemoval(now: Date) {
-    const events: number[] = await sqlHandler.findDeleteEvents(dateHandler.getUTCTimestampFromDate(now).toString());
+    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCTimestampFromDate(now).toString(), false, false, undefined);
     for(const event of events) {
       const msg = await this.getMessageForEvent(event);
       if(msg) {
@@ -53,6 +56,36 @@ export class IntervalHandlers {
           continue;
         }
       }
+    }
+  }
+
+  private static async handlePartyPost(now: Date) {
+    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCStringFromDate(now).toString(), false, false, undefined);
+
+    if (events.length > 0) {
+      await PartyHandler.updateComposition();
+    }
+    for(const event of events) {
+      const msg = await this.getMessageForEvent(event);
+      if(msg) {
+        try {
+          const partyCategories = await PartyHandler.getCategories(event);
+          if(partyCategories) {
+            msg.reply(await messageHandler.getRichTextExplicitDefault({
+              guild: msg.guild,
+              author: msg.author,
+              title: languageHandler.language.handlers.party.title,
+              description: languageHandler.language.handlers.party.description,
+              categories: partyCategories
+            }));
+          } else {
+            console.log('Couldn\'t create parties for event '+event);
+          }
+        } catch {
+          console.log('Couldn\'t send party message');
+        }
+      }
+      sqlHandler.updateEventFlags(event, undefined, true, undefined);
     }
   }
 

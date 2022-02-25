@@ -24,7 +24,7 @@ export default class SqlHandler {
       conn = await this.pool.getConnection();
       console.log('DB Connection established');
       await conn.query('CREATE TABLE IF NOT EXISTS `signup` (`event` INT, `userid` VARCHAR(255), `date` BIGINT, PRIMARY KEY (`event`,`userid`))');
-      await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_formed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
       await conn.query('CREATE TABLE IF NOT EXISTS `discordEventMessages` (`eventId` INT, `messageId` VARCHAR(255), `channelId` VARCHAR(255), `guildId` VARCHAR(255), PRIMARY KEY(`eventId`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `unavailable` (`eventId` INT, `userId` VARCHAR(255), PRIMARY KEY (`eventId`,`userId`))');
     } catch (error) {
@@ -171,12 +171,13 @@ export default class SqlHandler {
     return returnValue;
   }
 
-  public async findDeleteEvents(timestamp: string) {
+  public async findEvents(timestamp: string, isClosed: boolean, isFormed: boolean, isCta: boolean) {
     let conn;
     let returnValue: number[] = [];
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT id FROM events WHERE date < ${conn.escape(timestamp)} AND is_closed = 0`);
+
+      const rows = await conn.query(`SELECT id FROM events WHERE date < ${conn.escape(timestamp)}${isClosed !== undefined?` AND is_closed = ${isClosed?"1":"0"}`:""}${isFormed !== undefined?` AND is_formed = ${isFormed?1:0}`:""}${isCta!==undefined?` AND is_cta = ${isCta?1:0}`:""}`);
       if (rows) {
         for (const row of rows) {
           returnValue.push(row.id);
@@ -191,12 +192,20 @@ export default class SqlHandler {
     return returnValue;
   }
 
-  public async closeEvent(eventId: number) {
+  public async updateEventFlags(eventId: number, isClosed: boolean, isFormed: boolean, isCta: boolean) {
     let conn;
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`UPDATE events SET is_closed = 1 WHERE id = ${conn.escape(eventId)}`);
+      if(isClosed !== undefined) {
+        await conn.query(`UPDATE events SET is_closed = ${isClosed?"1":"0"} WHERE id = ${conn.escape(eventId)}`);
+      }
+      if(isFormed !== undefined) {
+        await conn.query(`UPDATE events SET is_formed = ${isFormed?"1":"0"} WHERE id = ${conn.escape(eventId)}`);
+      }
+      if(isCta !== undefined) {
+        await conn.query(`UPDATE events SET is_cta = ${isCta?"1":"0"} WHERE id = ${conn.escape(eventId)}`);
+      }
       returnValue = true;
     } catch (err) {
       returnValue = false;
@@ -225,6 +234,24 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = [];
+      console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async isCtaEvent(eventId: number) {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT is_cta FROM events WHERE id = ${conn.escape(eventId)}`);
+      if(rows && rows[0]) {
+        returnValue = rows[0].is_cta === 1;
+      }
+    } catch (err) {
+      returnValue = false;
       console.error(err);
     } finally {
       if (conn) await conn.end();

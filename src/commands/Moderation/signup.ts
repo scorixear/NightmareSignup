@@ -96,7 +96,7 @@ export default class SignupCommand extends CommandInteractionHandle {
     commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(languageHandler.language.commands.signup.options.event_date).setRequired(true));
     commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(languageHandler.language.commands.signup.options.event_time).setRequired(true));
     commandOptions.push(new SlashCommandStringOption().setName('event_description').setDescription(languageHandler.language.commands.signup.options.event_desc).setRequired(true));
-    commandOptions.push(new SlashCommandBooleanOption().setName('event_is_cta').setDescription(languageHandler.language.commands.signup.options.event_is_cta).setRequired(false));
+    commandOptions.push(new SlashCommandBooleanOption().setName('event_is_cta').setDescription(languageHandler.language.commands.signup.options.event_is_cta).setRequired(true));
     super(
       'signup',
       ()=>global.languageHandler.language.commands.signup.description,

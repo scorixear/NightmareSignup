@@ -62,10 +62,12 @@ export default class GoogleSheetsHandler {
     });
     rolesData.forEach((value, index) => {
       roles.push({
-        DiscordRole: value[0],
+        RoleName: value[0],
         Required: required[index]?required[index][0]:undefined,
         Maximum: maximum[index]?maximum[index][0]:undefined,
-        GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index][0])
+        GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index][0]),
+        DiscordRole: undefined,
+        PriorityRole: undefined,
       });
     });
     return {

@@ -111,6 +111,11 @@
     },
     "permissions": {
       "error": "Invalid permissions to use `$0$1`!"
+    },
+    "party": {
+      "title": "Party Setup",
+      "description": "This is the Party Setup for the Event I have replied to.",
+      "partyTitle": "Party #$0"
     }
   },
   "messages": {

@@ -11,6 +11,7 @@ import SignupCommand from '../commands/Moderation/signup';
 import Help from '../commands/Misc/help';
 import signup from '../interactions/signup';
 import TwoWayMap from './../model/TwoWayMap';
+import FormParties from '../commands/Moderation/formParties';
 
 
 export default class InteractionHandler {
@@ -28,6 +29,7 @@ export default class InteractionHandler {
       new SignupCommand(),
       new Deletesignup(),
       new Unavailable(),
+      new FormParties(),
       help,
     ];
     help.init(this.commandInteractions);
