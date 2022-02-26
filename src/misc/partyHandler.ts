@@ -90,7 +90,16 @@ export default class PartyHandler {
             if (!user) {
               break;
             }
+            missingPlayers--;
           }
+      }
+      for(const globalRole of PartyHandler.GlobalRoles) {
+        while(missingPlayers > 0 && discordUsers.length > 0) {
+          const user = this.addUserToParty(discordUsers, parties[i], globalRole);
+          if(!user) {
+            break;
+          }
+        }
       }
       missingPlayers = 20;
     }
