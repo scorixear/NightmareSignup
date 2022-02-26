@@ -66,9 +66,9 @@ class SignupEvent extends ButtonInteractionHandle {
       if (success) {
         if(await sqlHandler.isUnavailable(event, userId)) {
           await sqlHandler.removeUnavailable(event, userId);
-          updateUnavailable(event, false);
+          await updateUnavailable(event, false);
         }
-        updateSignupMessage(event);
+        await updateSignupMessage(event);
         try {
           channel.send(await messageHandler.getRichTextExplicitDefault({
             guild: interaction.guild,

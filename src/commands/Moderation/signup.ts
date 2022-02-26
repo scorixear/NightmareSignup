@@ -36,7 +36,7 @@ declare const interactionHandler: InteractionHandler;
         let currentCount = 0;
 
         for(const player of signups) {
-          const member = guild.members.cache.find(m => m.id === player.userId);
+          const member = await guild.members.fetch(player.userId);
           let name = member.nickname;
           if (name === undefined || name === null) {
             name = member.user.username;

@@ -130,13 +130,19 @@ export default class PartyHandler {
     // find user of list
     for(const user of discordUsers) {
       // map user Roles (DiscordRoles) to BotRoles and filter only BotRoles that have the chorrect global role
-      const roles = user.roles.map(r => PartyHandler.Roles.find(pr => pr.PriorityRole === r)).filter(r=>r.GlobalRole === globalRole);
+      const roles: Role[] = [];
+      for(const role of user.roles) {
+        const partyRole = PartyHandler.Roles.find(pr => pr.PriorityRole === role);
+        if(partyRole && partyRole.GlobalRole === globalRole) {
+          roles.push(partyRole);
+        }
+      }
       // if no role found for priority, foundRole will be undefined
       // if roles are found that are priority and fit to GlobalRole
       let foundRole;
       for(const role of roles) {
         // get first BotRole that does not exceed maximum role cound (both Priority and DiscordRole)
-        if(role.Maximum > party.filter(p=>p.role===role.PriorityRole || p.role===role.DiscordRole).length) {
+        if(!role.Maximum || role.Maximum > party.filter(p=>p.role===role.PriorityRole || p.role===role.DiscordRole).length) {
           foundRole = role;
           break;
         }
@@ -155,10 +161,16 @@ export default class PartyHandler {
     if(!foundUser) {
       i=0;
       for(const user of discordUsers) {
-        const roles = user.roles.map(r=>PartyHandler.Roles.find(pr => pr.DiscordRole === r)).filter(r=>r.GlobalRole===globalRole);
+        const roles: Role[] = [];
+        for(const role of user.roles) {
+          const partyRole = PartyHandler.Roles.find(pr => pr.DiscordRole === role);
+          if(partyRole && partyRole.GlobalRole === globalRole) {
+            roles.push(partyRole);
+          }
+        }
         let foundRole;
         for(const role of roles) {
-          if(role.Maximum > party.filter(p=>p.role === role.PriorityRole || p.role === role.DiscordRole).length)
+          if(!role.Maximum || role.Maximum > party.filter(p=>p.role === role.PriorityRole || p.role === role.DiscordRole).length)
           {
             foundRole = role;
             break;
