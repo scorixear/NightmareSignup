@@ -102,7 +102,7 @@ export default class SignupCommand extends CommandInteractionHandle {
       ()=>global.languageHandler.language.commands.signup.description,
       'signup #announcements "CTA" 14.10.2021 12:00 "Sign Up for the upcoming CTA" true',
       'Moderation',
-      'signup <#channel> <eventName> <date> <UTC Time> <Description>',
+      'signup <#channel> <eventName> <date> <UTC Time> <Description> <isCta>',
       commandOptions,
       true
     );
@@ -121,7 +121,7 @@ export default class SignupCommand extends CommandInteractionHandle {
     const eventDate = interaction.options.getString('event_date');
     const eventTime = interaction.options.getString('event_time');
     const eventDesc = interaction.options.getString('event_description');
-    const eventIsCta = interaction.options.getBoolean('event_is_cta', false);
+    const eventIsCta = interaction.options.getBoolean('event_is_cta');
     let eventTimestamp: number;
     try {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);

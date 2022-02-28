@@ -117,7 +117,7 @@ export default class SqlHandler {
     let returnValue = -1;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO events (name, date, is_cta) VALUES (${conn.escape(eventName)}, ${conn.escape(eventDate)}, ${conn.escape(isCta?"1":"0")})`);
+      await conn.query(`INSERT INTO events (name, date, is_cta) VALUES (${conn.escape(eventName)}, ${conn.escape(eventDate)}, ${isCta?"1":"0"})`);
       const rows = await conn.query(`SELECT id FROM events WHERE name = ${conn.escape(eventName)} AND date = ${conn.escape(eventDate)}`);
       if (rows && rows[0]) {
         returnValue = rows[0].id;
@@ -177,7 +177,7 @@ export default class SqlHandler {
     try {
       conn = await this.pool.getConnection();
 
-      const rows = await conn.query(`SELECT id FROM events WHERE date < ${conn.escape(timestamp)}${isClosed !== undefined?` AND is_closed = ${isClosed?"1":"0"}`:""}${isFormed !== undefined?` AND is_formed = ${isFormed?1:0}`:""}${isCta!==undefined?` AND is_cta = ${isCta?1:0}`:""}`);
+      const rows = await conn.query(`SELECT id FROM events WHERE date < ${conn.escape(timestamp)}${isClosed !== undefined?` AND is_closed = ${isClosed?"1":"0"}`:""}${isFormed !== undefined?` AND is_formed = ${isFormed?"1":"0"}`:""}${isCta!==undefined?` AND is_cta = ${isCta?"1":"0"}`:""}`);
       if (rows) {
         for (const row of rows) {
           returnValue.push(row.id);

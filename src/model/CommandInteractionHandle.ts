@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, SlashCommandChannelOption, SlashCommandStringOption } from "@discordjs/builders";
+import { SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandChannelOption, SlashCommandStringOption } from "@discordjs/builders";
 import { CommandInteraction, GuildMember, GuildMemberRoleManager, Role } from "discord.js";
 
 abstract class CommandInteractionHandle {
@@ -25,6 +25,10 @@ abstract class CommandInteractionHandle {
         this.slashCommandBuilder.addChannelOption(option);
       } else if(option instanceof SlashCommandStringOption) {
         this.slashCommandBuilder.addStringOption(option);
+      } else if(option instanceof SlashCommandBooleanOption) {
+        this.slashCommandBuilder.addBooleanOption(option);
+      } else {
+        throw new Error("Not supported SlashCommand Option");
       }
     }
   }
