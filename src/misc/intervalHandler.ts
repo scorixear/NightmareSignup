@@ -60,7 +60,7 @@ export class IntervalHandlers {
   }
 
   private static async handlePartyPost(now: Date) {
-    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCStringFromDate(now).toString(), false, false, undefined);
+    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCTimestampFromDate(now).toString(), false, false, undefined);
 
     if (events.length > 0) {
       await PartyHandler.updateComposition();
