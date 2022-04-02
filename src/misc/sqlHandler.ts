@@ -45,7 +45,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -65,7 +65,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue=false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -85,7 +85,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue=false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -105,7 +105,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = [];
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -124,7 +124,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = -1;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -146,7 +146,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -164,7 +164,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = undefined;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -185,7 +185,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = [];
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -209,7 +209,7 @@ export default class SqlHandler {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -234,7 +234,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = [];
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -248,11 +248,11 @@ export default class SqlHandler {
       conn = await this.pool.getConnection();
       const rows = await conn.query(`SELECT is_cta FROM events WHERE id = ${conn.escape(eventId)}`);
       if(rows && rows[0]) {
-        returnValue = rows[0].is_cta === 1;
+        returnValue = rows[0].is_cta[0] === 1;
       }
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -268,7 +268,7 @@ export default class SqlHandler {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -290,7 +290,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = {};
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -306,7 +306,7 @@ export default class SqlHandler {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -324,7 +324,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -340,7 +340,7 @@ export default class SqlHandler {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -356,7 +356,7 @@ export default class SqlHandler {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
@@ -376,7 +376,7 @@ export default class SqlHandler {
       }
     } catch (err) {
       returnValue = [];
-      console.error(err);
+      // console.error(err);
     } finally {
       if (conn) await conn.end();
     }
