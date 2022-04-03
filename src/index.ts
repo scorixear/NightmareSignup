@@ -6,16 +6,19 @@ import { LanguageHandler } from './misc/languageHandler';
 import { IntervalHandlers } from './misc/intervalHandler';
 import GoogleSheetsHandler from './misc/googleSheetsHandler';
 import { DefaultMariaDB } from './interfaces/IMariaDb';
+import { IGoogleSheetsHandler } from './interfaces/IGoogleSheetsHandler';
+import { ISqlHandler} from './interfaces/ISqlHandler';
+import { IDiscordHandler } from './interfaces/IDiscordHandler';
 
 // initialize configuration
 dotenv.config();
 
 declare global {
-  var discordHandler: DiscordHandler;
-  var sqlHandler: SqlHandler;
+  var discordHandler: IDiscordHandler;
+  var sqlHandler: ISqlHandler;
   var languageHandler: LanguageHandler;
   var interactionHandler: InteractionHandler;
-  var googleSheetsHandler: GoogleSheetsHandler;
+  var googleSheetsHandler: IGoogleSheetsHandler;
 }
 global.languageHandler = new LanguageHandler();
 global.interactionHandler = new InteractionHandler();
@@ -24,7 +27,7 @@ global.sqlHandler = new SqlHandler(new DefaultMariaDB());
 global.googleSheetsHandler = new GoogleSheetsHandler();
 
 
-discordHandler.client.on('interactionCreate', (interaction)=> global.interactionHandler.handle(interaction));
+discordHandler.on('interactionCreate', (interaction)=> global.interactionHandler.handle(interaction));
 
 
 
@@ -36,7 +39,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 sqlHandler.initDB().then(async () => {
-  await discordHandler.client.login(process.env.DISCORD_TOKEN);
+  await discordHandler.login(process.env.DISCORD_TOKEN);
   await interactionHandler.Init();
   console.log('N1ghtmare Signup Bot live!')
 

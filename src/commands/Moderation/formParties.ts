@@ -61,7 +61,7 @@ export default class FormParties extends CommandInteractionHandle {
     if(eventId) {
       const messageEvent = await sqlHandler.getDiscordMessage(eventId);
       try {
-        const guild = discordHandler.client.guilds.cache.get(messageEvent.guildId);
+        const guild = await discordHandler.fetchGuild(messageEvent.guildId);
         try {
           const channel = await guild.channels.fetch(messageEvent.channelId) as TextChannel;
           try {

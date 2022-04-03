@@ -1,6 +1,7 @@
 import { IMariaDB, IPool} from '../interfaces/IMariaDb';
+import { ISqlHandler } from '../interfaces/ISqlHandler';
 
-export default class SqlHandler {
+export default class SqlHandler implements ISqlHandler {
   private pool: IPool;
   constructor(mariadb: IMariaDB) {
     this.pool = mariadb.createPool({

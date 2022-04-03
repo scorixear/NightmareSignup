@@ -96,7 +96,7 @@ export class IntervalHandlers {
 
   private static async getDiscordMessage(eventId: number, messageId: string, channelId: string, guildId: string) {
     try {
-      const guild = discordHandler.client.guilds.cache.get(guildId);
+      const guild = await discordHandler.fetchGuild(guildId);
       try {
         const channel: TextChannel = (await guild.channels.fetch(channelId)) as TextChannel;
         try {

@@ -2,7 +2,8 @@ import {Auth, google, sheets_v4} from 'googleapis';
 import { BMSettings } from '../model/BMSettings';
 import { GlobalRole } from '../model/GlobalRole';
 import { Role } from '../model/Role';
-export default class GoogleSheetsHandler {
+import { IGoogleSheetsHandler } from '../interfaces/IGoogleSheetsHandler';
+export default class GoogleSheetsHandler implements IGoogleSheetsHandler {
   private googleSheetsInstance: sheets_v4.Sheets;
 
   constructor() {

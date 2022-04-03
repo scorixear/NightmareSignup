@@ -21,7 +21,7 @@ declare const interactionHandler: InteractionHandler;
  export async function updateSignupMessage(eventId: number) {
   const eventMessage = await global.sqlHandler.getDiscordMessage(eventId);
   try {
-    const guild = global.discordHandler.client.guilds.cache.get(eventMessage.guildId);
+    const guild = await global.discordHandler.fetchGuild(eventMessage.guildId);
     try {
       const channel = await guild.channels.fetch(eventMessage.channelId) as TextChannel;
       try {
@@ -71,7 +71,7 @@ declare const interactionHandler: InteractionHandler;
 export async function updateUnavailable(eventId: number, isUnavailable: boolean) {
   const eventMessage = await global.sqlHandler.getDiscordMessage(eventId);
   try {
-    const guild = global.discordHandler.client.guilds.cache.get(eventMessage.guildId);
+    const guild = await global.discordHandler.fetchGuild(eventMessage.guildId);
     try {
       const channel = await guild.channels.fetch(eventMessage.channelId) as TextChannel;
       try {

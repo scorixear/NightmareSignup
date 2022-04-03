@@ -39,10 +39,10 @@ export default class InteractionHandler {
     const commands = this.commandInteractions.map(command => command.slashCommandBuilder.toJSON());
     const rest = new REST( {version: '9'}).setToken(process.env.DISCORD_TOKEN);
 
-    global.discordHandler.client.guilds.cache.forEach(async guild=> {
+    global.discordHandler.getGuilds().forEach(async guild=> {
       await rest.put(Routes.applicationGuildCommands(process.env.CLIENTID, guild.id), {body: commands})
       console.log('Successfully registered application commands for guild', guild.id);
-      const guildRoles = await guild.roles.fetch();
+      const guildRoles = await global.discordHandler.getRolesOfGuild(guild);
       const guildCommands = await guild.commands.fetch();
       const signupRoles = guildRoles.filter(role => config.signupRoles.includes(role.name));
       const permissionsObject: ApplicationCommandPermissionData[] = [];
@@ -56,7 +56,7 @@ export default class InteractionHandler {
           const applicationCommand = guildCommands.find(appCommand => appCommand.name === interaction.command);
           applicationCommand.permissions.set({
             permissions: permissionsObject,
-          })
+          });
         }
       })
     });

@@ -17,27 +17,25 @@ export default class PartyHandler {
     PartyHandler.GlobalRoles.sort((a, b) => a.FillUpOrder - b.FillUpOrder);
     PartyHandler.BmSettings = result.BmSettings;
 
-    const guild = discordHandler.client.guilds.cache.first();
+    const guild = discordHandler.getFirstGuild();
     if(guild) {
-      const roles = await guild.roles.fetch();
+      const roles = await discordHandler.getRolesOfGuild(guild);
       for (const role of PartyHandler.Roles) {
         role.DiscordRole = roles.find((value, key) => value.name === role.RoleName);
         role.PriorityRole = roles.find((value, key) => value.name === "FullSpec "+role.RoleName);
       }
     }
-
-
   }
 
   public static async getCategories(event: number) {
     const users = await sqlHandler.getSignups(event);
-    const guild = await discordHandler.client.guilds.fetch((await sqlHandler.getDiscordMessage(event)).guildId);
+    const guild = await discordHandler.fetchGuild((await sqlHandler.getDiscordMessage(event)).guildId);
     if (!guild) {
       return undefined;
     }
     const discordUsers: { member: GuildMember, date: number, roles: DiscordRole[] }[] = [];
     for (const user of users) {
-      const member = await guild.members.fetch(user.userId);
+      const member = await discordHandler.fetchMember(user.userId, guild);
       if (member) {
         discordUsers.push({ member, date: user.date, roles: member.roles.cache.map(r=>r) });
       }
