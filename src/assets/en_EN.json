@@ -76,7 +76,11 @@
       "add": {
         "description": "Adds a ZvZ Role to a Discord User",
         "title": "Role added",
-        "successdesc": "Successfully added `$1` to $0."
+        "successdesc": "Successfully added `$1` to $0.",
+        "error": {
+          "title": "Role already exists",
+          "description": "$0 has already the Role `$1`"
+        }
       },
       "check": {
         "description": "Returns Roles of a Discord User",
