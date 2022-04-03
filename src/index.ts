@@ -21,10 +21,11 @@ declare global {
   var googleSheetsHandler: IGoogleSheetsHandler;
 }
 global.languageHandler = new LanguageHandler();
-global.interactionHandler = new InteractionHandler();
+global.googleSheetsHandler = new GoogleSheetsHandler();
+global.interactionHandler = new InteractionHandler(global.googleSheetsHandler);
 global.discordHandler = new DiscordHandler();
 global.sqlHandler = new SqlHandler(new DefaultMariaDB());
-global.googleSheetsHandler = new GoogleSheetsHandler();
+
 
 
 discordHandler.on('interactionCreate', (interaction)=> global.interactionHandler.handle(interaction));

@@ -38,6 +38,9 @@ export default class Help extends CommandInteractionHandle {
       const commandHandle = this.commands.find((c: CommandInteractionHandle)=> command.startsWith(c.command));
       if (commandHandle) {
         let found: boolean = false;
+        if(member.user.id === process.env.OWNER_ID) {
+          found = true;
+        }
         for (const memberRole of memberRoles.values()) {
           if(config.signupRoles.find((signupRole: string) => signupRole === memberRole.name)) {
             found = true;
@@ -103,6 +106,9 @@ export default class Help extends CommandInteractionHandle {
     for(const cmd of this.commands) {
       let found: boolean = false;
       if(cmd.requirePermissions) {
+        if (member.user.id === process.env.OWNER_ID) {
+          found = true;
+        }
         for (const memberRole of memberRoles.values()) {
           if(config.signupRoles.find((signupRole: string) => signupRole === memberRole.name)) {
             found = true;

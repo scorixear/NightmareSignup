@@ -3,22 +3,22 @@ import { BMSettings } from '../model/BMSettings';
 import { GlobalRole } from '../model/GlobalRole';
 import { Role } from '../model/Role';
 import { IGoogleSheetsHandler } from '../interfaces/IGoogleSheetsHandler';
+import fs from 'fs';
+import readline from 'readline';
+import { OAuth2Client } from 'google-auth-library';
 export default class GoogleSheetsHandler implements IGoogleSheetsHandler {
   private googleSheetsInstance: sheets_v4.Sheets;
-
+  private TOKEN_PATH = "token.json";
+  private SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+  public Ready: Promise<any>;
   constructor() {
-    this.googleSheetsInstance = google.sheets('v4');
-    const auth: Auth.GoogleAuth = new google.auth.GoogleAuth({
-      keyFile: './src/assets/key.json',
-      // Scopes can be specified either as an array or as a single, space-delimited string.
-      scopes: 'https://www.googleapis.com/auth/spreadsheets',
-    });
-
-    // Acquire an auth client, and bind it to all future calls
-    auth.getClient().then((authClient)=> {
-      google.options({auth: authClient});
+    this.googleSheetsInstance = google.sheets({
+      version: 'v4',
+      auth: process.env.GOOGLESHEETSAPI
     });
   }
+
+
 
   /**
    *
@@ -64,11 +64,10 @@ export default class GoogleSheetsHandler implements IGoogleSheetsHandler {
     rolesData.forEach((value, index) => {
       roles.push({
         RoleName: value[0],
+        PriorityRole: "FullSpec "+value[0],
         Required: required[index]?required[index][0]:undefined,
         Maximum: maximum[index]?maximum[index][0]:undefined,
         GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index][0]),
-        DiscordRole: undefined,
-        PriorityRole: undefined,
       });
     });
     return {

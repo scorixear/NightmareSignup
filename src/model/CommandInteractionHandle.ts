@@ -1,4 +1,4 @@
-import { SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandChannelOption, SlashCommandStringOption } from "@discordjs/builders";
+import { SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandChannelOption, SlashCommandStringOption, SlashCommandUserOption } from "@discordjs/builders";
 import { CommandInteraction, GuildMember, GuildMemberRoleManager, Role } from "discord.js";
 
 abstract class CommandInteractionHandle {
@@ -9,6 +9,7 @@ abstract class CommandInteractionHandle {
   public usage: string;
   public id: Record<string, string>;
   public requirePermissions: boolean;
+  public Ready: Promise<any>;
 
   public slashCommandBuilder: SlashCommandBuilder;
 
@@ -27,6 +28,8 @@ abstract class CommandInteractionHandle {
         this.slashCommandBuilder.addStringOption(option);
       } else if(option instanceof SlashCommandBooleanOption) {
         this.slashCommandBuilder.addBooleanOption(option);
+      } else if(option instanceof SlashCommandUserOption) {
+        this.slashCommandBuilder.addUserOption(option);
       } else {
         throw new Error("Not supported SlashCommand Option");
       }
@@ -39,6 +42,9 @@ abstract class CommandInteractionHandle {
 
       if(applicationCommand) {
         const member = await (interaction.member as GuildMember).fetch();
+        if(member.user.id === process.env.OWNER_ID) {
+          return;
+        }
         const memberRoles = (member.roles as GuildMemberRoleManager).cache;
         let found: boolean = false;
         for(const memberRole of memberRoles.values()) {

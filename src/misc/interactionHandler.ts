@@ -12,12 +12,17 @@ import Help from '../commands/Misc/help';
 import signup from '../interactions/signup';
 import TwoWayMap from './../model/TwoWayMap';
 import FormParties from '../commands/Moderation/formParties';
+import AddRole from '../commands/RoleManagement/addRole';
+import CheckRoles from '../commands/RoleManagement/checkRoles';
+import ClearRoles from '../commands/RoleManagement/clearRoles';
+import RemoveRole from '../commands/RoleManagement/removeRole';
+import { IGoogleSheetsHandler } from '../interfaces/IGoogleSheetsHandler';
 
 
 export default class InteractionHandler {
   public buttonInteractions: TwoWayMap<string, ButtonInteractionHandle>;
   private commandInteractions: CommandInteractionHandle[];
-  constructor() {
+  constructor(googleSheetsHandler: IGoogleSheetsHandler) {
     this.buttonInteractions = new TwoWayMap(new Map([
       ['signup-1', new signup.SignupEvent('signup-1')],
       ['signout-1', new signup.SignoutEvent('signout-1')],
@@ -30,12 +35,21 @@ export default class InteractionHandler {
       new Deletesignup(),
       new Unavailable(),
       new FormParties(),
+      new AddRole(),
+      new CheckRoles(),
+      new ClearRoles(),
+      new RemoveRole(),
       help,
     ];
     help.init(this.commandInteractions);
   }
 
   public async Init() {
+    for(const interaction of this.commandInteractions) {
+      if (interaction.Ready) {
+        await interaction.Ready;
+      }
+    }
     const commands = this.commandInteractions.map(command => command.slashCommandBuilder.toJSON());
     const rest = new REST( {version: '9'}).setToken(process.env.DISCORD_TOKEN);
 

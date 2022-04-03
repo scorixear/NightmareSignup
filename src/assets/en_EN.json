@@ -67,7 +67,37 @@
       "success": {
         "title": "Unavailable Players"
       }
+    },
+    "roles": {
+      "options": {
+        "user": "Discord User",
+        "zvzrole": "ZvZ Role"
+      },
+      "add": {
+        "description": "Adds a ZvZ Role to a Discord User",
+        "title": "Role added",
+        "successdesc": "Successfully added `$1` to $0."
+      },
+      "check": {
+        "description": "Returns Roles of a Discord User",
+        "title": "Roles of $0"
+      },
+      "clear": {
+        "description": "Clears all ZvZ Roles of a Discord User",
+        "title": "Roles cleared",
+        "successdesc": "Successfully cleared $0 Roles."
+      },
+      "remove": {
+        "description": "Removes a ZvZ Role from a Discord User",
+        "title": "Role removed",
+        "successdesc": "Successfully removed `$1` from $0."
+      },
+      "error": {
+        "sql_title": "Internal Error",
+        "sql_desc": "Something went wrong. I could not communicate with the database."
+      }
     }
+
   },
   "interactions": {
     "signup": {
