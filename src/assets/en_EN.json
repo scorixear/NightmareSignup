@@ -79,7 +79,9 @@
         "successdesc": "Successfully added `$1` to $0.",
         "error": {
           "title": "Role already exists",
-          "description": "$0 has already the Role `$1`"
+          "description": "$0 has already the Role `$1`",
+          "role_title": "Role not found",
+          "role_desc": "The Role `$0` does not exist."
         }
       },
       "check": {

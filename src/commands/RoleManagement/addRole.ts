@@ -6,6 +6,7 @@ import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/bui
 import { LanguageHandler } from '../../misc/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
+import PartyHandler from '../../misc/partyHandler';
 
 declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
@@ -34,6 +35,34 @@ export default class AddRole extends CommandInteractionHandle {
     }
     const user = interaction.options.getUser('user');
     const zvzrole = interaction.options.getString('zvzrole');
+    const guild = interaction.guild;
+    const channel = interaction.channel;
+    const author = interaction.user;
+    if(!PartyHandler.Roles) {
+      await PartyHandler.updateComposition();
+    }
+    const found = PartyHandler.Roles.find(role => role.RoleName === zvzrole || role.PriorityRole === zvzrole);
+    if(!found) {
+      try {
+        await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+          guild: interaction.guild,
+          author: interaction.user,
+          title: languageHandler.language.commands.roles.add.error.role_title,
+          description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.role_desc, [zvzrole]),
+          color: 0xcc0000,
+        }));
+      } catch (err) {
+        await messageHandler.sendRichTextDefaultExplicit({
+          guild,
+          channel,
+          author,
+          title: languageHandler.language.commands.roles.add.error.role_title,
+          description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.role_desc, [zvzrole]),
+          color: 0xcc0000,
+        });
+      }
+      return;
+    }
     const added = await sqlHandler.addRole(user.id, zvzrole);
     if (added) {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
