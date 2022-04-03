@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { LanguageHandler } from './misc/languageHandler';
 import { IntervalHandlers } from './misc/intervalHandler';
 import GoogleSheetsHandler from './misc/googleSheetsHandler';
+import { DefaultMariaDB } from './interfaces/IMariaDb';
 
 // initialize configuration
 dotenv.config();
@@ -19,7 +20,7 @@ declare global {
 global.languageHandler = new LanguageHandler();
 global.interactionHandler = new InteractionHandler();
 global.discordHandler = new DiscordHandler();
-global.sqlHandler = new SqlHandler();
+global.sqlHandler = new SqlHandler(new DefaultMariaDB());
 global.googleSheetsHandler = new GoogleSheetsHandler();
 
 

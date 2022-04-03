@@ -2,6 +2,7 @@ import { time } from '@discordjs/builders';
 import {expect, assert} from 'chai';
 import SqlHandler from '../src/misc/SqlHandler';
 import dotenv from 'dotenv';
+import { TestMariaDB } from './TestMariaDb';
 
 describe('SqlInitTests', () => {
   before(()=> {
@@ -9,14 +10,14 @@ describe('SqlInitTests', () => {
   });
   it('create SqlHandler, connects to Mariadb', ()=> {
     try {
-      const sqlHandler = new SqlHandler();
+      const sqlHandler = new SqlHandler(new TestMariaDB());
     } catch (err) {
       assert.fail(err.message);
     }
   });
   it('init DB does not crash', async ()=>{
     try {
-      const sqlHandler = new SqlHandler();
+      const sqlHandler = new SqlHandler(new TestMariaDB());
       await sqlHandler.initDB();
     } catch (err) {
       assert.fail(err.message);
@@ -26,14 +27,22 @@ describe('SqlInitTests', () => {
 
 describe('SqlTests', ()=> {
   let sqlHandler: SqlHandler;
+  let mariadb: TestMariaDB;
+
   before(async () => {
     dotenv.config();
-    sqlHandler = new SqlHandler();
+    mariadb = new TestMariaDB();
+    sqlHandler = new SqlHandler(mariadb);
     await sqlHandler.initDB();
   });
   it('isSignedIn returns false with non-existent event', async ()=>{
     try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
+      // Act
       const result = await sqlHandler.isSignedIn(123456789, '123456789');
+      // Assert
       expect(result).to.equal(false);
     } catch (err) {
       assert.fail(err.message);
@@ -42,13 +51,12 @@ describe('SqlTests', ()=> {
   it('isSignedIn returns false with non-existent user', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.isSignedIn(id, '123456789');
+      const result = await sqlHandler.isSignedIn(123456789, '123456789');
       // Assert
       expect(result).to.equal(false);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -56,14 +64,12 @@ describe('SqlTests', ()=> {
   it('isSignedIn returns true with existing event and user', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
-      await sqlHandler.signIn(id, '0', 0);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{}]
       // Act
-      const result = await sqlHandler.isSignedIn(id, '0');
+      const result = await sqlHandler.isSignedIn(123456789, '0');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -71,12 +77,12 @@ describe('SqlTests', ()=> {
   it('signIn returns true if event is not existent', async() => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.signIn(123456789, '123456789', 0);
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.signOut(123456789, '123456789');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -84,13 +90,12 @@ describe('SqlTests', ()=> {
   it('signIn returns true with existing event', async() => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent1', '0', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.signIn(id, '0', 0);
+      const result = await sqlHandler.signIn(123456789, '0', 0);
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent1', '0');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -98,6 +103,8 @@ describe('SqlTests', ()=> {
   it('signOut returns false if event is not existent', async() => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.signOut(123456789, '123456789');
       // Assert
@@ -109,13 +116,12 @@ describe('SqlTests', ()=> {
   it('signOut returns false with not signed in user', async() => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent2', '0', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.signOut(id, '0');
+      const result = await sqlHandler.signOut(123456789, '0');
       // Assert
       expect(result).to.equal(false);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent2', '0');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -123,14 +129,12 @@ describe('SqlTests', ()=> {
   it('signOut returns true if user signed out', async() => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
-      await sqlHandler.signIn(id, '0', 0);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{}];
       // Act
-      const result = await sqlHandler.signOut(id, '0');
+      const result = await sqlHandler.signOut(123456789, '0');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -138,6 +142,8 @@ describe('SqlTests', ()=> {
   it('getSignups returns empty array if event not existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.getSignups(123456789);
       // Assert
@@ -149,16 +155,14 @@ describe('SqlTests', ()=> {
   it('getSignups returns array with one user', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
-      await sqlHandler.signIn(id, '0', 0);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{userid: '0', date: 0}];
       // Act
-      const result = await sqlHandler.getSignups(id);
+      const result = await sqlHandler.getSignups(123456789);
       // Assert
       expect(result).to.be.an('array').to.have.lengthOf(1);
       expect(result[0].userId).to.equal('0');
       expect(result[0].date).to.equal(0);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -166,12 +170,12 @@ describe('SqlTests', ()=> {
   it('createEvent creates Event', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
       const result = await sqlHandler.createEvent('TestEvent', '0', true);
       // Assert
-      expect(result).to.be.an('number').that.is.above(-1);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
+      expect(result).to.be.an('number').that.is.equal(0);
     } catch (err) {
       assert.fail(err.message);
     }
@@ -179,6 +183,8 @@ describe('SqlTests', ()=> {
   it('deleteEvent returns false if event is not existent', async() => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.deleteEvent('TestEvent', '0');
       // Assert
@@ -190,7 +196,8 @@ describe('SqlTests', ()=> {
   it('deleteEvent returns true if event exists', async() => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
       const result = await sqlHandler.deleteEvent('TestEvent', '0');
       // Assert
@@ -202,6 +209,8 @@ describe('SqlTests', ()=> {
   it('getEventId returns undefined if event not existent', async() => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.getEventId('TestEvent', '0');
       // Assert
@@ -213,13 +222,12 @@ describe('SqlTests', ()=> {
   it('getEventId returns number if event exists', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
       const result = await sqlHandler.getEventId('TestEvent', '0');
       // Assert
-      expect(result).to.be.a('number').that.is.equal(id);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
+      expect(result).to.be.a('number').that.is.equal(0);
     } catch (err) {
       assert.fail(err.message);
     }
@@ -227,6 +235,8 @@ describe('SqlTests', ()=> {
   it('findEvents returns empty array if no events after timestamp', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.findEvents('0', false, false, false);
       // Assert
@@ -239,70 +249,53 @@ describe('SqlTests', ()=> {
   it('findEvents returns one event if is not closed, not formed and not cta', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', false);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
       const result = await sqlHandler.findEvents('1', false, false, false);
       // Assert
       const c = expect(result).to.be.an('array').to.not.be.empty;
-      expect(result[0]).to.equal(id);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
+      expect(result[0]).to.equal(0);
     } catch (err) {
       assert.fail(err.message);
     }
   });
-  it('findEvents returns empty array if event is closed', async () => {
+  it('updateEventFlags returns true when called', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', false);
-      await sqlHandler.updateEventFlags(id, true, false, false);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.findEvents('1', false, false, false);
+      const result = await sqlHandler.updateEventFlags(0, true, true, true);
+      // Assert
+      expect(result).to.equal(true);
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('getEvents returns empty array if no event exists', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
+      // Act
+      const result = await sqlHandler.getEvents(false);
       // Assert
       expect(result).to.be.an('array').that.is.empty;
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
     } catch (err) {
       assert.fail(err.message);
     }
   });
-  it('findEvents returns one event if is closed, formed and cta', async () => {
+  it('getEvents returns one event if one event exists', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '0', true);
-      await sqlHandler.updateEventFlags(id, true, true, true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{name: 'TestEvent', date: 0}];
       // Act
-      const result = await sqlHandler.findEvents('1', true, true, true);
+      const result = await sqlHandler.getEvents(false);
       // Assert
-      expect(result).to.be.an('array').to.have.lengthOf(1);
-      expect(result[0]).to.equal(id);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '0');
-    } catch (err) {
-      assert.fail(err.message);
-    }
-  });
-  it('updateEventFlags returns true if event not existent', async () => {
-    try {
-      // Arrange
-      // Act
-      const result = await sqlHandler.updateEventFlags(999999999, true, true, true);
-      // Assert
-      expect(result).to.equal(true);
-    } catch (err) {
-      assert.fail(err.message);
-    }
-  });
-  it('updateEventFlags returns true if event exists', async () => {
-    try {
-      // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
-      // Act
-      const result = await sqlHandler.updateEventFlags(id, true, true, true);
-      // Assert
-      expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
+      expect(result).to.be.an('array').to.be.not.empty;
+      expect(result[0].name).to.equal('TestEvent');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -310,8 +303,10 @@ describe('SqlTests', ()=> {
   it('isCtaEvent returns false if event not existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.isCtaEvent(999999999);
+      const result = await sqlHandler.isCtaEvent(0);
       // Assert
       expect(result).to.equal(false);
     } catch (err) {
@@ -321,13 +316,12 @@ describe('SqlTests', ()=> {
   it('isCtaEvent returns false if event isCta is false', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', false);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{is_cta: [0]}];
       // Act
-      const result = await sqlHandler.isCtaEvent(id);
+      const result = await sqlHandler.isCtaEvent(0);
       // Assert
       expect(result).to.equal(false);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -335,13 +329,12 @@ describe('SqlTests', ()=> {
   it('isCtaEvent returns true if event isCta is true', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{is_cta: [1]}];
       // Act
-      const result = await sqlHandler.isCtaEvent(id);
+      const result = await sqlHandler.isCtaEvent(0);
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -349,12 +342,44 @@ describe('SqlTests', ()=> {
   it('createDiscordMessage creates Event', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
       const result = await sqlHandler.createDiscordMessage(123456789, '123456789','123456789', '123456789');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.removeDiscordMessage(123456789,'123456789', '123456789', '123456789');
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('getDiscordMessage returns empty object if discord message not existent', async() => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
+      // Act
+      const result = await sqlHandler.getDiscordMessage(123456789);
+      // Assert
+      expect(result).to.be.an('object');
+      expect(result.guildId).to.be.undefined;
+      expect(result.channelId).to.be.undefined;
+      expect(result.messageId).to.be.undefined;
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('getDiscordMessage return object if discord message exists', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{guildId: 0, channelId: 0, messageId: 0}];
+      // Act
+      const result = await sqlHandler.getDiscordMessage(123456789);
+      // Assert
+      expect(result).to.be.an('object')
+      expect(result.guildId).to.equal(0);
+      expect(result.channelId).to.equal(0);
+      expect(result.messageId).to.equal(0);
     } catch (err) {
       assert.fail(err.message);
     }
@@ -362,6 +387,8 @@ describe('SqlTests', ()=> {
   it('removeDiscordMessage returns true if event not existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
       const result = await sqlHandler.removeDiscordMessage(123456789, '123456789', '123456789', '123456789');
       // Assert
@@ -373,7 +400,8 @@ describe('SqlTests', ()=> {
   it('removeDiscordMessage returns true if event exists', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createDiscordMessage(123456789, '123456789', '123456789', '123456789');
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
       const result = await sqlHandler.removeDiscordMessage(123456789, '123456789', '123456789', '123456789');
       // Assert
@@ -385,8 +413,10 @@ describe('SqlTests', ()=> {
   it('isUnavailable returns false if event not existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.isUnavailable(999999999, '123456789');
+      const result = await sqlHandler.isUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(false);
     } catch (err) {
@@ -396,13 +426,12 @@ describe('SqlTests', ()=> {
   it('isUnavailable returns false if user not unavailable', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.isUnavailable(id, '123456789');
+      const result = await sqlHandler.isUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(false);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -410,14 +439,12 @@ describe('SqlTests', ()=> {
   it('isUnavailable returns true if user is unavailable', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
-      await sqlHandler.setUnavailable(id, '123456789');
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
-      const result = await sqlHandler.isUnavailable(id, '123456789');
+      const result = await sqlHandler.isUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -425,12 +452,12 @@ describe('SqlTests', ()=> {
   it('setUnavailable returns true if event no existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.setUnavailable(999999998, '123456789');
+      const result = await sqlHandler.setUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.removeUnavailable(999999998, '123456789');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -438,13 +465,12 @@ describe('SqlTests', ()=> {
   it('setUnavailable returns true if event exists', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
-      const result = await sqlHandler.setUnavailable(id, '123456789');
+      const result = await sqlHandler.setUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -452,24 +478,12 @@ describe('SqlTests', ()=> {
   it('removeUnavailable return true if event not existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.removeUnavailable(999999997, '123456789');
+      const result = await sqlHandler.removeUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(true);
-    } catch (err) {
-      assert.fail(err.message);
-    }
-  });
-  it('removeUnavailable returns true if user not unavailable', async () => {
-    try {
-      // Arrange
-      const id = await sqlHandler.createEvent('TestEvent3', '999999999', true);
-      // Act
-      const result = await sqlHandler.removeUnavailable(id, '123456789');
-      // Assert
-      expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent3', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -477,14 +491,12 @@ describe('SqlTests', ()=> {
   it('removeUnavailable returns true if user is unavailable', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
-      await sqlHandler.setUnavailable(id, '123456789');
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
       // Act
-      const result = await sqlHandler.removeUnavailable(id, '123456789');
+      const result = await sqlHandler.removeUnavailable(0, '123456789');
       // Assert
       expect(result).to.equal(true);
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -492,26 +504,13 @@ describe('SqlTests', ()=> {
   it('getUnavailables returns empty array if event not existent', async () => {
     try {
       // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
       // Act
-      const result = await sqlHandler.getUnavailables(999999999);
+      const result = await sqlHandler.getUnavailables(0);
       // Assert
       expect(result).to.be.an('array');
       expect(result).to.be.empty;
-    } catch (err) {
-      assert.fail(err.message);
-    }
-  });
-  it('getUnavailables returns empty array if no user unavailable', async () => {
-    try {
-      // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
-      // Act
-      const result = await sqlHandler.getUnavailables(id);
-      // Assert
-      expect(result).to.be.an('array');
-      expect(result).to.be.empty;
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
     } catch (err) {
       assert.fail(err.message);
     }
@@ -519,16 +518,14 @@ describe('SqlTests', ()=> {
   it('getUnavailable returns user if user is unavailable', async () => {
     try {
       // Arrange
-      const id = await sqlHandler.createEvent('TestEvent', '999999999', true);
-      await sqlHandler.setUnavailable(id, '123456789');
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{userId: '0'}];
       // Act
-      const result = await sqlHandler.getUnavailables(id);
+      const result = await sqlHandler.getUnavailables(0);
       // Assert
       expect(result).to.be.an('array');
       expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.equal('123456789');
-      // Teardown
-      await sqlHandler.deleteEvent('TestEvent', '999999999');
+      expect(result[0]).to.equal('0');
     } catch (err) {
       assert.fail(err.message);
     }

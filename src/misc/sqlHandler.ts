@@ -1,9 +1,8 @@
-import { ConnectionVisibility } from 'discord-api-types/v9';
-import mariadb from 'mariadb';
+import { IMariaDB, IPool} from '../interfaces/IMariaDb';
 
 export default class SqlHandler {
-  private pool: mariadb.Pool;
-  constructor() {
+  private pool: IPool;
+  constructor(mariadb: IMariaDB) {
     this.pool = mariadb.createPool({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
