@@ -530,4 +530,72 @@ describe('SqlTests', ()=> {
       assert.fail(err.message);
     }
   });
-})
+  it('addRole returns true after innsertion', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
+      // Act
+      const result = await sqlHandler.addRole('0', '123456789');
+      // Assert
+      expect(result).to.equal(true);
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('removeRole returns true after deletion', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
+      // Act
+      const result = await sqlHandler.removeRole('0', '123456789');
+      // Assert
+      expect(result).to.equal(true);
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('getRoles returns empty array if user not existent', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [];
+      // Act
+      const result = await sqlHandler.getRoles('0');
+      // Assert
+      expect(result).to.be.an('array');
+      expect(result).to.be.empty;
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('getRoles returns roles if user existent', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{role: '0'}];
+      // Act
+      const result = await sqlHandler.getRoles('0');
+      // Assert
+      expect(result).to.be.an('array');
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.equal('0');
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+  it('clearRoles returns true after deletion', async () => {
+    try {
+      // Arrange
+      mariadb.Pool.Connection.ThrowError = false;
+      mariadb.Pool.Connection.QueryReturn = [{id: 0}];
+      // Act
+      const result = await sqlHandler.clearRoles('0');
+      // Assert
+      expect(result).to.equal(true);
+    } catch (err) {
+      assert.fail(err.message);
+    }
+  });
+});

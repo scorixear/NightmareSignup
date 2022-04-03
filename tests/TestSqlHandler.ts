@@ -79,4 +79,20 @@ export class TestSqlHandler implements ISqlHandler {
   public getUnavailables(eventId: number) {
     return new Promise<string[]>((resolve)=>resolve(this.getUnavailablesReturn));
   }
+  public addRoleReturn: boolean;
+  public addRole(userId: string, roleId: string) {
+    return new Promise<boolean>((resolve)=>resolve(this.addRoleReturn));
+  }
+  public removeRoleReturn: boolean;
+  public removeRole(userId: string, roleId: string) {
+    return new Promise<boolean>((resolve)=>resolve(this.removeRoleReturn));
+  }
+  public getRolesReturn: string[];
+  public getRoles(userId: string) {
+    return new Promise<string[]>((resolve)=>resolve(this.getRolesReturn));
+  }
+  public clearRolesReturn: boolean;
+  public clearRoles(userId: string): Promise<boolean> {
+    return new Promise<boolean>((resolve)=>resolve(this.clearRolesReturn));
+  }
 }

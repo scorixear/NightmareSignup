@@ -27,6 +27,7 @@ export default class SqlHandler implements ISqlHandler {
       await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_formed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
       await conn.query('CREATE TABLE IF NOT EXISTS `discordEventMessages` (`eventId` INT, `messageId` VARCHAR(255), `channelId` VARCHAR(255), `guildId` VARCHAR(255), PRIMARY KEY(`eventId`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `unavailable` (`eventId` INT, `userId` VARCHAR(255), PRIMARY KEY (`eventId`,`userId`))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `role` VARCHAR(255), PRIMARY KEY(`userId`,`role`))');
     } catch (error) {
       throw error;
     } finally {
@@ -383,4 +384,69 @@ export default class SqlHandler implements ISqlHandler {
     return returnValue;
   }
 
+  public async addRole(userId: string, role: string): Promise<boolean> {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`INSERT INTO users (userId, role) VALUES (${conn.escape(userId)}, ${conn.escape(role)})`);
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async removeRole(userId: string, role: string): Promise<boolean> {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`DELETE FROM users WHERE userId = ${conn.escape(userId)} AND role = ${conn.escape(role)}`);
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+  public async getRoles(userId: string): Promise<string[]> {
+    let conn;
+    let returnValue: string[] = [];
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT role FROM users WHERE userId = ${conn.escape(userId)}`);
+      if (rows) {
+        for (const row of rows) {
+          returnValue.push(row.role);
+        }
+      }
+    } catch (err) {
+      returnValue = [];
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+  public async clearRoles(userId: string) {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`DELETE FROM users WHERE userId = ${conn.escape(userId)}`);
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
 }

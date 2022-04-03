@@ -18,4 +18,8 @@ export interface ISqlHandler {
   setUnavailable(eventId: number, userId: string): Promise<boolean>;
   removeUnavailable(eventId: number, userId: string): Promise<boolean>;
   getUnavailables(eventId: number): Promise<string[]>;
+  addRole(userId: string, role: string): Promise<boolean>;
+  removeRole(userId: string, role: string): Promise<boolean>;
+  clearRoles(userId: string): Promise<boolean>;
+  getRoles(userId: string): Promise<string[]>;
 }
