@@ -7,6 +7,7 @@ import { LanguageHandler } from '../../misc/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
 import PartyHandler from '../../misc/partyHandler';
+import { Role } from '../../model/Role';
 
 declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
@@ -41,7 +42,12 @@ export default class AddRole extends CommandInteractionHandle {
     if(!PartyHandler.Roles) {
       await PartyHandler.updateComposition();
     }
-    const found = PartyHandler.Roles.find(role => role.RoleName === zvzrole || role.PriorityRole === zvzrole);
+    let found: Role;
+    if(zvzrole === "Battlemount") {
+      found = new Role();
+    } else {
+      found = PartyHandler.Roles.find(role => role.RoleName === zvzrole || role.PriorityRole === zvzrole);
+    }
     if(!found) {
       try {
         await interaction.reply(await messageHandler.getRichTextExplicitDefault({
