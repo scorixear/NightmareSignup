@@ -37,9 +37,9 @@ export default class AddRole extends CommandInteractionHandle {
     const zvzrole = interaction.options.getString('zvzrole');
     let zvzroles = [];
     if(zvzrole.includes(",")) {
-      zvzroles = zvzrole.split(",");
+      zvzroles = zvzrole.trim().split(",");
     } else {
-      zvzroles.push(zvzrole);
+      zvzroles.push(zvzrole.trim());
     }
     const guild = interaction.guild;
     const channel = interaction.channel;
@@ -50,8 +50,8 @@ export default class AddRole extends CommandInteractionHandle {
     }
     const nonExistent = [];
     for(const zrole of zvzroles) {
-      if (zrole !== "Battlemount" && PartyHandler.Roles.find(r => r.RoleName === zrole || r.PriorityRole === zrole) === undefined) {
-        nonExistent.push(zrole);
+      if (zrole.trim() !== "Battlemount" && PartyHandler.Roles.find(r => r.RoleName === zrole.trim() || r.PriorityRole === zrole.trim()) === undefined) {
+        nonExistent.push(zrole.trim());
         break;
       }
     }
@@ -79,10 +79,10 @@ export default class AddRole extends CommandInteractionHandle {
     const addedRoles = [];
     const ignoredRoles = [];
     for (const zrole of zvzroles) {
-      if(await sqlHandler.addRole(user.id, zrole)) {
-        addedRoles.push(zrole);
+      if(await sqlHandler.addRole(user.id, zrole.trim())) {
+        addedRoles.push(zrole.trim());
       } else {
-        ignoredRoles.push(zrole);
+        ignoredRoles.push(zrole.trim());
       }
     }
     try {
