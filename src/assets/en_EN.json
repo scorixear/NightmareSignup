@@ -74,12 +74,14 @@
         "zvzrole": "ZvZ Role"
       },
       "add": {
-        "description": "Adds a ZvZ Role to a Discord User",
+        "description": "Adds a ZvZ Role to a Discord User and adds a Discord Role to the User",
         "title": "Roles added",
         "successdesc": "Successfully added Roles to $0.",
         "error": {
           "role_title": "Role[s] not found",
-          "role_desc": "One or more Roles do not exist.\n`$0`"
+          "role_desc": "One or more Roles do not exist.\n`$0`",
+          "discord": "Error adding Discord-Role",
+          "discorddesc": "Something went wrong while adding the Discord-Role to $0"
         },
         "success": {
           "added": "Added Roles",
@@ -91,9 +93,13 @@
         "title": "Roles of $0"
       },
       "clear": {
-        "description": "Clears all ZvZ Roles of a Discord User",
+        "description": "Clears all ZvZ Roles of a Discord User and removes Discord Role",
         "title": "Roles cleared",
-        "successdesc": "Successfully cleared $0 Roles."
+        "successdesc": "Successfully cleared $0 Roles.",
+        "error": {
+          "discord": "Error removing Discord-Role",
+          "discorddesc": "Something went wrong while removing the Discord-Role from $0"
+        }
       },
       "remove": {
         "description": "Removes a ZvZ Role from a Discord User",

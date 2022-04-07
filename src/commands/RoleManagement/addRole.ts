@@ -7,7 +7,6 @@ import { LanguageHandler } from '../../misc/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
 import PartyHandler from '../../misc/partyHandler';
-import { Role } from '../../model/Role';
 
 declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
@@ -45,13 +44,14 @@ export default class AddRole extends CommandInteractionHandle {
     const guild = interaction.guild;
     const channel = interaction.channel;
     const author = interaction.user;
+    const roles = await guild.roles.fetch();
     if(!PartyHandler.Roles) {
       await PartyHandler.updateComposition();
     }
     const nonExistent = [];
-    for(const role of zvzroles) {
-      if (role !== "Battlemount" && PartyHandler.Roles.find(r => r.RoleName === role || r.PriorityRole === role) === undefined) {
-        nonExistent.push(role);
+    for(const zrole of zvzroles) {
+      if (zrole !== "Battlemount" && PartyHandler.Roles.find(r => r.RoleName === zrole || r.PriorityRole === zrole) === undefined) {
+        nonExistent.push(zrole);
         break;
       }
     }
@@ -78,17 +78,17 @@ export default class AddRole extends CommandInteractionHandle {
     }
     const addedRoles = [];
     const ignoredRoles = [];
-    for (const role of zvzroles) {
-      if(await sqlHandler.addRole(user.id, role)) {
-        addedRoles.push(role);
+    for (const zrole of zvzroles) {
+      if(await sqlHandler.addRole(user.id, zrole)) {
+        addedRoles.push(zrole);
       } else {
-        ignoredRoles.push(role);
+        ignoredRoles.push(zrole);
       }
     }
     try {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+        guild,
+        author,
         title: languageHandler.language.commands.roles.add.title,
         description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
         categories: [
@@ -121,5 +121,25 @@ export default class AddRole extends CommandInteractionHandle {
         ],
       });
     }
+    const member = await discordHandler.fetchMember(user.id, guild);
+    const role = roles.find(r => r.name === config.armyRole);
+    if (member && role) {
+      try {
+          await member.roles.add(role.id);
+          return;
+      } catch {
+        console.error("Couldn't add role to user");
+      }
+    } else {
+      console.error("Couldn't find member or role");
+    }
+    await messageHandler.sendRichTextDefaultExplicit({
+      guild,
+      channel,
+      author,
+      title: languageHandler.language.commands.roles.add.error.discord,
+      description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.discorddesc, ['<@' + user.id + '>']),
+      color: 0xcc0000,
+    });
   }
 }

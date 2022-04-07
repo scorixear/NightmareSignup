@@ -33,12 +33,36 @@ export default class ClearRoles extends CommandInteractionHandle {
     const user = interaction.options.getUser('user');
     const cleared = await sqlHandler.clearRoles(user.id);
     if (cleared) {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
+      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
         title: languageHandler.language.commands.roles.clear.title,
         description: languageHandler.replaceArgs(languageHandler.language.commands.roles.clear.successdesc, ['<@'+user.id+'>']),
       }));
+      const member = await discordHandler.fetchMember(user.id, interaction.guild);
+      const roles = await interaction.guild.roles.fetch();
+      const role = roles.find(r => r.name === config.armyRole);
+      if (member && role) {
+        try {
+          if(member.roles.cache.has(role.id))
+          {
+            await member.roles.remove(role.id);
+          }
+          return;
+        } catch {
+          console.error("Couldn't remove role from user");
+        }
+      } else {
+        console.error("Couldn't find member or role");
+      }
+      await messageHandler.sendRichTextDefaultExplicit({
+        guild: interaction.guild,
+        channel: interaction.channel,
+        author: interaction.user,
+        title: languageHandler.language.commands.roles.clear.error.discord,
+        description: languageHandler.replaceArgs(languageHandler.language.commands.roles.clear.error.discorddesc, ['<@' + user.id + '>']),
+        color: 0xcc0000,
+      });
     } else {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
