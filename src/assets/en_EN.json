@@ -112,6 +112,7 @@
       }
     },
     "countplayers": {
+      "description": "List all registered players",
       "success": {
         "title": "Unique Players",
         "count": "Count",
