@@ -454,7 +454,7 @@ export default class SqlHandler implements ISqlHandler {
     let returnValue: string[] = [];
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT userId FROM users`);
+      const rows = await conn.query(`SELECT DISTINCT userId FROM users`);
       if (rows) {
         for (const row of rows) {
           returnValue.push(row.userId);

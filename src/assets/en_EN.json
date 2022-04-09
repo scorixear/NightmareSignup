@@ -114,7 +114,8 @@
     "countplayers": {
       "success": {
         "title": "Unique Players",
-        "description": "$0"
+        "count": "Count",
+        "list": "Players"
       }
     }
   },

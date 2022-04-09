@@ -29,12 +29,23 @@ export default class CountPlayers extends CommandInteractionHandle {
       return;
     }
 
-    const users: string[] = [...new Set(await sqlHandler.getUsers())];
+    const users: string[] = await sqlHandler.getUsers();
     await interaction.reply(await messageHandler.getRichTextExplicitDefault({
       guild: interaction.guild,
       author: interaction.user,
       title: languageHandler.language.commands.countplayers.success.title,
-      description: languageHandler.replaceArgs(languageHandler.language.commands.countplayers.success.description, [users.length.toString()]),
+      categories: [
+        {
+          title: languageHandler.language.commands.countplayers.success.count,
+          text: users.length.toString(),
+          inline: false
+        },
+        {
+          title: languageHandler.language.commands.countplayers.success.list,
+          text: '- '+ users.map((user) => `<@${user}>`).join('\n-  '),
+          inline: false
+        }
+      ]
     }));
 
   }
