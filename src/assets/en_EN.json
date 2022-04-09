@@ -110,8 +110,13 @@
         "sql_title": "Internal Error",
         "sql_desc": "Something went wrong. I could not communicate with the database."
       }
+    },
+    "countplayers": {
+      "success": {
+        "title": "Players",
+        "description": "There are $0 unique players in the database."
+      }
     }
-
   },
   "interactions": {
     "signup": {

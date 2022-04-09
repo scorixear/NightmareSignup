@@ -22,4 +22,5 @@ export interface ISqlHandler {
   removeRole(userId: string, role: string): Promise<boolean>;
   clearRoles(userId: string): Promise<boolean>;
   getRoles(userId: string): Promise<string[]>;
+  getUsers(): Promise<string[]>;
 }

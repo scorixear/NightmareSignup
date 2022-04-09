@@ -449,4 +449,23 @@ export default class SqlHandler implements ISqlHandler {
     }
     return returnValue;
   }
+  public async getUsers() {
+    let conn;
+    let returnValue: string[] = [];
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT userId FROM users`);
+      if (rows) {
+        for (const row of rows) {
+          returnValue.push(row.userId);
+        }
+      }
+    } catch (err) {
+      returnValue = [];
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
 }
