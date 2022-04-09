@@ -44,13 +44,13 @@ export default class CountPlayers extends CommandInteractionHandle {
     userstrings[userstrings.length - 1] = userstrings[userstrings.length - 1].substring(0, userstrings[userstrings.length - 1].length - 3);
     const categories = [{
         title: languageHandler.language.commands.countplayers.success.count,
-        text: users.length.toString(),
+        text: usercount.toString(),
         inline: false
       },
       {
         title: languageHandler.language.commands.countplayers.success.list,
         text: userstrings[0],
-        inline: false,
+        inline: true,
       }
     ];
     for (let i = 1; i < userstrings.length; i++) {
