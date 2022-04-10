@@ -114,10 +114,11 @@ export default class PartyHandler {
   }
 
   private static addUserToParty(discordUsers: {userId: string, date: number, roles: string[]}[], party: {userId: string, date: number, role: string}[], globalRole: GlobalRole) {
-    let i = 0;
+    let index;
     let foundUser;
+    const clone = this.shuffleArray(discordUsers).sort((a,b)=>a.roles.length - b.roles.length)
     // find user of list
-    for(const user of discordUsers) {
+    for(const user of clone) {
       // map user Roles (DiscordRoles) to BotRoles and filter only BotRoles that have the chorrect global role
       const roles: Role[] = [];
       for(const role of user.roles) {
@@ -143,13 +144,12 @@ export default class PartyHandler {
           date: user.date,
           role: foundRole.RoleName
         });
+        index = discordUsers.findIndex(u => u.userId === user.userId);
         break;
       }
-      i++;
     }
     if(!foundUser) {
-      i=0;
-      for(const user of discordUsers) {
+      for(const user of clone) {
         const roles: Role[] = [];
         for(const role of user.roles) {
           const partyRole = PartyHandler.Roles.find(pr => pr.RoleName === role);
@@ -172,57 +172,72 @@ export default class PartyHandler {
             date: user.date,
             role: foundRole.RoleName
           });
+          index = discordUsers.findIndex(u => u.userId === user.userId);
           break;
         }
-        i++;
       }
     }
     if(foundUser) {
-      discordUsers.splice(i, 1)
+      discordUsers.splice(index, 1)
     }
     return foundUser;
   }
 
   private static retrieveDiscordUser(discordUsers: { userId: string, date: number, roles: string[] }[], role: Role) {
-    let i = 0;
+    let index;
     let returnValue;
-    for (const user of discordUsers) {
+    const clone = this.shuffleArray(discordUsers).sort((a,b)=>a.roles.length - b.roles.length)
+    for (const user of clone) {
       if (user.roles.find(value => value === role.PriorityRole) !== undefined) {
         returnValue = user;
+        index = discordUsers.findIndex(u => u.userId === user.userId);
         break;
       }
-      i++;
     }
     if(!returnValue) {
-      i=0
-      for (const user of discordUsers) {
+      for (const user of clone) {
         if (user.roles.find(value => value === role.RoleName) !== undefined) {
           returnValue = user;
+          index = discordUsers.findIndex(u => u.userId === user.userId);
           break;
         }
-        i++;
       }
     }
     if (returnValue) {
-      discordUsers.splice(i, 1);
+      discordUsers.splice(index, 1);
     }
     return returnValue;
   }
 
   private static retrieveBattleMountUser(discordUsers: {userId: string, date: number, roles: string[]}[]) {
-    let i = 0;
+    let index;
     let returnValue;
-    for(const user of discordUsers) {
+    const clone = this.shuffleArray(discordUsers).sort((a,b)=>a.roles.length - b.roles.length);
+    for(const user of clone) {
       if (user.roles.find(value => value === "Battlemount")!== undefined) {
         returnValue = user;
+        index = discordUsers.findIndex(u => u.userId === user.userId);
         break;
       }
-      i++;
     }
     if(returnValue) {
-      discordUsers.splice(i,1);
+      discordUsers.splice(index,1);
     }
     return returnValue;
+  }
+
+  private static shuffleArray<T>(array: T[]) {
+    const arrayClone = array.slice();
+    let currentIndex = arrayClone.length;
+    let randomIndex;
+
+    while(currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [arrayClone[currentIndex], arrayClone[randomIndex]] = [
+        arrayClone[randomIndex], arrayClone[currentIndex]];
+    }
+    return arrayClone;
   }
 
 }
