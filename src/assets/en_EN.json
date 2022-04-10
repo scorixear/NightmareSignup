@@ -118,6 +118,13 @@
         "count": "Count",
         "list": "Players"
       }
+    },
+    "countroles": {
+      "description": "List all registered roles",
+      "success": {
+        "title": "Players in Roles",
+        "list": "Roles"
+      }
     }
   },
   "interactions": {

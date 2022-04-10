@@ -8,15 +8,15 @@ import { ISqlHandler } from '../../interfaces/ISqlHandler';
 declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
 
-export default class CountPlayers extends CommandInteractionHandle {
+export default class CountRoles extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     super(
-      'countplayers',
-      () => languageHandler.replaceArgs(languageHandler.language.commands.countplayers.description, [config.botPrefix]),
-      'countplayers',
+      'countroles',
+      () => languageHandler.replaceArgs(languageHandler.language.commands.countroles.description, [config.botPrefix]),
+      'countroles',
       'Moderation',
-      'countplayers',
+      'countroles',
       commandOptions,
       true,
     );
@@ -29,18 +29,13 @@ export default class CountPlayers extends CommandInteractionHandle {
       return;
     }
 
-    const users: string[] = (await sqlHandler.getUsers()).map(u => '- <@'+u+'>');
-    const categories = messageHandler.splitInCategories(users, languageHandler.language.commands.countplayers.success.list);
-    categories.unshift({
-      title: languageHandler.language.commands.countplayers.success.count,
-      text: users.length.toString(),
-      inline: false
-    });
+    const roles= (await sqlHandler.getUsersWithRoles()).map(r=> r.role+": "+r.count);
+    const categories = messageHandler.splitInCategories(roles, languageHandler.language.commands.countroles.success.list);
 
     await interaction.reply(await messageHandler.getRichTextExplicitDefault({
       guild: interaction.guild,
       author: interaction.user,
-      title: languageHandler.language.commands.countplayers.success.title,
+      title: languageHandler.language.commands.countroles.success.title,
       categories,
     }));
 

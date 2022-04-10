@@ -18,6 +18,7 @@ import ClearRoles from '../commands/RoleManagement/clearRoles';
 import RemoveRole from '../commands/RoleManagement/removeRole';
 import { IGoogleSheetsHandler } from '../interfaces/IGoogleSheetsHandler';
 import CountPlayers from '../commands/Moderation/countPlayers';
+import CountRoles from '../commands/Moderation/countRoles';
 
 
 export default class InteractionHandler {
@@ -41,6 +42,7 @@ export default class InteractionHandler {
       new ClearRoles(),
       new RemoveRole(),
       new CountPlayers(),
+      new CountRoles(),
       help,
     ];
     help.init(this.commandInteractions);

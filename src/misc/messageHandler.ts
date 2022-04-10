@@ -159,6 +159,45 @@ async function sendRichText(msg: Message, title: string, categories: {title: str
       title, categories, color, description, thumbnail, url, components);
 }
 
+function splitInCategories(lines: string[], heading: string)
+{
+  // Clone lines array
+  const linesClone = lines.slice();
+  // categories
+  const categoryStrings: string[] = [''];
+  // count total lines
+  const lineCount = lines.length;
+  // as long as we need to add lines
+  while (linesClone.length > 0) {
+    const currentString = categoryStrings[categoryStrings.length - 1];
+    // if current category + this line is not too long
+    if (currentString.length + linesClone[0].length + 1 < 1024) {
+      categoryStrings[categoryStrings.length - 1] = currentString + linesClone.shift() + '\n';
+    } else {
+      // remove last newline character
+      categoryStrings[categoryStrings.length - 1] = categoryStrings[categoryStrings.length - 1].slice(0,-1);
+      // add new category
+      categoryStrings.push(linesClone.shift() + '\n');
+    }
+  }
+  categoryStrings[categoryStrings.length - 1] = categoryStrings[categoryStrings.length - 1].slice(0,-1)
+  const categories = [
+    {
+      title: heading,
+      text: categoryStrings[0],
+      inline: true,
+    }
+  ];
+  for (let i = 1; i < categoryStrings.length; i++) {
+    categories.push({
+      title: '\u200b',
+      text: categoryStrings[i],
+      inline: true,
+    });
+  }
+  return categories;
+}
+
 export default {
   sendRichText,
   sendRichTextExplicit,
@@ -166,4 +205,5 @@ export default {
   sendRichTextDefaultExplicit,
   getRichTextExplicit,
   getRichTextExplicitDefault,
+  splitInCategories,
 };

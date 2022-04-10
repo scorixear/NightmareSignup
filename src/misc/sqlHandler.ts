@@ -468,4 +468,19 @@ export default class SqlHandler implements ISqlHandler {
     }
     return returnValue;
   }
+
+  public async getUsersWithRoles() {
+    let conn;
+    let returnValue: {role: string, count: number}[] = [];
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT role,COUNT(*) as count FROM users GROUP BY role ORDER BY count DESC`);
+      for(const row of rows) {
+        returnValue.push({role: row.role, count: row.count});
+      }
+    } catch {
+      returnValue = [];
+    }
+    return returnValue;
+  }
 }
