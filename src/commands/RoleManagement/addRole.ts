@@ -88,7 +88,7 @@ export default class AddRole extends CommandInteractionHandle {
         ignoredRoles.push(zrole.trim());
       }
     }
-    if(react) {
+    try {
       await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild,
         author,
@@ -105,7 +105,7 @@ export default class AddRole extends CommandInteractionHandle {
           },
         ],
       }));
-    } else {
+    } catch {
       await messageHandler.sendRichTextDefaultExplicit({
         guild: interaction.guild,
         channel: interaction.channel,
