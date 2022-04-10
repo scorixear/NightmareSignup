@@ -4,6 +4,7 @@ import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { LanguageHandler } from '../../misc/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
+import PartyHandler from '../../misc/partyHandler';
 
 declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
@@ -29,15 +30,37 @@ export default class CountRoles extends CommandInteractionHandle {
       return;
     }
 
-    const roles= (await sqlHandler.getUsersWithRoles()).map(r=> r.role+": "+r.count);
-    const categories = messageHandler.splitInCategories(roles, languageHandler.language.commands.countroles.success.list);
+    const roles= await sqlHandler.getUsersWithRoles();
+    let react = true;
+    if(!PartyHandler.Roles) {
+      react = false;
+      interaction.deferReply();
+      await PartyHandler.updateComposition();
+    }
+    for(const role of PartyHandler.Roles) {
+      if (roles.find(r => r.role === role.RoleName) === undefined) {
+        roles.push({role: role.RoleName, count: 0});
+      }
+    }
+    const categories = messageHandler.splitInCategories(roles.map(r=>r.role+": "+r.count), languageHandler.language.commands.countroles.success.list);
 
-    await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-      guild: interaction.guild,
-      author: interaction.user,
-      title: languageHandler.language.commands.countroles.success.title,
-      categories,
-    }));
+    if(react) {
+      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+        guild: interaction.guild,
+        author: interaction.user,
+        title: languageHandler.language.commands.countroles.success.title,
+        categories,
+      }));
+    } else {
+      await messageHandler.sendRichTextDefaultExplicit({
+        guild: interaction.guild,
+        channel: interaction.channel,
+        author: interaction.user,
+        title: languageHandler.language.commands.countroles.success.title,
+        categories,
+      });
+    }
+
 
   }
 }

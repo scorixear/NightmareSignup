@@ -45,7 +45,10 @@ export default class AddRole extends CommandInteractionHandle {
     const channel = interaction.channel;
     const author = interaction.user;
     const roles = await guild.roles.fetch();
+    let react = true;
     if(!PartyHandler.Roles) {
+      react = false;
+      interaction.deferReply();
       await PartyHandler.updateComposition();
     }
     const nonExistent = [];
@@ -56,7 +59,7 @@ export default class AddRole extends CommandInteractionHandle {
       }
     }
     if(nonExistent.length > 0) {
-      try {
+      if (react) {
         await interaction.reply(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           author: interaction.user,
@@ -64,7 +67,7 @@ export default class AddRole extends CommandInteractionHandle {
           description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.role_desc, ["- "+ nonExistent.join("\n- ")]),
           color: 0xcc0000,
         }));
-      } catch (err) {
+      } else {
         await messageHandler.sendRichTextDefaultExplicit({
           guild,
           channel,
@@ -85,7 +88,7 @@ export default class AddRole extends CommandInteractionHandle {
         ignoredRoles.push(zrole.trim());
       }
     }
-    try {
+    if(react) {
       await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild,
         author,
@@ -102,7 +105,7 @@ export default class AddRole extends CommandInteractionHandle {
           },
         ],
       }));
-    } catch {
+    } else {
       await messageHandler.sendRichTextDefaultExplicit({
         guild: interaction.guild,
         channel: interaction.channel,
