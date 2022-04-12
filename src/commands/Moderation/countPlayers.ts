@@ -36,13 +36,23 @@ export default class CountPlayers extends CommandInteractionHandle {
       text: users.length.toString(),
       inline: false
     });
-
-    await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-      guild: interaction.guild,
-      author: interaction.user,
-      title: languageHandler.language.commands.countplayers.success.title,
-      categories,
-    }));
+    try{
+      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+        guild: interaction.guild,
+        author: interaction.user,
+        title: languageHandler.language.commands.countplayers.success.title,
+        categories,
+      }));
+    } catch {
+      await messageHandler.sendRichTextDefaultExplicit({
+        guild: interaction.guild,
+        author: interaction.user,
+        channel: interaction.channel,
+        title: languageHandler.language.commands.countplayers.success.title,
+        categories,
+      });
+    }
+   
 
   }
 }
