@@ -44,7 +44,8 @@ export default class PartyHandler {
     for (let i = 0; i < numberOfParties; i++) {
       console.log("================== DISCORD USERS =====================");
       console.log(discordUsers.length);
-      console.log(discordUsers);
+      console.log("Party Index: " + i);
+      console.log(parties[i]);
       // add bms
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
         const reply = this.retrieveBattleMountUser(discordUsers);
@@ -118,11 +119,13 @@ export default class PartyHandler {
           }
         }
       }
+      console.log("Finished Party " + i);
+      console.log(parties[i]);
       missingPlayers = 20;
     }
 
     console.log("================== PARTIES =====================");
-    console.log(parties);
+    // console.log(parties);
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
     for(const party of parties) {
