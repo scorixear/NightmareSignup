@@ -40,6 +40,7 @@ export default class PartyHandler {
     const parties: { userId: string, date: number, role: string }[][] = new Array(numberOfParties).fill([]);
 
     let missingPlayers = 19;
+    console.log(numberOfParties);
     for (let i = 0; i < numberOfParties; i++) {
       // add bms
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
@@ -94,6 +95,7 @@ export default class PartyHandler {
       missingPlayers = 20;
     }
 
+    console.log(parties);
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
     for(const party of parties) {
@@ -102,7 +104,6 @@ export default class PartyHandler {
         partyLines.push(`<@${user.userId}> - ${user.role}`);
       }
       const partyCategories = messageHandler.splitInCategories(partyLines, languageHandler.replaceArgs(languageHandler.language.handlers.party.partyTitle,[partyIndex.toString()]));
-      partyCategories[partyCategories.length - 1].inline = false;
       categories.push(...partyCategories);
       partyIndex++;
     }

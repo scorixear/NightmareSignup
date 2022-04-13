@@ -69,13 +69,14 @@ export default class FormParties extends CommandInteractionHandle {
             await PartyHandler.updateComposition();
             const partyCategories = await PartyHandler.getCategories(eventId);
             if(partyCategories) {
-              msg.reply(await messageHandler.getRichTextExplicitDefault({
+              console.log(partyCategories);
+              /*msg.reply(await messageHandler.getRichTextExplicitDefault({
                 guild: msg.guild,
                 author: msg.author,
                 title: languageHandler.language.handlers.party.title,
                 description: languageHandler.language.handlers.party.description,
                 categories: partyCategories
-              }));
+              }));*/
             } else {
               console.log('Couldn\'t create parties for event '+event);
             }
