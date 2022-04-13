@@ -42,10 +42,10 @@ export default class PartyHandler {
     let missingPlayers = 19;
     console.log(numberOfParties);
     for (let i = 0; i < numberOfParties; i++) {
-      console.log("================== DISCORD USERS =====================");
-      console.log(discordUsers.length);
-      console.log("Party Index: " + i);
-      console.log(parties[i]);
+      // console.log("================== DISCORD USERS =====================");
+      // console.log(discordUsers.length);
+      // console.log("Party Index: " + i);
+      // console.log(parties[i]);
       // add bms
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
         const reply = this.retrieveBattleMountUser(discordUsers);
@@ -56,7 +56,6 @@ export default class PartyHandler {
             date: reply.player.date,
             role: "Battlemount"
           });
-          
         }
       }
       bms -= parties[i].length;
@@ -76,9 +75,9 @@ export default class PartyHandler {
                 role: role.RoleName
               });
               missingPlayers--;
-              console.log("Player Added: "+reply.player.userId);
-              console.log("Discord User Length: " + discordUsers.length);
-              console.log("Removed at index: " + reply.index);
+              // console.log("Player Added: "+reply.player.userId);
+              // console.log("Discord User Length: " + discordUsers.length);
+              // console.log("Removed at index: " + reply.index);
             }
           }
         }
@@ -119,12 +118,12 @@ export default class PartyHandler {
           }
         }
       }
-      console.log("Finished Party " + i);
-      console.log(parties[i]);
+      // console.log("Finished Party " + i);
+      // console.log(parties[i]);
       missingPlayers = 20;
     }
 
-    console.log("================== PARTIES =====================");
+    // console.log("================== PARTIES =====================");
     // console.log(parties);
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
