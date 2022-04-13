@@ -37,7 +37,7 @@ export default class PartyHandler {
     const numberOfParties = Math.ceil((discordUsers.length + 1) / 20.0);
     let bms = Math.max(PartyHandler.BmSettings.Minimum, Math.floor(numberOfParties / PartyHandler.BmSettings.BmEveryParty) * PartyHandler.BmSettings.BmPerParty);
     bms = Math.min(bms, discordUsers.filter((user) => user.roles.find((role, index) => role === "Battlemount") !== undefined).length);
-    const parties: { userId: string, date: number, role: string }[][] = new Array(numberOfParties).fill([]);
+    const parties: { userId: string, date: number, role: string }[][] = Array.from(new Array(numberOfParties), ()=>[]);
 
     let missingPlayers = 19;
     console.log(numberOfParties);
