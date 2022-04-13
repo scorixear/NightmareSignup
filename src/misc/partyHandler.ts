@@ -42,6 +42,8 @@ export default class PartyHandler {
     let missingPlayers = 19;
     console.log(numberOfParties);
     for (let i = 0; i < numberOfParties; i++) {
+      console.log("================== DISCORD USERS =====================");
+      console.log(discordUsers.length);
       console.log(discordUsers);
       // add bms
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
@@ -53,6 +55,7 @@ export default class PartyHandler {
             date: reply.player.date,
             role: "Battlemount"
           });
+          
         }
       }
       bms -= parties[i].length;
@@ -72,6 +75,9 @@ export default class PartyHandler {
                 role: role.RoleName
               });
               missingPlayers--;
+              console.log("Player Added: "+reply.player.userId);
+              console.log("Discord User Length: " + discordUsers.length);
+              console.log("Removed at index: " + reply.index);
             }
           }
         }
@@ -115,6 +121,7 @@ export default class PartyHandler {
       missingPlayers = 20;
     }
 
+    console.log("================== PARTIES =====================");
     console.log(parties);
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
