@@ -1,6 +1,7 @@
 import { BMSettings } from "../model/BMSettings";
 import { GlobalRole } from "../model/GlobalRole";
 import { Role } from "../model/Role";
+import messageHandler from "./messageHandler";
 
 export default class PartyHandler {
 
@@ -95,18 +96,14 @@ export default class PartyHandler {
 
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
-    let inline = false;
     for(const party of parties) {
-      let partyString = "";
+      const partyLines = [];
       for(const user of party) {
-        partyString += `<@${user.userId}> - ${user.role}\n`
+        partyLines.push(`<@${user.userId}> - ${user.role}`);
       }
-      categories.push({
-        title: languageHandler.replaceArgs(languageHandler.language.handlers.party.partyTitle,[partyIndex.toString()]),
-        text: partyString,
-        inline
-      });
-      inline = true;
+      const partyCategories = messageHandler.splitInCategories(partyLines, languageHandler.replaceArgs(languageHandler.language.handlers.party.partyTitle,[partyIndex.toString()]));
+      partyCategories[partyCategories.length - 1].inline = false;
+      categories.push(...partyCategories);
       partyIndex++;
     }
     return categories;

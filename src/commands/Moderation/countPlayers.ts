@@ -52,7 +52,7 @@ export default class CountPlayers extends CommandInteractionHandle {
         categories,
       });
     }
-   
+
 
   }
 }
