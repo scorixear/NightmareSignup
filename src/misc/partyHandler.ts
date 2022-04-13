@@ -42,6 +42,7 @@ export default class PartyHandler {
     let missingPlayers = 19;
     console.log(numberOfParties);
     for (let i = 0; i < numberOfParties; i++) {
+      console.log(discordUsers);
       // add bms
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
         const reply = this.retrieveBattleMountUser(discordUsers);
