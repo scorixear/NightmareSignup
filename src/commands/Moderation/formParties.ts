@@ -69,7 +69,6 @@ export default class FormParties extends CommandInteractionHandle {
             await PartyHandler.updateComposition();
             const partyCategories = await PartyHandler.getCategories(eventId);
             if(partyCategories) {
-              console.log(partyCategories);
               /*msg.reply(await messageHandler.getRichTextExplicitDefault({
                 guild: msg.guild,
                 author: msg.author,

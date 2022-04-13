@@ -44,12 +44,15 @@ export default class PartyHandler {
     for (let i = 0; i < numberOfParties; i++) {
       // add bms
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
-        const bmPlayer = this.retrieveBattleMountUser(discordUsers);
-        parties[i].push({
-          userId: bmPlayer.userId,
-          date: bmPlayer.date,
-          role: "Battlemount"
-        });
+        const reply = this.retrieveBattleMountUser(discordUsers);
+        if(reply.player) {
+          discordUsers.splice(reply.index,1);
+          parties[i].push({
+            userId: reply.player.userId,
+            date: reply.player.date,
+            role: "Battlemount"
+          });
+        }
       }
       bms -= parties[i].length;
       missingPlayers -= parties[i].length;
@@ -59,11 +62,12 @@ export default class PartyHandler {
       for (const role of PartyHandler.Roles) {
         if (role.Required && role.Required > 0) {
           for (let roleIndex = 0; roleIndex < role.Required; roleIndex++) {
-            const user = this.retrieveDiscordUser(discordUsers, role);
-            if(user) {
+            const reply = this.retrieveDiscordUser(discordUsers, role);
+            if(reply.player) {
+              discordUsers.splice(reply.index, 1);
               parties[i].push({
-                userId: user.userId,
-                date: user.date,
+                userId: reply.player.userId,
+                date: reply.player.date,
                 role: role.RoleName
               });
               missingPlayers--;
@@ -77,17 +81,32 @@ export default class PartyHandler {
             if(missingPlayers === 0) {
               break;
             }
-            const user = this.addUserToParty(discordUsers, parties[i], globalRole);
-            if (!user) {
+            const reply = this.addUserToParty(discordUsers, parties[i], globalRole);
+            if (reply.player) {
+              discordUsers.splice(reply.index, 1);
+              parties[i].push({
+                userId: reply.player.userId,
+                date: reply.player.date,
+                role: reply.player.role
+              });
+              missingPlayers--;
+            } else {
               break;
             }
-            missingPlayers--;
           }
       }
       for(const globalRole of PartyHandler.GlobalRoles) {
         while(missingPlayers > 0 && discordUsers.length > 0) {
-          const user = this.addUserToParty(discordUsers, parties[i], globalRole);
-          if(!user) {
+          const reply = this.addUserToParty(discordUsers, parties[i], globalRole);
+          if (reply.player) {
+            discordUsers.splice(reply.index, 1);
+            parties[i].push({
+              userId: reply.player.userId,
+              date: reply.player.date,
+              role: reply.player.role
+            });
+            missingPlayers--;
+          } else {
             break;
           }
         }
@@ -113,7 +132,7 @@ export default class PartyHandler {
 
   private static addUserToParty(discordUsers: {userId: string, date: number, roles: string[]}[], party: {userId: string, date: number, role: string}[], globalRole: GlobalRole) {
     let i = 0;
-    let foundUser;
+    let returnValue;
     // find user of list
     for(const user of discordUsers) {
       // map user Roles (DiscordRoles) to BotRoles and filter only BotRoles that have the chorrect global role
@@ -135,17 +154,16 @@ export default class PartyHandler {
         }
       }
       if (foundRole) {
-        foundUser = user;
-        party.push({
+        returnValue = {
           userId: user.userId,
           date: user.date,
           role: foundRole.RoleName
-        });
+        };
         break;
       }
       i++;
     }
-    if(!foundUser) {
+    if(!returnValue) {
       i=0;
       for(const user of discordUsers) {
         const roles: Role[] = [];
@@ -164,21 +182,17 @@ export default class PartyHandler {
           }
         }
         if(foundRole) {
-          foundUser = user;
-          party.push({
+          returnValue = {
             userId: user.userId,
             date: user.date,
             role: foundRole.RoleName
-          });
+          };
           break;
         }
         i++;
       }
     }
-    if(foundUser) {
-      discordUsers.splice(i, 1)
-    }
-    return foundUser;
+    return {player: returnValue, index: i};
   }
 
   private static retrieveDiscordUser(discordUsers: { userId: string, date: number, roles: string[] }[], role: Role) {
@@ -201,10 +215,7 @@ export default class PartyHandler {
         i++;
       }
     }
-    if (returnValue) {
-      discordUsers.splice(i, 1);
-    }
-    return returnValue;
+    return {player: returnValue, index: i};
   }
 
   private static retrieveBattleMountUser(discordUsers: {userId: string, date: number, roles: string[]}[]) {
@@ -217,10 +228,7 @@ export default class PartyHandler {
       }
       i++;
     }
-    if(returnValue) {
-      discordUsers.splice(i,1);
-    }
-    return returnValue;
+    return {player: returnValue, index: i};
   }
 
 }
