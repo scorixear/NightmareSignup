@@ -46,14 +46,14 @@ declare const interactionHandler: InteractionHandler;
               embed.fields.splice(fieldIndex, 0, {
                 name: 'Members',
                 value: name,
-                inline: false,
+                inline: true,
               });
             } else {
               embed.fields[fieldIndex].value += "\n" + name;
             }
             currentCount++;
           } else {
-            currentCount = 0;
+            currentCount = 1;
             fieldIndex++;
             embed.fields.splice(fieldIndex, 0, {
               name: '\u200b',
