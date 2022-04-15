@@ -199,7 +199,7 @@ export default class SqlHandler implements ISqlHandler {
     try {
       conn = await this.pool.getConnection();
 
-      const rows = await conn.query(`SELECT id, date FROM events WHERE date < ${conn.escape(timestamp)}`);
+      const rows = await conn.query(`SELECT id, date FROM events WHERE date < ${conn.escape(timestamp)} AND is_closed = 1 AND is_formed = 1 AND is_cta = 1`);
       if (rows) {
         for (const row of rows) {
           returnValue.push({id: row.id, date: row.date});
