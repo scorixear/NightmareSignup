@@ -64,12 +64,16 @@ export default class FormParties extends CommandInteractionHandle {
         const guild = await discordHandler.fetchGuild(messageEvent.guildId);
         try {
           const channel = await guild.channels.fetch(messageEvent.channelId) as TextChannel;
+          let msg;
           try {
-            const msg = await channel.messages.fetch(messageEvent.messageId);
-            await PartyHandler.updateComposition();
-            const partyCategories = await PartyHandler.getCategories(eventId);
-            if(partyCategories) {
-              msg.reply(await messageHandler.getRichTextExplicitDefault({
+            msg = await channel.messages.fetch(messageEvent.messageId);
+          } catch(err){}
+          await PartyHandler.updateComposition();
+          console.log("forming parties now");
+          const partyCategories = await PartyHandler.getCategories(eventId);
+          if(partyCategories) {
+            if(msg) {
+              await msg.reply(await messageHandler.getRichTextExplicitDefault({
                 guild: msg.guild,
                 author: msg.author,
                 title: languageHandler.language.handlers.party.title,
@@ -77,9 +81,18 @@ export default class FormParties extends CommandInteractionHandle {
                 categories: partyCategories
               }));
             } else {
-              console.log('Couldn\'t create parties for event '+event);
+              await messageHandler.sendRichTextDefaultExplicit({
+                guild: msg.guild,
+                author: msg.author,
+                channel: interaction.channel,
+                title: languageHandler.language.handler.party.title,
+                description: languageHandler.language.handler.party.description,
+                categories: partyCategories
+              });
             }
-          } catch(err){}
+          } else {
+            console.log('Couldn\'t create parties for event '+event);
+          }
         } catch(err){}
       } catch(err){}
     } else {
