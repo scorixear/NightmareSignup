@@ -89,7 +89,7 @@ export default class PartyHandler {
 
       console.log("Adding Global Roles");
       for(const globalRole of PartyHandler.GlobalRoles) {
-          for(let gI = 0; gI < globalRole.Required; gI++) {
+          for(let gI = this.countGlobalRole(globalRole, parties[i]); gI < globalRole.Required; gI++) {
             if(missingPlayers === 0) {
               break;
             }
@@ -147,6 +147,16 @@ export default class PartyHandler {
     console.log("Party Forming complete");
     return categories;
 
+  }
+
+  private static countGlobalRole(globalRole: GlobalRole, party: { userId: string, date: number, role: string }[]) {
+    let count = 0;
+    for(const user of party) {
+      if (this.Roles.find((role) => role.RoleName === user.role).GlobalRole == globalRole) {
+        count++;
+      }
+    }
+    return count;
   }
 
   private static addUserToParty(discordUsers: {userId: string, date: number, roles: string[]}[], party: {userId: string, date: number, role: string}[], globalRole: GlobalRole) {
