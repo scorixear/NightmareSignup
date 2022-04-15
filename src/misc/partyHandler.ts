@@ -164,7 +164,7 @@ export default class PartyHandler {
           break;
         }
       }
-      if (returnValue) {
+      if (foundRole) {
         returnValue = {
           userId: user.userId,
           date: user.date,
@@ -205,6 +205,71 @@ export default class PartyHandler {
     return {player: returnValue, index};
   }
 
+  private static addUserToPartyOld(discordUsers: {userId: string, date: number, roles: string[]}[], party: {userId: string, date: number, role: string}[], globalRole: GlobalRole) {
+    let index: number;
+    let returnValue;
+    // find user of list
+    for(const user of discordUsers) {
+      // map user Roles (DiscordRoles) to BotRoles and filter only BotRoles that have the chorrect global role
+      const roles: Role[] = [];
+      for(const role of user.roles) {
+        const partyRole = PartyHandler.Roles.find(pr => pr.PriorityRole === role);
+        if(partyRole && partyRole.GlobalRole === globalRole) {
+          roles.push(partyRole);
+        }
+      }
+      // if no role found for priority, foundRole will be undefined
+      // if roles are found that are priority and fit to GlobalRole
+      let foundRole;
+      for(const role of roles) {
+        // get first BotRole that does not exceed maximum role cound (both Priority and DiscordRole)
+        if(!role.Maximum || role.Maximum > party.filter(p=>p.role===role.PriorityRole || p.role===role.RoleName).length) {
+          foundRole = role;
+          break;
+        }
+      }
+      if (foundRole) {
+        returnValue = {
+          userId: user.userId,
+          date: user.date,
+          role: foundRole.RoleName
+        };
+        break;
+      }
+      index++;
+    }
+    if(!returnValue) {
+      index = 0;
+      for(const user of discordUsers) {
+        const roles: Role[] = [];
+        for(const role of user.roles) {
+          const partyRole = PartyHandler.Roles.find(pr => pr.RoleName === role);
+          if(partyRole && partyRole.GlobalRole === globalRole) {
+            roles.push(partyRole);
+          }
+        }
+        let foundRole;
+        for(const role of roles) {
+          if(!role.Maximum || role.Maximum > party.filter(p=>p.role === role.PriorityRole || p.role === role.RoleName).length)
+          {
+            foundRole = role;
+            break;
+          }
+        }
+        if(foundRole) {
+          returnValue = {
+            userId: user.userId,
+            date: user.date,
+            role: foundRole.RoleName
+          };
+          break;
+        }
+        index++;
+      }
+    }
+    return {player: returnValue, index};
+  }
+
   private static retrieveDiscordUser(discordUsers: { userId: string, date: number, roles: string[] }[], role: Role) {
     let index;
     let returnValue;
@@ -228,6 +293,29 @@ export default class PartyHandler {
     return {player: returnValue, index};
   }
 
+  private static retrieveDiscordUserOld(discordUsers: { userId: string, date: number, roles: string[] }[], role: Role) {
+    let index: number;
+    let returnValue;
+    for (const user of discordUsers) {
+      if (user.roles.find(value => value === role.PriorityRole) !== undefined) {
+        returnValue = user;
+        break;
+      }
+      index++;
+    }
+    if(!returnValue) {
+      index = 0;
+      for (const user of discordUsers) {
+        if (user.roles.find(value => value === role.RoleName) !== undefined) {
+          returnValue = user;
+          break;
+        }
+        index++;
+      }
+    }
+    return {player: returnValue, index};
+  }
+
   private static retrieveBattleMountUser(discordUsers: {userId: string, date: number, roles: string[]}[]) {
     let index;
     let returnValue;
@@ -238,6 +326,19 @@ export default class PartyHandler {
         index = discordUsers.findIndex(u => u.userId === user.userId);
         break;
       }
+    }
+    return {player: returnValue, index};
+  }
+
+  private static retrieveBattleMountUserOld(discordUsers: {userId: string, date: number, roles: string[]}[]) {
+    let index: number;
+    let returnValue;
+    for(const user of discordUsers) {
+      if (user.roles.find(value => value === "Battlemount") !== undefined) {
+        returnValue = user;
+        break;
+      }
+      index++;
     }
     return {player: returnValue, index};
   }
