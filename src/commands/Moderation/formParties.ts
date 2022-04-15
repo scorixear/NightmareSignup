@@ -76,8 +76,8 @@ export default class FormParties extends CommandInteractionHandle {
           if(partyCategories) {
             if(postPrivate) {
               await messageHandler.sendRichTextDefaultExplicit({
-                guild: msg.guild,
-                author: msg.author,
+                guild: interaction.guild,
+                author: interaction.user,
                 channel: interaction.channel,
                 title: languageHandler.language.handler.party.title,
                 description: languageHandler.language.handler.party.description,
@@ -96,8 +96,8 @@ export default class FormParties extends CommandInteractionHandle {
               }));
             } catch {
               await messageHandler.sendRichTextDefaultExplicit({
-                guild: msg.guild,
-                author: msg.author,
+                guild: interaction.guild,
+                author: interaction.user,
                 channel: interaction.channel,
                 title: languageHandler.language.handler.party.title,
                 description: languageHandler.language.handler.party.description,
