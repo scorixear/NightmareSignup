@@ -8,6 +8,7 @@ export interface ISqlHandler {
   deleteEvent(eventName: string, eventDate: string): Promise<boolean>;
   getEventId(eventName: string, eventDate: string): Promise<number>;
   findEvents(timestamp: string, isClosed: boolean, isFormed: boolean, isCta: boolean): Promise<number[]>;
+  findEventObjects(timestamp: string): Promise<{id: number, date: number}[]>;
   updateEventFlags(eventId: number, isClosed: boolean, isFormed: boolean, isCta: boolean): Promise<boolean>;
   getEvents(includeClosed: boolean): Promise<{name: string, date: string}[]>;
   isCtaEvent(eventId: number): Promise<boolean>;
@@ -18,10 +19,10 @@ export interface ISqlHandler {
   setUnavailable(eventId: number, userId: string): Promise<boolean>;
   removeUnavailable(eventId: number, userId: string): Promise<boolean>;
   getUnavailables(eventId: number): Promise<string[]>;
-  addRole(userId: string, role: string): Promise<boolean>;
+  addRole(userId: string, role: string, date: number): Promise<boolean>;
   removeRole(userId: string, role: string): Promise<boolean>;
   clearRoles(userId: string): Promise<boolean>;
   getRoles(userId: string): Promise<string[]>;
-  getUsers(): Promise<string[]>;
+  getUsers(): Promise<{userid: string, register: number}[]>;
   getUsersWithRoles(): Promise<{role: string, count: number}[]>;
 }

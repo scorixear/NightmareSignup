@@ -27,7 +27,7 @@ export default class SqlHandler implements ISqlHandler {
       await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_formed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
       await conn.query('CREATE TABLE IF NOT EXISTS `discordEventMessages` (`eventId` INT, `messageId` VARCHAR(255), `channelId` VARCHAR(255), `guildId` VARCHAR(255), PRIMARY KEY(`eventId`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `unavailable` (`eventId` INT, `userId` VARCHAR(255), PRIMARY KEY (`eventId`,`userId`))');
-      await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `role` VARCHAR(255), PRIMARY KEY(`userId`,`role`))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `role` VARCHAR(255), `date` BIGINT, PRIMARY KEY(`userId`,`role`))');
     } catch (error) {
       throw error;
     } finally {
@@ -182,6 +182,27 @@ export default class SqlHandler implements ISqlHandler {
       if (rows) {
         for (const row of rows) {
           returnValue.push(row.id);
+        }
+      }
+    } catch (err) {
+      returnValue = [];
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async findEventObjects(timestamp: string): Promise<{ id: number; date: number; }[]> {
+    let conn;
+    let returnValue: { id: number; date: number; }[] = [];
+    try {
+      conn = await this.pool.getConnection();
+
+      const rows = await conn.query(`SELECT id, date FROM events WHERE date < ${conn.escape(timestamp)}`);
+      if (rows) {
+        for (const row of rows) {
+          returnValue.push({id: row.id, date: row.date});
         }
       }
     } catch (err) {
@@ -384,12 +405,12 @@ export default class SqlHandler implements ISqlHandler {
     return returnValue;
   }
 
-  public async addRole(userId: string, role: string): Promise<boolean> {
+  public async addRole(userId: string, role: string, date: number): Promise<boolean> {
     let conn;
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO users (userId, role) VALUES (${conn.escape(userId)}, ${conn.escape(role)})`);
+      await conn.query(`INSERT INTO users (userId, role, date) VALUES (${conn.escape(userId)}, ${conn.escape(role)}, ${conn.escape(date)})`);
       returnValue = true;
     } catch (err) {
       returnValue = false;
@@ -451,13 +472,13 @@ export default class SqlHandler implements ISqlHandler {
   }
   public async getUsers() {
     let conn;
-    let returnValue: string[] = [];
+    let returnValue: {userid: string, register: number}[] = [];
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT DISTINCT userId FROM users`);
+      const rows = await conn.query(`SELECT userId,date FROM users`);
       if (rows) {
         for (const row of rows) {
-          returnValue.push(row.userId);
+          returnValue.push({userid: row.userId, register: row.date});
         }
       }
     } catch (err) {

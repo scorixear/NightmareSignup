@@ -7,6 +7,7 @@ import { LanguageHandler } from '../../misc/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
 import PartyHandler from '../../misc/partyHandler';
+import dateHandler from '../../misc/dateHandler';
 
 declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
@@ -82,7 +83,7 @@ export default class AddRole extends CommandInteractionHandle {
     const addedRoles = [];
     const ignoredRoles = [];
     for (const zrole of zvzroles) {
-      if(await sqlHandler.addRole(user.id, zrole.trim())) {
+      if(await sqlHandler.addRole(user.id, zrole.trim(), dateHandler.getUTCTimestampFromDate(new Date()))) {
         addedRoles.push(zrole.trim());
       } else {
         ignoredRoles.push(zrole.trim());
