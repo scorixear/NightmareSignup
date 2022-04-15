@@ -49,7 +49,15 @@ export default class CheckAttendance extends CommandInteractionHandle {
     const lines = new Array<string>();
     for(const pair of userCounts) {
       if(events.length - pair[1] > 1) {
-        const member = await discordHandler.fetchMember(pair[0], interaction.guild);
+        let member;
+        try {
+          member = await discordHandler.fetchMember(pair[0], interaction.guild);
+        } catch (err) {
+          if(err.message === "Unknown Member") {
+            await sqlHandler.clearRoles(pair[0]);
+          }
+          continue;
+        }
         lines.push(`${member.nickname?member.nickname:member.user.username}: ${events.length - pair[1]} / ${events.length}`);
       }
     }
