@@ -125,6 +125,14 @@
         "title": "Players in Roles",
         "list": "Roles"
       }
+    },
+    "attendance": {
+      "description": "List all players, that missed at least 2 cta-events",
+      "success": {
+        "title": "Attendance Tracker",
+        "description": "A List of players and how many events they missed (out of all events registered)",
+        "list": "Players"
+      }
     }
   },
   "interactions": {
