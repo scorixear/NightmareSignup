@@ -79,8 +79,8 @@ export default class FormParties extends CommandInteractionHandle {
                 guild: interaction.guild,
                 author: interaction.user,
                 channel: interaction.channel,
-                title: languageHandler.language.handler.party.title,
-                description: languageHandler.language.handler.party.description,
+                title: languageHandler.language.handlers.party.title,
+                description: languageHandler.language.handlers.party.description,
                 categories: partyCategories
               });
               return;
@@ -99,8 +99,8 @@ export default class FormParties extends CommandInteractionHandle {
                 guild: interaction.guild,
                 author: interaction.user,
                 channel: interaction.channel,
-                title: languageHandler.language.handler.party.title,
-                description: languageHandler.language.handler.party.description,
+                title: languageHandler.language.handlers.party.title,
+                description: languageHandler.language.handlers.party.description,
                 categories: partyCategories
               });
             }
