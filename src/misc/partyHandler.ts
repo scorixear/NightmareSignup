@@ -152,7 +152,7 @@ export default class PartyHandler {
   private static countGlobalRole(globalRole: GlobalRole, party: { userId: string, date: number, role: string }[]) {
     let count = 0;
     for(const user of party) {
-      if (this.Roles.find((role) => role.RoleName === user.role).GlobalRole == globalRole) {
+      if (this.Roles.find((role) => role.RoleName === user.role).GlobalRole === globalRole) {
         count++;
       }
     }
