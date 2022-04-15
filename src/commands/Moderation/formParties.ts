@@ -72,24 +72,26 @@ export default class FormParties extends CommandInteractionHandle {
           console.log("forming parties now");
           const partyCategories = await PartyHandler.getCategories(eventId);
           if(partyCategories) {
-            if(msg) {
-              await msg.reply(await messageHandler.getRichTextExplicitDefault({
-                guild: msg.guild,
-                author: msg.author,
-                title: languageHandler.language.handlers.party.title,
-                description: languageHandler.language.handlers.party.description,
-                categories: partyCategories
-              }));
-            } else {
-              await messageHandler.sendRichTextDefaultExplicit({
-                guild: msg.guild,
-                author: msg.author,
-                channel: interaction.channel,
-                title: languageHandler.language.handler.party.title,
-                description: languageHandler.language.handler.party.description,
-                categories: partyCategories
-              });
-            }
+              try {
+                console.log("Replying to message");
+                await msg.reply(await messageHandler.getRichTextExplicitDefault({
+                  guild: msg.guild,
+                  author: msg.author,
+                  title: languageHandler.language.handlers.party.title,
+                  description: languageHandler.language.handlers.party.description,
+                  categories: partyCategories
+                }));
+              } catch {
+                await messageHandler.sendRichTextDefaultExplicit({
+                  guild: msg.guild,
+                  author: msg.author,
+                  channel: interaction.channel,
+                  title: languageHandler.language.handler.party.title,
+                  description: languageHandler.language.handler.party.description,
+                  categories: partyCategories
+                });
+              }
+              return;
           } else {
             console.log('Couldn\'t create parties for event '+event);
           }

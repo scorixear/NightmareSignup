@@ -43,7 +43,6 @@ export default class PartyHandler {
 
     let missingPlayers = 19;
     console.log(numberOfParties);
-    
     for (let i = 0; i < numberOfParties; i++) {
       console.log("Forming Party "+ i);
       // console.log("================== DISCORD USERS =====================");
