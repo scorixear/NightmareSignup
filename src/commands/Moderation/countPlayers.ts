@@ -29,7 +29,7 @@ export default class CountPlayers extends CommandInteractionHandle {
       return;
     }
 
-    const users: string[] = (await sqlHandler.getUsers()).map(u => '- <@'+u.userid+'>');
+    const users: string[] = (await sqlHandler.getUsers()).map(u => '- <@'+u.userid+'>').filter((value, index, self)=> self.indexOf(value)===index);
     const categories = messageHandler.splitInCategories(users, languageHandler.language.commands.countplayers.success.list);
     categories.unshift({
       title: languageHandler.language.commands.countplayers.success.count,

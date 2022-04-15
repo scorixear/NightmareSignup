@@ -31,6 +31,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
     }
     interaction.deferReply();
     const users: {userid: string, register: number}[] = (await sqlHandler.getUsers())
+    console.log("Users "+users.length);
     const distinctUsers = new Map<string, number>();
     for(const user of users) {
       if (distinctUsers.has(user.userid) && distinctUsers.get(user.userid) > user.register) {
@@ -39,12 +40,15 @@ export default class CheckAttendance extends CommandInteractionHandle {
         distinctUsers.set(user.userid, user.register);
       }
     }
+    console.log("Distinct users "+distinctUsers.size);
     const events = await sqlHandler.findEventObjects('9999999999');
+    console.log("Events "+events.length);
     const userCounts = new Map<string, {reacted: number, max: number}>();
 
     for(const user of distinctUsers.keys()) {
       userCounts.set(user,{reacted: 0, max: 0});
     }
+    console.log("User counts "+userCounts.size);
     for(const event of events) {
       for (const user of distinctUsers.keys()) {
         if (distinctUsers.get(user) < event.date) {
