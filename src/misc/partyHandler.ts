@@ -138,7 +138,12 @@ export default class PartyHandler {
     for(const party of parties) {
       const partyLines = [];
       for(const user of party) {
-        partyLines.push(`<@${user.userId}> - ${user.role}`);
+        const member = await discordHandler.fetchMember(user.userId, guild);
+        if(member) {
+          partyLines.push(`${member.nickname?member.nickname:member.user.username} - ${user.role}`);
+        } else {
+          partyLines.push(`<@${user.userId}> - ${user.role}`);
+        }
       }
       const partyCategories = messageHandler.splitInCategories(partyLines, languageHandler.replaceArgs(languageHandler.language.handlers.party.partyTitle,[partyIndex.toString()]));
       categories.push(...partyCategories);
