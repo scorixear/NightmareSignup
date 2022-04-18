@@ -93,7 +93,7 @@ export default class PartyHandler {
             if(missingPlayers === 0) {
               break;
             }
-            const reply = this.addUserToParty(discordUsers, parties[i], globalRole);
+            const reply = this.addUserToParty(discordUsers, parties, i, globalRole);
             if (reply.player) {
               discordUsers.splice(reply.index, 1);
               parties[i].push({
@@ -111,7 +111,7 @@ export default class PartyHandler {
       console.log("Filling up Global Roles")
       for(const globalRole of PartyHandler.GlobalRoles) {
         while(missingPlayers > 0 && discordUsers.length > 0) {
-          const reply = this.addUserToParty(discordUsers, parties[i], globalRole);
+          const reply = this.addUserToParty(discordUsers, parties, i, globalRole);
           if (reply.player) {
             discordUsers.splice(reply.index, 1);
             parties[i].push({
@@ -164,7 +164,19 @@ export default class PartyHandler {
     return count;
   }
 
-  private static addUserToParty(discordUsers: {userId: string, date: number, roles: string[]}[], party: {userId: string, date: number, role: string}[], globalRole: GlobalRole) {
+  private static countRole(parties: {userId: string, date: number, role: string}[][], role: Role) {
+    let count = 0;
+    for(const party of parties) {
+      for(const user of party) {
+        if(user.role === role.RoleName) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  private static addUserToParty(discordUsers: {userId: string, date: number, roles: string[]}[], parties: {userId: string, date: number, role: string}[][], partyIndex: number, globalRole: GlobalRole) {
     let index;
     let returnValue;
     const clone = this.shuffleArray(discordUsers).sort((a,b)=>a.roles.length - b.roles.length)
@@ -182,8 +194,11 @@ export default class PartyHandler {
       // if roles are found that are priority and fit to GlobalRole
       let foundRole;
       for(const role of roles) {
+        if (role.MaximumPerZerg && this.countRole(parties, role) >= role.MaximumPerZerg) {
+          continue;
+        }
         // get first BotRole that does not exceed maximum role cound (both Priority and DiscordRole)
-        if(!role.Maximum || role.Maximum > party.filter(p=>p.role===role.PriorityRole || p.role===role.RoleName).length) {
+        if(!role.MaximumPerParty || role.MaximumPerParty > parties[partyIndex].filter(p=>p.role===role.PriorityRole || p.role===role.RoleName).length) {
           foundRole = role;
           break;
         }
@@ -209,7 +224,10 @@ export default class PartyHandler {
         }
         let foundRole;
         for(const role of roles) {
-          if(!role.Maximum || role.Maximum > party.filter(p=>p.role === role.PriorityRole || p.role === role.RoleName).length)
+          if (role.MaximumPerZerg && this.countRole(parties, role) >= role.MaximumPerZerg) {
+            continue;
+          }
+          if(!role.MaximumPerParty || role.MaximumPerParty > parties[partyIndex].filter(p=>p.role === role.PriorityRole || p.role === role.RoleName).length)
           {
             foundRole = role;
             break;
@@ -229,7 +247,7 @@ export default class PartyHandler {
     return {player: returnValue, index};
   }
 
-  private static addUserToPartyOld(discordUsers: {userId: string, date: number, roles: string[]}[], party: {userId: string, date: number, role: string}[], globalRole: GlobalRole) {
+  private static addUserToPartyOld(discordUsers: {userId: string, date: number, roles: string[]}[], parties: {userId: string, date: number, role: string}[][], partyIndex: number, globalRole: GlobalRole) {
     let index: number;
     let returnValue;
     // find user of list
@@ -246,8 +264,11 @@ export default class PartyHandler {
       // if roles are found that are priority and fit to GlobalRole
       let foundRole;
       for(const role of roles) {
+        if(role.MaximumPerZerg && this.countRole(parties, role) >= role.MaximumPerZerg) {
+          continue;
+        }
         // get first BotRole that does not exceed maximum role cound (both Priority and DiscordRole)
-        if(!role.Maximum || role.Maximum > party.filter(p=>p.role===role.PriorityRole || p.role===role.RoleName).length) {
+        if(!role.MaximumPerParty || role.MaximumPerParty > parties[partyIndex].filter(p=>p.role===role.PriorityRole || p.role===role.RoleName).length) {
           foundRole = role;
           break;
         }
@@ -274,7 +295,10 @@ export default class PartyHandler {
         }
         let foundRole;
         for(const role of roles) {
-          if(!role.Maximum || role.Maximum > party.filter(p=>p.role === role.PriorityRole || p.role === role.RoleName).length)
+          if(role.MaximumPerZerg && this.countRole(parties, role) >= role.MaximumPerZerg) {
+            continue;
+          }
+          if(!role.MaximumPerParty || role.MaximumPerParty > parties[partyIndex].filter(p=>p.role === role.PriorityRole || p.role === role.RoleName).length)
           {
             foundRole = role;
             break;

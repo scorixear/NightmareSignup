@@ -37,12 +37,13 @@ export default class GoogleSheetsHandler implements IGoogleSheetsHandler {
   public async retrieveCompositionData() {
     const rolesData = (await this.retrieveData("A2:A")).values;
     const required = (await this.retrieveData("B2:B")).values;
-    const maximum = (await this.retrieveData("C2:C")).values;
-    const globalRoleAssignment = (await this.retrieveData("D2:D")).values;
-    const globalRolesData = (await this.retrieveData("E2:E")).values;
-    const globalRequired = (await this.retrieveData("F2:F")).values;
-    const globalFillUpPosition = (await this.retrieveData("G2:G")).values;
-    const bmData = await this.retrieveData("H2:J2");
+    const maximumPerParty = (await this.retrieveData("C2:C")).values;
+    const maximumPerZerg = (await this.retrieveData("D2:D")).values;
+    const globalRoleAssignment = (await this.retrieveData("E2:E")).values;
+    const globalRolesData = (await this.retrieveData("F2:F")).values;
+    const globalRequired = (await this.retrieveData("G2:G")).values;
+    const globalFillUpPosition = (await this.retrieveData("H2:H")).values;
+    const bmData = await this.retrieveData("I2:K2");
     const bmPerParty = bmData.values[0][0];
     const bmEveryParty = bmData.values[0][1];
     const minimumBms = bmData.values[0][2];
@@ -66,7 +67,8 @@ export default class GoogleSheetsHandler implements IGoogleSheetsHandler {
         RoleName: value[0],
         PriorityRole: "FullSpec "+value[0],
         Required: required[index]?required[index][0]:undefined,
-        Maximum: maximum[index]?maximum[index][0]:undefined,
+        MaximumPerParty: maximumPerParty[index]?maximumPerParty[index][0]:undefined,
+        MaximumPerZerg: maximumPerZerg[index]?maximumPerZerg[index][0]:undefined,
         GlobalRole: globalRoles.find(gr => gr.Name===globalRoleAssignment[index][0]),
       });
     });
