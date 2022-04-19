@@ -50,15 +50,18 @@ class SignupEvent extends ButtonInteractionHandle {
     if (await sqlHandler.isSignedIn(event, userId)) {
       try {
         // send already signed up message to user
-        channel.send(await messageHandler.getRichTextExplicitDefault({
+        await channel.send(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           title: languageHandler.language.interactions.signup.already_signed_up_title,
           description: languageHandler.language.interactions.signup.already_signed_up_desc,
           color: 0xFF8888,
         }));
       } catch (err) {
-        console.error('Error sending DM', err);
-        interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
+        console.error('Error sending DM');
+        try {
+          await interaction.deferUpdate();
+        } catch {}
+        await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
       }
       // else sign up user
     } else {
@@ -70,27 +73,33 @@ class SignupEvent extends ButtonInteractionHandle {
         }
         await updateSignupMessage(event);
         try {
-          channel.send(await messageHandler.getRichTextExplicitDefault({
+          await channel.send(await messageHandler.getRichTextExplicitDefault({
             guild: interaction.guild,
             title: languageHandler.language.interactions.signup.success.title,
             description: languageHandler.language.interactions.signup.success.description,
             color: 0x00cc00,
           }));
         } catch (err) {
-          console.error('Error sending DM', err);
-          interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interaction.signup.error.dmChannel, [userId]), ephemeral: true });
+          console.error('Error sending DM');
+          try {
+            await interaction.deferUpdate();
+          } catch {}
+          await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
         }
       } else {
         try {
-          channel.send(await messageHandler.getRichTextExplicitDefault({
+          await channel.send(await messageHandler.getRichTextExplicitDefault({
             guild: interaction.guild,
             title: languageHandler.language.interactions.signup.error.sql,
             description: languageHandler.language.interactions.signup.error.sql_desc,
             color: 0xFF8888,
           }));
         } catch (err) {
-          console.error('Error sending DM', err);
-          interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interaction.signup.error.dmChannel, [userId]), ephemeral: true });
+          console.error('Error sending DM');
+          try {
+            await interaction.deferUpdate();
+          } catch {}
+          await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
         }
       }
     }
@@ -118,8 +127,11 @@ class SignoutEvent extends ButtonInteractionHandle {
             color: 0xFF8888,
           }));
         } catch (err) {
-          console.error('Error sending DM', err);
-          interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interaction.signup.error.dmChannel, [userId]), ephemeral: true });
+          console.error('Error sending DM');
+          try {
+            await interaction.deferUpdate();
+          } catch {}
+          await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
         }
         return;
       }
@@ -138,8 +150,11 @@ class SignoutEvent extends ButtonInteractionHandle {
       }));
       console.log('User signed out', userId, event);
     } catch (err) {
-      console.error('Error sending DM', err);
-      interaction.followUp({content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true});
+      console.error('Error sending DM');
+      try {
+        await interaction.deferUpdate();
+      } catch {}
+      await interaction.followUp({content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true});
     }
   }
 }

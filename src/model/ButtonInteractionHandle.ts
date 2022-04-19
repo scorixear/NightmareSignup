@@ -8,7 +8,11 @@ abstract class ButtonInteractionHandle {
 
   public async handle(interaction: ButtonInteraction) {
     // set interaction as handled
-    setTimeout(()=> interaction.deferUpdate(), 2000);
+    setTimeout(async ()=> {
+      try {
+        await interaction.deferUpdate()
+      } catch {}
+    }, 2000);
   }
 }
 
