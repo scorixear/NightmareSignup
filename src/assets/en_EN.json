@@ -127,12 +127,18 @@
       }
     },
     "attendance": {
-      "description": "List all players, that missed at least 2 cta-events",
+      "description": "List all players, that missed at least 2 cta-events\nor returns missing players for a specific event",
       "success": {
         "title": "Attendance Tracker",
         "description": "A list of players and how many events they missed (out of all events registered)",
         "list": "Players"
-      }
+      },
+      "missing_parameter": "Missing Parameters, you need to specify the event name, event date and event time",
+      "error": {
+        "formatDesc": "Your Date and/or Time are in the wrong format.\nMake sure you follow DD.MM.YYYY HH:MM",
+        "event_not_found": "Could not find event"
+      },
+      "description_event": "Following players didn't react to the Event \"$0\" at $1 $2"
     }
   },
   "interactions": {
