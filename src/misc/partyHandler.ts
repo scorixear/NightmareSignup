@@ -135,8 +135,9 @@ export default class PartyHandler {
     console.log("Creating Discord Message");
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
-    for(const party of parties) {
+    for(let party of parties) {
       const partyLines = [];
+      party = party.sort((a,b)=> this.getGlobalRoleIndex(a.role)-this.getGlobalRoleIndex(b.role));
       for(const user of party) {
         const member = await discordHandler.fetchMember(user.userId, guild);
         if(member) {
@@ -403,6 +404,20 @@ export default class PartyHandler {
         arrayClone[randomIndex], arrayClone[currentIndex]];
     }
     return arrayClone;
+  }
+
+  private static getGlobalRoleIndex(role: string) {
+    const sheetRole = this.Roles.find(r=>r.RoleName === role);
+    if(sheetRole) {
+      let index = 0;
+      for(const gr of this.GlobalRoles) {
+        if(gr === sheetRole.GlobalRole) {
+          return index;
+        }
+        index++;
+      }
+    }
+    return 999;
   }
 
 }
