@@ -409,12 +409,19 @@ export default class PartyHandler {
   private static getGlobalRoleIndex(role: string) {
     const sheetRole = this.Roles.find(r=>r.RoleName === role);
     if(sheetRole) {
-      let index = 0;
-      for(const gr of this.GlobalRoles) {
-        if(gr === sheetRole.GlobalRole) {
-          return index;
-        }
-        index++;
+      switch (sheetRole.GlobalRole.Name) {
+        case "Tank":
+          return 0;
+        case "Heal":
+          return 1;
+        case "Support":
+          return 2;
+        case "RDPS":
+          return 3;
+        case "MDPS":
+          return 4;
+        default:
+          return 999;
       }
     }
     return 999;
