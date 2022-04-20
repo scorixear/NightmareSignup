@@ -137,7 +137,7 @@ export default class PartyHandler {
     let partyIndex = 1;
     for(let party of parties) {
       const partyLines = [];
-      party = party.sort((a,b)=> this.getGlobalRoleIndex(b.role)-this.getGlobalRoleIndex(a.role));
+      party = party.sort((a,b)=> this.getGlobalRoleIndex(a.role)-this.getGlobalRoleIndex(b.role));
       for(const user of party) {
         const member = await discordHandler.fetchMember(user.userId, guild);
         if(member) {
