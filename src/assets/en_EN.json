@@ -138,7 +138,10 @@
         "formatDesc": "Your Date and/or Time are in the wrong format.\nMake sure you follow DD.MM.YYYY HH:MM",
         "event_not_found": "Could not find event"
       },
-      "description_event": "Following players didn't react to the Event \"$0\" at $1 $2"
+      "description_event": "Following players didn't react to the Event \"$0\" at $1 $2",
+      "event_name_desc": "The name of the Event",
+      "event_date_desc": "The date of the Event (Format DD.MM.YYYY)",
+      "event_time_desc": "The time of the Event (Format HH:MM in UTC)"
     }
   },
   "interactions": {
