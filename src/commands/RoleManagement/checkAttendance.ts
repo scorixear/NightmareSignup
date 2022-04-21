@@ -125,18 +125,13 @@ export default class CheckAttendance extends CommandInteractionHandle {
       }
       const signups = await sqlHandler.getSignups(event.id);
       for (const signup of signups) {
-        if(!userCounts.has(signup.userId)) {
-          userCounts.set(signup.userId, {reacted: 1, max: 1});
-        } else {
+        if (userCounts.has(signup.userId)) {
           userCounts.get(signup.userId).reacted = userCounts.get(signup.userId).reacted + 1;
         }
       }
       const unavailables = await sqlHandler.getUnavailables(event.id);
       for(const id of unavailables) {
-        if(!userCounts.has(id)) {
-          userCounts.set(id, {reacted: 1, max: 1});
-        }
-        else {
+        if (userCounts.has(id)) {
           userCounts.get(id).reacted = userCounts.get(id).reacted + 1;
         }
       }
