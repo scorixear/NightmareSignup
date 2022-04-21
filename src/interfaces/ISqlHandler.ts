@@ -26,5 +26,5 @@ export interface ISqlHandler {
   getRoles(userId: string): Promise<string[]>;
   getUsers(): Promise<{userid: string, register: number}[]>;
   getUsersWithRoles(): Promise<{role: string, count: number}[]>;
-  
+
 }

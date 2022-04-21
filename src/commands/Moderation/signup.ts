@@ -68,7 +68,7 @@ declare const interactionHandler: InteractionHandler;
   } catch (err) {}
 }
 
-export async function updateUnavailable(eventId: number, isUnavailable: boolean) {
+export async function updateUnavailable(eventId: number) {
   const eventMessage = await global.sqlHandler.getDiscordMessage(eventId);
   try {
     const guild = await global.discordHandler.fetchGuild(eventMessage.guildId);
@@ -79,7 +79,7 @@ export async function updateUnavailable(eventId: number, isUnavailable: boolean)
         if (msg) {
           const embed = msg.embeds[0];
           const unavailable = await sqlHandler.countUnavailable(eventId);
-          if (unavailable) {
+          if (unavailable !== undefined) {
             embed.fields[embed.fields.length-1].value = unavailable.toString();
             msg.edit({embeds: [embed], components: msg.components});
           }

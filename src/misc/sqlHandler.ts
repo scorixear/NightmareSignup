@@ -407,7 +407,7 @@ export default class SqlHandler implements ISqlHandler {
 
   public async countUnavailable(eventId: number): Promise<number> {
     let conn;
-    let returnValue = undefined;
+    let returnValue;
     try {
       conn = await this.pool.getConnection();
       const rows = await conn.query(`SELECT COUNT(*) AS count FROM unavailable WHERE eventId = ${conn.escape(eventId)}`);
