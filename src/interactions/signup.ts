@@ -18,7 +18,7 @@ class UnavailableEvent extends ButtonInteractionHandle {
     const event = parseInt(interaction.customId.slice(this.id.length), 10);
     if (await sqlHandler.isUnavailable(event, userId)) {
       await sqlHandler.removeUnavailable(event, userId);
-      updateUnavailable(event, false);
+      updateUnavailable(event);
     } else {
       if (await sqlHandler.isSignedIn(event, userId)) {
         if (!await sqlHandler.signOut(event, userId)) {
@@ -27,7 +27,7 @@ class UnavailableEvent extends ButtonInteractionHandle {
         await updateSignupMessage(event);
       }
       await sqlHandler.setUnavailable(event, userId);
-      await updateUnavailable(event, true);
+      await updateUnavailable(event);
       console.log('User signed out', userId, event);
     }
   }

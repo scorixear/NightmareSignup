@@ -405,6 +405,24 @@ export default class SqlHandler implements ISqlHandler {
     return returnValue;
   }
 
+  public async countUnavailable(eventId: number): Promise<number> {
+    let conn;
+    let returnValue = undefined;
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT COUNT(*) AS count FROM unavailable WHERE eventId = ${conn.escape(eventId)}`);
+      if (rows && rows[0]) {
+        returnValue = rows[0].count;
+      }
+    } catch (err) {
+      returnValue = undefined;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
   public async addRole(userId: string, role: string, date: number): Promise<boolean> {
     let conn;
     let returnValue = false;

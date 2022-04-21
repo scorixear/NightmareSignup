@@ -78,8 +78,11 @@ export async function updateUnavailable(eventId: number, isUnavailable: boolean)
         const msg = await channel.messages.fetch(eventMessage.messageId);
         if (msg) {
           const embed = msg.embeds[0];
-          embed.fields[embed.fields.length-1].value = (parseInt(embed.fields[embed.fields.length-1].value, 10)+(isUnavailable?1:-1)).toString();
-          msg.edit({embeds: [embed], components: msg.components});
+          const unavailable = await sqlHandler.countUnavailable(eventId);
+          if (unavailable) {
+            embed.fields[embed.fields.length-1].value = unavailable.toString();
+            msg.edit({embeds: [embed], components: msg.components});
+          }
         }
       } catch (err) {}
     } catch (err) {}
