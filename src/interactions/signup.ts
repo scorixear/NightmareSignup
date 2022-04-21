@@ -16,10 +16,7 @@ class UnavailableEvent extends ButtonInteractionHandle {
     super.handle(interaction);
     const userId = interaction.member.user.id;
     const event = parseInt(interaction.customId.slice(this.id.length), 10);
-    if (await sqlHandler.isUnavailable(event, userId)) {
-      await sqlHandler.removeUnavailable(event, userId);
-      await updateUnavailable(event);
-    } else {
+    if (!(await sqlHandler.isUnavailable(event, userId))) {
       if (await sqlHandler.isSignedIn(event, userId)) {
         if (!await sqlHandler.signOut(event, userId)) {
           return;
@@ -136,10 +133,10 @@ class SignoutEvent extends ButtonInteractionHandle {
         return;
       }
       await updateSignupMessage(event);
-      if(!(await sqlHandler.isUnavailable(event, userId))) {
-        await sqlHandler.setUnavailable(event, userId);
-        await updateUnavailable(event);
-      }
+    }
+    if(!(await sqlHandler.isUnavailable(event, userId))) {
+      await sqlHandler.setUnavailable(event, userId);
+      await updateUnavailable(event);
     }
     try {
       await channel.send(await messageHandler.getRichTextExplicitDefault({
