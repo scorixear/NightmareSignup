@@ -2,7 +2,7 @@ import {CommandInteraction} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
+import { SlashCommandIntegerOption, SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
 import { LanguageHandler } from '../../misc/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import dateHandler from '../../misc/dateHandler';
@@ -13,6 +13,7 @@ declare const sqlHandler: ISqlHandler;
 export default class CheckAttendance extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [
+      new SlashCommandIntegerOption().setName('event-count').setDescription(languageHandler.language.commands.attendance.event_count_desc).setRequired(false),
       new SlashCommandStringOption().setName('event-name').setDescription(languageHandler.language.commands.attendance.event_name_desc).setRequired(false),
       new SlashCommandStringOption().setName('event-date').setDescription(languageHandler.language.commands.attendance.event_date_desc).setRequired(false),
       new SlashCommandStringOption().setName('event-time').setDescription(languageHandler.language.commands.attendance.event_time_desc).setRequired(false),
@@ -20,9 +21,9 @@ export default class CheckAttendance extends CommandInteractionHandle {
     super(
       'checkattendance',
       ()=>languageHandler.replaceArgs(languageHandler.language.commands.attendance.description, [config.botPrefix]),
-      'checkattendance',
+      'checkattendance\ncheckattendance event-count: 3\ncheckattendance event-name: Test Event event-date: 24.03.2022 event-time: 12:00',
       'RoleManagement',
-      'checkattendance',
+      'checkattendance [event-count] | [[event-name] [event-date] [event-time]]',
       commandOptions,
       true,
     );
@@ -39,6 +40,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
     const eventName = interaction.options.getString('event-name');
     const eventDate = interaction.options.getString('event-date');
     const eventTime = interaction.options.getString('event-time');
+    const eventCount = interaction.options.getInteger('event-count');
     let events;
     let description;
     let limit;
@@ -84,6 +86,17 @@ export default class CheckAttendance extends CommandInteractionHandle {
         description = languageHandler.replaceArgs(languageHandler.language.commands.attendance.description_event, [eventName, eventDate, eventTime]);
         limit = 0;
       }
+    } else if (eventCount) {
+      events = await sqlHandler.findEventObjects('9999999999');
+      let count = eventCount;
+      if(events.length >= eventCount) {
+        events.sort((a,b)=> a.date - b.date);
+        events = events.slice(events.length-eventCount, events.length);
+      } else {
+        count = events.length;
+      }
+      description = languageHandler.replaceArgs(languageHandler.language.commands.attendance.success.limit_desc, [count.toString()]);
+      limit = 1;
     } else {
       events = await sqlHandler.findEventObjects('9999999999');
       description = languageHandler.language.commands.attendance.success.description;

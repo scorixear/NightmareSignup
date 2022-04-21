@@ -131,7 +131,8 @@
       "success": {
         "title": "Attendance Tracker",
         "description": "A list of players and how many events they missed (out of all events registered)",
-        "list": "Players"
+        "list": "Players",
+        "limit_desc": "A list of players and how many events they missed (out of the last $0 events)"
       },
       "missing_parameter": "Missing Parameters, you need to specify the event name, event date and event time",
       "error": {
@@ -141,7 +142,8 @@
       "description_event": "Following players didn't react to the Event \"$0\" at $1 $2",
       "event_name_desc": "The name of the Event",
       "event_date_desc": "The date of the Event (Format DD.MM.YYYY)",
-      "event_time_desc": "The time of the Event (Format HH:MM in UTC)"
+      "event_time_desc": "The time of the Event (Format HH:MM in UTC)",
+      "event_count_desc": "The number of recent events to check"
     }
   },
   "interactions": {
