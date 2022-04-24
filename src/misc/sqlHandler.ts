@@ -27,7 +27,7 @@ export default class SqlHandler implements ISqlHandler {
       await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_formed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
       await conn.query('CREATE TABLE IF NOT EXISTS `discordEventMessages` (`eventId` INT, `messageId` VARCHAR(255), `channelId` VARCHAR(255), `guildId` VARCHAR(255), PRIMARY KEY(`eventId`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `unavailable` (`eventId` INT, `userId` VARCHAR(255), PRIMARY KEY (`eventId`,`userId`))');
-      await conn.query('CREATE TABLE IF NOT EXISTS `roles` (`userId` VARCHAR(255), `role` VARCHAR(255)), PRIMARY KEY (`userId`, `role`))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `roles` (`userId` VARCHAR(255), `role` VARCHAR(255), PRIMARY KEY (`userId`, `role`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `date` BIGINT, PRIMARY KEY(`userId`))');
     } catch (error) {
       throw error;

@@ -35,8 +35,6 @@ export default class CheckAttendance extends CommandInteractionHandle {
     } catch(err) {
       return;
     }
-    interaction.deferReply();
-
     const eventName = interaction.options.getString('event-name');
     const eventDate = interaction.options.getString('event-date');
     const eventTime = interaction.options.getString('event-time');
@@ -102,7 +100,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
       description = languageHandler.language.commands.attendance.success.description;
       limit = 1;
     }
-
+    interaction.deferReply();
     const users: {userid: string, register: number}[] = (await sqlHandler.getUsers())
     const userCounts = new Map<string, {reacted: number, max: number}>();
 
