@@ -31,7 +31,7 @@ export default class ClearRoles extends CommandInteractionHandle {
       return;
     }
     const user = interaction.options.getUser('user');
-    const cleared = await sqlHandler.clearRoles(user.id);
+    const cleared = (await sqlHandler.clearRoles(user.id))&&(await sqlHandler.removeUser(user.id));
     if (cleared) {
       await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,

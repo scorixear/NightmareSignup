@@ -104,23 +104,15 @@ export default class CheckAttendance extends CommandInteractionHandle {
     }
 
     const users: {userid: string, register: number}[] = (await sqlHandler.getUsers())
-    const distinctUsers = new Map<string, number>();
-    for(const user of users) {
-      if (distinctUsers.has(user.userid) && distinctUsers.get(user.userid) > user.register) {
-        distinctUsers.set(user.userid, user.register);
-      } else if(!distinctUsers.has(user.userid)) {
-        distinctUsers.set(user.userid, user.register);
-      }
-    }
     const userCounts = new Map<string, {reacted: number, max: number}>();
 
-    for(const user of distinctUsers.keys()) {
-      userCounts.set(user,{reacted: 0, max: 0});
+    for(const user of users) {
+      userCounts.set(user.userid,{reacted: 0, max: 0});
     }
     for(const event of events) {
-      for (const user of distinctUsers.keys()) {
-        if (distinctUsers.get(user) < event.date) {
-          userCounts.get(user).max = userCounts.get(user).max + 1;
+      for (const user of users) {
+        if (user.register < event.date) {
+          userCounts.get(user.userid).max = userCounts.get(user.userid).max + 1;
         }
       }
       const signups = await sqlHandler.getSignups(event.id);
@@ -145,6 +137,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
         } catch (err) {
           if(err.message === "Unknown Member") {
             await sqlHandler.clearRoles(pair[0]);
+            await sqlHandler.removeUser(pair[0]);
           }
           continue;
         }

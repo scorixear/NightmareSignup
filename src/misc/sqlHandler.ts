@@ -27,7 +27,8 @@ export default class SqlHandler implements ISqlHandler {
       await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_formed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
       await conn.query('CREATE TABLE IF NOT EXISTS `discordEventMessages` (`eventId` INT, `messageId` VARCHAR(255), `channelId` VARCHAR(255), `guildId` VARCHAR(255), PRIMARY KEY(`eventId`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `unavailable` (`eventId` INT, `userId` VARCHAR(255), PRIMARY KEY (`eventId`,`userId`))');
-      await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `role` VARCHAR(255), `date` BIGINT, PRIMARY KEY(`userId`,`role`))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `roles` (`userId` VARCHAR(255), `role` VARCHAR(255)), PRIMARY KEY (`userId`, `role`))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `date` BIGINT, PRIMARY KEY(`userId`))');
     } catch (error) {
       throw error;
     } finally {
@@ -423,12 +424,12 @@ export default class SqlHandler implements ISqlHandler {
     return returnValue;
   }
 
-  public async addRole(userId: string, role: string, date: number): Promise<boolean> {
+  public async addRole(userId: string, role: string): Promise<boolean> {
     let conn;
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO users (userId, role, date) VALUES (${conn.escape(userId)}, ${conn.escape(role)}, ${conn.escape(date)})`);
+      await conn.query(`INSERT INTO roles (userId, role) VALUES (${conn.escape(userId)}, ${conn.escape(role)})`);
       returnValue = true;
     } catch (err) {
       returnValue = false;
@@ -444,7 +445,7 @@ export default class SqlHandler implements ISqlHandler {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM users WHERE userId = ${conn.escape(userId)} AND role = ${conn.escape(role)}`);
+      await conn.query(`DELETE FROM roles WHERE userId = ${conn.escape(userId)} AND role = ${conn.escape(role)}`);
       returnValue = true;
     } catch (err) {
       returnValue = false;
@@ -459,7 +460,7 @@ export default class SqlHandler implements ISqlHandler {
     let returnValue: string[] = [];
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT role FROM users WHERE userId = ${conn.escape(userId)}`);
+      const rows = await conn.query(`SELECT role FROM roles WHERE userId = ${conn.escape(userId)}`);
       if (rows) {
         for (const row of rows) {
           returnValue.push(row.role);
@@ -478,7 +479,7 @@ export default class SqlHandler implements ISqlHandler {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM users WHERE userId = ${conn.escape(userId)}`);
+      await conn.query(`DELETE FROM roles WHERE userId = ${conn.escape(userId)}`);
       returnValue = true;
     } catch (err) {
       returnValue = false;
@@ -508,12 +509,62 @@ export default class SqlHandler implements ISqlHandler {
     return returnValue;
   }
 
+  public async addUser(userId: string, date: number) {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`INSERT INTO users (userId, date) VALUES (${conn.escape(userId)}, ${conn.escape(date)})`);
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async getUser(userId: string) {
+    let conn;
+    let returnValue: number;
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT date FROM users WHERE userId = ${conn.escape(userId)}`);
+      if (rows && rows[0]) {
+        returnValue = rows[0].date;
+      }
+    } catch (err) {
+      returnValue = undefined;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async removeUser(userId: string) {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`DELETE FROM users WHERE userId = ${conn.escape(userId)}`);
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
   public async getUsersWithRoles() {
     let conn;
     let returnValue: {role: string, count: number}[] = [];
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT role,COUNT(*) as count FROM users GROUP BY role ORDER BY count DESC`);
+      const rows = await conn.query(`SELECT role,COUNT(*) as count FROM roles GROUP BY role ORDER BY count DESC`);
       for(const row of rows) {
         returnValue.push({role: row.role, count: row.count});
       }
