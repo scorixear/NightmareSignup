@@ -63,9 +63,9 @@ export default class Deletesignup extends CommandInteractionHandle {
       }));
       return;
     }
-    const eventId = await sqlHandler.getEventId(eventName, eventTimestamp.toString());
+    const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
     if (eventId) {
-      const messageEvent = await sqlHandler.getDiscordMessage(eventId);
+      const messageEvent = await sqlHandler.getSqlDiscord().getDiscordMessage(eventId);
       try {
         const guild = await discordHandler.fetchGuild(messageEvent.guildId);
         try {
@@ -77,7 +77,7 @@ export default class Deletesignup extends CommandInteractionHandle {
         } catch (err) {}
       } catch (err) {}
 
-      await sqlHandler.deleteEvent(eventName, eventTimestamp.toString());
+      await sqlHandler.getSqlEvent().deleteEvent(eventName, eventTimestamp.toString());
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,

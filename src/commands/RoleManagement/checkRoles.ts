@@ -31,7 +31,7 @@ export default class CheckRoles extends CommandInteractionHandle {
       return;
     }
     const user = interaction.options.getUser('user');
-    const roles = await sqlHandler.getRoles(user.id);
+    const roles = await sqlHandler.getSqlRole().getRoles(user.id);
     const rolestring = '- '+ roles.join('\n- ');
     interaction.reply(await messageHandler.getRichTextExplicitDefault({
       guild: interaction.guild,

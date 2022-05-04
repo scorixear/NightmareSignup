@@ -19,7 +19,7 @@ declare const interactionHandler: InteractionHandler;
  * @param eventId
  */
  export async function updateSignupMessage(eventId: number) {
-  const eventMessage = await global.sqlHandler.getDiscordMessage(eventId);
+  const eventMessage = await global.sqlHandler.getSqlDiscord().getDiscordMessage(eventId);
   try {
     const guild = await global.discordHandler.fetchGuild(eventMessage.guildId);
     try {
@@ -27,7 +27,7 @@ declare const interactionHandler: InteractionHandler;
       try {
         const msg = await channel.messages.fetch(eventMessage.messageId);
         const embed = msg.embeds[0];
-        const signups = await global.sqlHandler.getSignups(eventId);
+        const signups = await global.sqlHandler.getSqlSignup().getSignups(eventId);
         embed.fields = [embed.fields[0], embed.fields[1], embed.fields[2], embed.fields[embed.fields.length-1]];
 
         embed.fields[2].value = signups.length.toString();
@@ -69,7 +69,7 @@ declare const interactionHandler: InteractionHandler;
 }
 
 export async function updateUnavailable(eventId: number) {
-  const eventMessage = await global.sqlHandler.getDiscordMessage(eventId);
+  const eventMessage = await global.sqlHandler.getSqlDiscord().getDiscordMessage(eventId);
   try {
     const guild = await global.discordHandler.fetchGuild(eventMessage.guildId);
     try {
@@ -78,7 +78,7 @@ export async function updateUnavailable(eventId: number) {
         const msg = await channel.messages.fetch(eventMessage.messageId);
         if (msg) {
           const embed = msg.embeds[0];
-          const unavailable = await sqlHandler.countUnavailable(eventId);
+          const unavailable = await sqlHandler.getSqlUnavailable().countUnavailable(eventId);
           if (unavailable !== undefined) {
             embed.fields[embed.fields.length-1].value = unavailable.toString();
             msg.edit({embeds: [embed], components: msg.components});
@@ -151,7 +151,7 @@ export default class SignupCommand extends CommandInteractionHandle {
       return;
     }
 
-    const eventId = await sqlHandler.createEvent(eventName, eventTimestamp.toString(), eventIsCta);
+    const eventId = await sqlHandler.getSqlEvent().createEvent(eventName, eventTimestamp.toString(), eventIsCta);
     if (eventId === -1) {
       console.error('Failed to load event id with values: ', eventName, eventTimestamp);
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
@@ -213,7 +213,7 @@ export default class SignupCommand extends CommandInteractionHandle {
       categories,
       components: [row],
     });
-    await sqlHandler.createDiscordMessage(eventId, message.id, channel.id, message.guild.id);
+    await sqlHandler.getSqlDiscord().createDiscordMessage(eventId, message.id, channel.id, message.guild.id);
     interaction.reply('Message created: '+message.url);
     console.log(`Created Event ${eventName} ${eventTimestamp}`);
   }

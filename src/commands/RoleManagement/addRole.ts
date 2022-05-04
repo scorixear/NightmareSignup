@@ -82,11 +82,11 @@ export default class AddRole extends CommandInteractionHandle {
     }
     const addedRoles = [];
     const ignoredRoles = [];
-    if(!(await sqlHandler.getUser(user.id))) {
-      await sqlHandler.addUser(user.id, dateHandler.getUTCTimestampFromDate(new Date()));
+    if(!(await sqlHandler.getSqlUser().getUser(user.id))) {
+      await sqlHandler.getSqlUser().addUser(user.id, dateHandler.getUTCTimestampFromDate(new Date()));
     }
     for (const zrole of zvzroles) {
-      if(await sqlHandler.addRole(user.id, zrole.trim())) {
+      if(await sqlHandler.getSqlRole().addRole(user.id, zrole.trim())) {
         addedRoles.push(zrole.trim());
       } else {
         ignoredRoles.push(zrole.trim());

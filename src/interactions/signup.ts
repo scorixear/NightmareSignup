@@ -16,14 +16,14 @@ class UnavailableEvent extends ButtonInteractionHandle {
     super.handle(interaction);
     const userId = interaction.member.user.id;
     const event = parseInt(interaction.customId.slice(this.id.length), 10);
-    if (!(await sqlHandler.isUnavailable(event, userId))) {
-      if (await sqlHandler.isSignedIn(event, userId)) {
-        if (!await sqlHandler.signOut(event, userId)) {
+    if (!(await sqlHandler.getSqlUnavailable().isUnavailable(event, userId))) {
+      if (await sqlHandler.getSqlSignup().isSignedIn(event, userId)) {
+        if (!await sqlHandler.getSqlSignup().signOut(event, userId)) {
           return;
         }
         await updateSignupMessage(event);
       }
-      await sqlHandler.setUnavailable(event, userId);
+      await sqlHandler.getSqlUnavailable().setUnavailable(event, userId);
       await updateUnavailable(event);
       console.log('User signed out', userId, event);
     }
@@ -44,7 +44,7 @@ class SignupEvent extends ButtonInteractionHandle {
     // If player already registered himself once
 
     // check if sql database has him signed up
-    if (await sqlHandler.isSignedIn(event, userId)) {
+    if (await sqlHandler.getSqlSignup().isSignedIn(event, userId)) {
       try {
         // send already signed up message to user
         await channel.send(await messageHandler.getRichTextExplicitDefault({
@@ -62,10 +62,10 @@ class SignupEvent extends ButtonInteractionHandle {
       }
       // else sign up user
     } else {
-      const success = await sqlHandler.signIn(event, userId, dateHandler.getUTCTimestampFromDate(new Date()));
+      const success = await sqlHandler.getSqlSignup().signIn(event, userId, dateHandler.getUTCTimestampFromDate(new Date()));
       if (success) {
-        if(await sqlHandler.isUnavailable(event, userId)) {
-          await sqlHandler.removeUnavailable(event, userId);
+        if(await sqlHandler.getSqlUnavailable().isUnavailable(event, userId)) {
+          await sqlHandler.getSqlUnavailable().removeUnavailable(event, userId);
           await updateUnavailable(event);
         }
         await updateSignupMessage(event);
@@ -114,8 +114,8 @@ class SignoutEvent extends ButtonInteractionHandle {
     const channel = await (interaction.member as GuildMember).createDM();
     // retrieve Players data from google sheets
 
-    if (await sqlHandler.isSignedIn(event, userId)) {
-      if (!await sqlHandler.signOut(event, userId)) {
+    if (await sqlHandler.getSqlSignup().isSignedIn(event, userId)) {
+      if (!await sqlHandler.getSqlSignup().signOut(event, userId)) {
         try {
           // send Confirmation message to channel that user was signed out
           await channel.send(await messageHandler.getRichTextExplicitDefault({
@@ -134,8 +134,8 @@ class SignoutEvent extends ButtonInteractionHandle {
       }
       await updateSignupMessage(event);
     }
-    if(!(await sqlHandler.isUnavailable(event, userId))) {
-      await sqlHandler.setUnavailable(event, userId);
+    if(!(await sqlHandler.getSqlUnavailable().isUnavailable(event, userId))) {
+      await sqlHandler.getSqlUnavailable().setUnavailable(event, userId);
       await updateUnavailable(event);
     }
     try {

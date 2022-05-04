@@ -34,7 +34,7 @@ export default class RemoveRole extends CommandInteractionHandle {
     }
     const user = interaction.options.getUser('user');
     const zvzrole = interaction.options.getString('zvzrole').trim();
-    const removed = await sqlHandler.removeRole(user.id, zvzrole);
+    const removed = await sqlHandler.getSqlRole().removeRole(user.id, zvzrole);
     if (removed) {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,

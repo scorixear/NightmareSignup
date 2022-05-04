@@ -30,7 +30,7 @@ export default class CountRoles extends CommandInteractionHandle {
       return;
     }
 
-    const roles= await sqlHandler.getUsersWithRoles();
+    const roles= await sqlHandler.getSqlRole().getUsersWithRoles();
     let react = true;
     if(!PartyHandler.Roles) {
       react = false;

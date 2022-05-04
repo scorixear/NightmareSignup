@@ -60,9 +60,9 @@ export default class Unavailable extends CommandInteractionHandle {
       }));
       return;
     }
-    const eventId = await sqlHandler.getEventId(eventName, eventTimestamp.toString());
+    const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
     if (eventId) {
-      const result = (await Promise.all((await sqlHandler.getUnavailables(eventId))
+      const result = (await Promise.all((await sqlHandler.getSqlUnavailable().getUnavailables(eventId))
           .map(async (val)=> {
             const guildMember = await interaction.guild.members.fetch(val.toString());
             return guildMember.nickname?guildMember.nickname:guildMember.user.username;

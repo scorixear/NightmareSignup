@@ -19,8 +19,8 @@ export default class PartyHandler {
   }
 
   public static async getCategories(event: number) {
-    const users = await sqlHandler.getSignups(event);
-    const guild = await discordHandler.fetchGuild((await sqlHandler.getDiscordMessage(event)).guildId);
+    const users = await sqlHandler.getSqlSignup().getSignups(event);
+    const guild = await discordHandler.fetchGuild((await sqlHandler.getSqlDiscord().getDiscordMessage(event)).guildId);
     if (!guild) {
       return undefined;
     }
@@ -28,7 +28,7 @@ export default class PartyHandler {
     const discordUsers: { userId: string, date: number, roles: string[] }[] = [];
     for (const user of users) {
       const member = await discordHandler.fetchMember(user.userId, guild);
-      const roles  = await sqlHandler.getRoles(user.userId);
+      const roles  = await sqlHandler.getSqlRole().getRoles(user.userId);
       if (member) {
         discordUsers.push({ userId: user.userId, date: user.date, roles });
       }

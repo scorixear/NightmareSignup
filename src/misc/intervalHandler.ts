@@ -19,7 +19,7 @@ export class IntervalHandlers {
   private static async handleMessageDeletion(now: Date) {
     const date = new Date(now.getTime());
     date.setHours(date.getHours() - 1);
-    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCTimestampFromDate(date).toString(), false, true, undefined);
+    const events: number[] = await sqlHandler.getSqlEvent().findEvents(dateHandler.getUTCTimestampFromDate(date).toString(), false, true, undefined);
     for (const event of events) {
       const msg = await this.getMessageForEvent(event);
       if(msg) {
@@ -30,12 +30,12 @@ export class IntervalHandlers {
           console.error(`Couldn't delete message for event ${event}`, err);
         }
       }
-      sqlHandler.updateEventFlags(event, true, undefined, undefined);
+      sqlHandler.getSqlEvent().updateEventFlags(event, true, undefined, undefined);
     }
   }
 
   private static async handleButtonRemoval(now: Date) {
-    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCTimestampFromDate(now).toString(), false, false, undefined);
+    const events: number[] = await sqlHandler.getSqlEvent().findEvents(dateHandler.getUTCTimestampFromDate(now).toString(), false, false, undefined);
     for(const event of events) {
       const msg = await this.getMessageForEvent(event);
       if(msg) {
@@ -60,7 +60,7 @@ export class IntervalHandlers {
   }
 
   private static async handlePartyPost(now: Date) {
-    const events: number[] = await sqlHandler.findEvents(dateHandler.getUTCTimestampFromDate(now).toString(), false, false, undefined);
+    const events: number[] = await sqlHandler.getSqlEvent().findEvents(dateHandler.getUTCTimestampFromDate(now).toString(), false, false, undefined);
 
     if (events.length > 0) {
       await PartyHandler.updateComposition();
@@ -85,12 +85,12 @@ export class IntervalHandlers {
           console.log('Couldn\'t send party message');
         }
       }
-      sqlHandler.updateEventFlags(event, undefined, true, undefined);
+      sqlHandler.getSqlEvent().updateEventFlags(event, undefined, true, undefined);
     }
   }
 
   private static async getMessageForEvent(eventId: number) {
-    const message = await sqlHandler.getDiscordMessage(eventId);
+    const message = await sqlHandler.getSqlDiscord().getDiscordMessage(eventId);
     return this.getDiscordMessage(eventId, message.messageId, message.channelId, message.guildId);
   }
 

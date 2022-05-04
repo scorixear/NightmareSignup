@@ -1,8 +1,21 @@
 import { IMariaDB, IPool} from '../interfaces/IMariaDb';
 import { ISqlHandler } from '../interfaces/ISqlHandler';
-
+import SqlDiscord from './sql/SqlDiscord';
+import SqlEvent from './sql/SqlEvent';
+import SqlRole from './sql/SqlRole';
+import SqlSignup from './sql/SqlSignup';
+import SqlUnavailable from './sql/SqlUnavailable';
+import SqlUser from './sql/SqlUser';
+import SqlVacation from './sql/SqlVacation';
 export default class SqlHandler implements ISqlHandler {
   private pool: IPool;
+  private sqlDiscord: SqlDiscord;
+  private sqlEvent: SqlEvent;
+  private sqlRole: SqlRole;
+  private sqlSignup: SqlSignup;
+  private sqlUnavailable: SqlUnavailable;
+  private sqlUser: SqlUser;
+  private sqlVacation: SqlVacation;
   constructor(mariadb: IMariaDB) {
     this.pool = mariadb.createPool({
       host: process.env.DB_HOST,
@@ -29,548 +42,46 @@ export default class SqlHandler implements ISqlHandler {
       await conn.query('CREATE TABLE IF NOT EXISTS `unavailable` (`eventId` INT, `userId` VARCHAR(255), PRIMARY KEY (`eventId`,`userId`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `roles` (`userId` VARCHAR(255), `role` VARCHAR(255), PRIMARY KEY (`userId`, `role`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `users` (`userId` VARCHAR(255), `date` BIGINT, PRIMARY KEY(`userId`))');
+      await conn.query('CREATE TABLE IF NOT EXISTS `vacation` (`userId` VARCHAR(255), `begin` BIGINT, `end` BIGINT, PRIMARY KEY(`userId`, `begin`, `end`))');
     } catch (error) {
       throw error;
     } finally {
       if (conn) conn.end();
     }
+    this.sqlDiscord = new SqlDiscord(this.pool);
+    this.sqlEvent = new SqlEvent(this.pool);
+    this.sqlRole = new SqlRole(this.pool);
+    this.sqlSignup = new SqlSignup(this.pool);
+    this.sqlUnavailable = new SqlUnavailable(this.pool);
+    this.sqlUser = new SqlUser(this.pool);
+    this.sqlVacation = new SqlVacation(this.pool);
   }
 
-  public async isSignedIn(event: number, userid: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT event FROM signup WHERE \`event\` = ${conn.escape(event)} AND \`userid\` = ${conn.escape(userid)}`);
-      if (rows && rows[0]) {
-        returnValue = true;
-      }
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
+  public getSqlDiscord() {
+    return this.sqlDiscord;
   }
 
-  public async signIn(event: number, userid: string, date: number) {
-    let conn;
-    let returnValue = true;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT event FROM signup WHERE \`event\` = ${conn.escape(event)} AND \`userid\` = ${conn.escape(userid)}`);
-      if (!rows || !rows[0]) {
-        await conn.query(`INSERT INTO signup (event, userid, date) VALUES (${conn.escape(event)}, ${conn.escape(userid)}, ${conn.escape(date)})`);
-      } else {
-        throw new Error('already signed in');
-      }
-    } catch (err) {
-      returnValue=false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
+  public getSqlEvent() {
+    return this.sqlEvent;
   }
 
-  public async signOut(event: number, userid: string) {
-    let conn;
-    let returnValue = true;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT event FROM signup WHERE \`event\` = ${conn.escape(event)} AND \`userid\` = ${conn.escape(userid)}`);
-      if (rows && rows[0]) {
-        await conn.query(`DELETE FROM signup WHERE \`event\` = ${conn.escape(event)} AND \`userid\` = ${conn.escape(userid)}`);
-      } else {
-        throw new Error('already signed out');
-      }
-    } catch (err) {
-      returnValue=false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
+  public getSqlRole() {
+    return this.sqlRole;
   }
 
-  public async getSignups(eventId: number) {
-    let conn;
-    let returnValue: {userId: string, date: number}[] = [];
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT userid, date FROM signup WHERE event = ${conn.escape(eventId)}`);
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push({userId: row.userid, date: row.date});
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
+  public getSqlSignup() {
+    return this.sqlSignup;
   }
 
-  public async createEvent(eventName: string, eventDate: string, isCta: boolean) {
-    let conn;
-    let returnValue = -1;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO events (name, date, is_cta) VALUES (${conn.escape(eventName)}, ${conn.escape(eventDate)}, ${isCta?"1":"0"})`);
-      const rows = await conn.query(`SELECT id FROM events WHERE name = ${conn.escape(eventName)} AND date = ${conn.escape(eventDate)}`);
-      if (rows && rows[0]) {
-        returnValue = rows[0].id;
-      }
-    } catch (err) {
-      returnValue = -1;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
+  public getSqlUnavailable() {
+    return this.sqlUnavailable;
   }
 
-  public async deleteEvent(eventName: string, eventDate: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT id FROM events WHERE name = ${conn.escape(eventName)} AND date = ${conn.escape(eventDate)}`);
-      if (rows && rows[0]) {
-        await conn.query(`DELETE FROM events WHERE id = ${conn.escape(rows[0].id)}`);
-        await conn.query(`DELETE FROM signup WHERE event = ${conn.escape(rows[0].id)}`);
-        await conn.query(`DELETE FROM discordEventMessages WHERE eventId = ${conn.escape(rows[0].id)}`);
-        await conn.query(`DELETE FROM unavailable WHERE eventId = ${conn.escape(rows[0].id)}`);
-        returnValue = true;
-      }
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
+  public getSqlUser() {
+    return this.sqlUser;
   }
 
-  public async getEventId(eventName: string, eventDate: string) {
-    let conn;
-    let returnValue: number;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT id FROM events WHERE name = ${conn.escape(eventName)} AND date = ${conn.escape(eventDate)}`);
-      if (rows && rows[0]) {
-        returnValue = rows[0].id;
-      }
-    } catch (err) {
-      returnValue = undefined;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async findEvents(timestamp: string, isClosed: boolean, isFormed: boolean, isCta: boolean) {
-    let conn;
-    let returnValue: number[] = [];
-    try {
-      conn = await this.pool.getConnection();
-
-      const rows = await conn.query(`SELECT id FROM events WHERE date < ${conn.escape(timestamp)}${isClosed !== undefined?` AND is_closed = ${isClosed?"1":"0"}`:""}${isFormed !== undefined?` AND is_formed = ${isFormed?"1":"0"}`:""}${isCta!==undefined?` AND is_cta = ${isCta?"1":"0"}`:""}`);
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push(row.id);
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async findEventObjects(timestamp: string): Promise<{ id: number; date: number; }[]> {
-    let conn;
-    let returnValue: { id: number; date: number; }[] = [];
-    try {
-      conn = await this.pool.getConnection();
-
-      const rows = await conn.query(`SELECT id, date FROM events WHERE date < ${conn.escape(timestamp)} AND is_closed = 1 AND is_formed = 1 AND is_cta = 1`);
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push({id: row.id, date: row.date});
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async updateEventFlags(eventId: number, isClosed: boolean, isFormed: boolean, isCta: boolean) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      if(isClosed !== undefined) {
-        await conn.query(`UPDATE events SET is_closed = ${isClosed?"1":"0"} WHERE id = ${conn.escape(eventId)}`);
-      }
-      if(isFormed !== undefined) {
-        await conn.query(`UPDATE events SET is_formed = ${isFormed?"1":"0"} WHERE id = ${conn.escape(eventId)}`);
-      }
-      if(isCta !== undefined) {
-        await conn.query(`UPDATE events SET is_cta = ${isCta?"1":"0"} WHERE id = ${conn.escape(eventId)}`);
-      }
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async getEvents(includeClosed: boolean) {
-    let conn;
-    let returnValue: {name: string, date: string}[] = [];
-    try {
-      conn = await this.pool.getConnection();
-      let rows;
-      if (includeClosed) {
-        rows = await conn.query(`SELECT name, date FROM events`);
-      } else {
-        rows = await conn.query(`SELECT name, date FROM events WHERE is_closed = 0`);
-      }
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push({name: row.name, date: row.date});
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async isCtaEvent(eventId: number) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT is_cta FROM events WHERE id = ${conn.escape(eventId)}`);
-      if(rows && rows[0]) {
-        returnValue = rows[0].is_cta[0] === 1;
-      }
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async createDiscordMessage(eventId: number, messageId: string, channelId: string, guildId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO discordEventMessages (eventId, messageId, channelId, guildId) VALUES (${conn.escape(eventId)}, ${conn.escape(messageId)}, ${conn.escape(channelId)}, ${conn.escape(guildId)})`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async getDiscordMessage(eventId: number) {
-    let conn;
-    let returnValue: {guildId?: string, channelId?: string, messageId?: string} = {};
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT guildId, channelId, messageId FROM discordEventMessages WHERE eventId = ${conn.escape(eventId)}`);
-      if (rows && rows[0]) {
-        returnValue = {
-          guildId: rows[0].guildId,
-          channelId: rows[0].channelId,
-          messageId: rows[0].messageId,
-        };
-      }
-    } catch (err) {
-      returnValue = {};
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async removeDiscordMessage(eventId: number, messageId: string, channelId: string, guildId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM discordEventMessages WHERE eventId = ${conn.escape(eventId)} AND messageId = ${conn.escape(messageId)} AND channelId = ${conn.escape(channelId)} AND guildId = ${conn.escape(guildId)}`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async isUnavailable(eventId: number, userId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT eventId FROM unavailable WHERE eventId = ${conn.escape(eventId)} AND userId = ${conn.escape(userId)}`);
-      if (rows && rows[0]) {
-        returnValue = true;
-      }
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async setUnavailable(eventId: number, userId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO unavailable (eventId, userId) VALUES(${conn.escape(eventId)}, ${conn.escape(userId)})`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async removeUnavailable(eventId: number, userId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM unavailable WHERE eventId = ${conn.escape(eventId)} AND userId = ${conn.escape(userId)}`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async getUnavailables(eventId: number) {
-    let conn;
-    let returnValue: string[] = [];
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT userId FROM unavailable WHERE eventId = ${conn.escape(eventId)}`);
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push(row.userId);
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async countUnavailable(eventId: number): Promise<number> {
-    let conn;
-    let returnValue;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT COUNT(*) AS count FROM unavailable WHERE eventId = ${conn.escape(eventId)}`);
-      if (rows && rows[0]) {
-        returnValue = rows[0].count;
-      }
-    } catch (err) {
-      returnValue = undefined;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async addRole(userId: string, role: string): Promise<boolean> {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO roles (userId, role) VALUES (${conn.escape(userId)}, ${conn.escape(role)})`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async removeRole(userId: string, role: string): Promise<boolean> {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM roles WHERE userId = ${conn.escape(userId)} AND role = ${conn.escape(role)}`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-  public async getRoles(userId: string): Promise<string[]> {
-    let conn;
-    let returnValue: string[] = [];
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT role FROM roles WHERE userId = ${conn.escape(userId)}`);
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push(row.role);
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-  public async clearRoles(userId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM roles WHERE userId = ${conn.escape(userId)}`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-  public async getUsers() {
-    let conn;
-    let returnValue: {userid: string, register: number}[] = [];
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT userId,date FROM users`);
-      if (rows) {
-        for (const row of rows) {
-          returnValue.push({userid: row.userId, register: row.date});
-        }
-      }
-    } catch (err) {
-      returnValue = [];
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async addUser(userId: string, date: number) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO users (userId, date) VALUES (${conn.escape(userId)}, ${conn.escape(date)})`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async getUser(userId: string) {
-    let conn;
-    let returnValue: number;
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT date FROM users WHERE userId = ${conn.escape(userId)}`);
-      if (rows && rows[0]) {
-        returnValue = rows[0].date;
-      }
-    } catch (err) {
-      returnValue = undefined;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async removeUser(userId: string) {
-    let conn;
-    let returnValue = false;
-    try {
-      conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM users WHERE userId = ${conn.escape(userId)}`);
-      returnValue = true;
-    } catch (err) {
-      returnValue = false;
-      // console.error(err);
-    } finally {
-      if (conn) await conn.end();
-    }
-    return returnValue;
-  }
-
-  public async getUsersWithRoles() {
-    let conn;
-    let returnValue: {role: string, count: number}[] = [];
-    try {
-      conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT role,COUNT(*) as count FROM roles GROUP BY role ORDER BY count DESC`);
-      for(const row of rows) {
-        returnValue.push({role: row.role, count: row.count});
-      }
-    } catch {
-      returnValue = [];
-    }
-    return returnValue;
+  public getSqlVacation() {
+    return this.sqlVacation;
   }
 }

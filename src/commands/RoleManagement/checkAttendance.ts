@@ -69,7 +69,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
           });
           return;
         }
-        const eventId = await sqlHandler.getEventId(eventName, eventTimestamp.toString());
+        const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
         if (!eventId) {
           await interaction.reply({
             content: languageHandler.language.commands.attendance.error.event_not_found,
@@ -85,7 +85,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
         limit = 0;
       }
     } else if (eventCount) {
-      events = await sqlHandler.findEventObjects('9999999999');
+      events = await sqlHandler.getSqlEvent().findEventObjects('9999999999');
       let count = eventCount;
       if(events.length >= eventCount) {
         events.sort((a,b)=> a.date - b.date);
@@ -96,12 +96,12 @@ export default class CheckAttendance extends CommandInteractionHandle {
       description = languageHandler.replaceArgs(languageHandler.language.commands.attendance.success.limit_desc, [count.toString()]);
       limit = 1;
     } else {
-      events = await sqlHandler.findEventObjects('9999999999');
+      events = await sqlHandler.getSqlEvent().findEventObjects('9999999999');
       description = languageHandler.language.commands.attendance.success.description;
       limit = 1;
     }
     interaction.deferReply();
-    const users: {userid: string, register: number}[] = (await sqlHandler.getUsers())
+    const users: {userid: string, register: number}[] = (await sqlHandler.getSqlUser().getUsers())
     const userCounts = new Map<string, {reacted: number, max: number}>();
 
     for(const user of users) {
@@ -113,13 +113,13 @@ export default class CheckAttendance extends CommandInteractionHandle {
           userCounts.get(user.userid).max = userCounts.get(user.userid).max + 1;
         }
       }
-      const signups = await sqlHandler.getSignups(event.id);
+      const signups = await sqlHandler.getSqlSignup().getSignups(event.id);
       for (const signup of signups) {
         if (userCounts.has(signup.userId)) {
           userCounts.get(signup.userId).reacted = userCounts.get(signup.userId).reacted + 1;
         }
       }
-      const unavailables = await sqlHandler.getUnavailables(event.id);
+      const unavailables = await sqlHandler.getSqlUnavailable().getUnavailables(event.id);
       for(const id of unavailables) {
         if (userCounts.has(id)) {
           userCounts.get(id).reacted = userCounts.get(id).reacted + 1;
@@ -134,8 +134,8 @@ export default class CheckAttendance extends CommandInteractionHandle {
           member = await discordHandler.fetchMember(pair[0], interaction.guild);
         } catch (err) {
           if(err.message === "Unknown Member") {
-            await sqlHandler.clearRoles(pair[0]);
-            await sqlHandler.removeUser(pair[0]);
+            await sqlHandler.getSqlRole().clearRoles(pair[0]);
+            await sqlHandler.getSqlUser().removeUser(pair[0]);
           }
           continue;
         }
