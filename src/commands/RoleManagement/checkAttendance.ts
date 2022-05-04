@@ -110,7 +110,10 @@ export default class CheckAttendance extends CommandInteractionHandle {
     for(const event of events) {
       for (const user of users) {
         if (user.register < event.date) {
-          userCounts.get(user.userid).max = userCounts.get(user.userid).max + 1;
+          if (!await sqlHandler.getSqlVacation().isInVacation(user.userid, event.date))
+          {
+            userCounts.get(user.userid).max = userCounts.get(user.userid).max + 1;
+          }
         }
       }
       const signups = await sqlHandler.getSqlSignup().getSignups(event.id);
@@ -136,6 +139,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
           if(err.message === "Unknown Member") {
             await sqlHandler.getSqlRole().clearRoles(pair[0]);
             await sqlHandler.getSqlUser().removeUser(pair[0]);
+            await sqlHandler.getSqlVacation().clearVacation(pair[0]);
           }
           continue;
         }

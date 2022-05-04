@@ -6,7 +6,30 @@ export default class SqlVacation {
     this.pool = pool;
   }
 
-  public async getVacation(userId: string): Promise<[begin: number, end: number][]> {
+  public async isInVacation(userId: string, date: number): Promise<boolean> {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      const rows = await conn.query(`SELECT begin, end FROM vacation WHERE userId = ${conn.escape(userId)}`);
+      if (rows) {
+        for (const row of rows) {
+          if (date >= row.begin && date <= row.end) {
+            returnValue = true;
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async getVacations(userId: string): Promise<[begin: number, end: number][]> {
     let conn;
     let returnValue: [number, number][] = [];
     try {
