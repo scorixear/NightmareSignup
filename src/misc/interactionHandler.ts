@@ -23,6 +23,7 @@ import CheckAttendance from '../commands/RoleManagement/checkAttendance';
 import StartVacation from '../commands/RoleManagement/startVacation';
 import EndVacation from '../commands/RoleManagement/endVacation';
 import RemoveVacation from '../commands/RoleManagement/removeVacation';
+import CheckVacation from '../commands/RoleManagement/checkVacation';
 
 
 export default class InteractionHandler {
@@ -51,6 +52,7 @@ export default class InteractionHandler {
       new StartVacation(),
       new EndVacation(),
       new RemoveVacation(),
+      new CheckVacation(),
       help,
     ];
     help.init(this.commandInteractions);
@@ -68,7 +70,7 @@ export default class InteractionHandler {
     global.discordHandler.getGuilds().forEach(async guild=> {
       await rest.put(Routes.applicationGuildCommands(process.env.CLIENTID, guild.id), {body: commands})
       console.log('Successfully registered application commands for guild', guild.id);
-      const guildRoles = await global.discordHandler.getRolesOfGuild(guild);
+      /*const guildRoles = await global.discordHandler.getRolesOfGuild(guild);
       const guildCommands = await guild.commands.fetch();
       const signupRoles = guildRoles.filter(role => config.signupRoles.includes(role.name));
       const permissionsObject: ApplicationCommandPermissionData[] = [];
@@ -84,7 +86,7 @@ export default class InteractionHandler {
             permissions: permissionsObject,
           });
         }
-      })
+      })*/
     });
 
 

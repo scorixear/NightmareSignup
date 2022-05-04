@@ -154,17 +154,28 @@
         }
       },
       "end": {
-        "description": "Unmarks a player as from vacation",
+        "description": "Unmarks a player from vacation",
         "success": {
           "title": "Vacation ended",
           "description": "Successfully unmarked <@$0> from vacation."
         }
       },
       "remove": {
-        "description": "Revmoes the latest vacation entry for a player",
+        "description": "Removes the latest vacation entry for a player",
         "success": {
           "title": "Vacation removed",
           "description": "Successfully removed <@$0>'s most recent vacation."
+        }
+      },
+      "check": {
+        "description": "Check if player is currently on vacation",
+        "success": {
+          "title": "Player is in vacation",
+          "description": "<@$0> is currently on vacation."
+        },
+        "not": {
+          "title": "Player is not on vacation",
+          "description": "<@$0> is **not** currently on vacation."
         }
       },
       "options": {
