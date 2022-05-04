@@ -42,6 +42,22 @@ export default class SqlVacation {
     return returnValue;
   }
 
+  public async updateVacation(userId: string, end: number): Promise<boolean> {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`UPDATE vacation SET end = ${conn.escape(end)} WHERE userId = ${conn.escape(userId)} AND begin = (SELECT Max(begin) FROM vacation WHERE userId = ${conn.escape(userId)})`);
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
   public async removeVacation(userId: string, restriction?: [begin: number, end: number]): Promise<boolean> {
     let conn;
     let returnValue = false;
@@ -52,6 +68,22 @@ export default class SqlVacation {
       } else {
         await conn.query(`DELETE FROM vacation WHERE userId = ${conn.escape(userId)} AND begin = (SELECT Max(begin) FROM vacation WHERE userId = ${conn.escape(userId)})`);
       }
+      returnValue = true;
+    } catch (err) {
+      returnValue = false;
+      // console.error(err);
+    } finally {
+      if (conn) await conn.end();
+    }
+    return returnValue;
+  }
+
+  public async clearVacation(userId: string): Promise<boolean> {
+    let conn;
+    let returnValue = false;
+    try {
+      conn = await this.pool.getConnection();
+      await conn.query(`DELETE FROM vacation WHERE userId = ${conn.escape(userId)}`);
       returnValue = true;
     } catch (err) {
       returnValue = false;

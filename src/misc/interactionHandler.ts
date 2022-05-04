@@ -20,6 +20,9 @@ import { IGoogleSheetsHandler } from '../interfaces/IGoogleSheetsHandler';
 import CountPlayers from '../commands/Moderation/countPlayers';
 import CountRoles from '../commands/Moderation/countRoles';
 import CheckAttendance from '../commands/RoleManagement/checkAttendance';
+import StartVacation from '../commands/RoleManagement/startVacation';
+import EndVacation from '../commands/RoleManagement/endVacation';
+import RemoveVacation from '../commands/RoleManagement/removeVacation';
 
 
 export default class InteractionHandler {
@@ -45,6 +48,9 @@ export default class InteractionHandler {
       new CountPlayers(),
       new CountRoles(),
       new CheckAttendance(),
+      new StartVacation(),
+      new EndVacation(),
+      new RemoveVacation(),
       help,
     ];
     help.init(this.commandInteractions);

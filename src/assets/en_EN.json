@@ -144,6 +144,40 @@
       "event_date_desc": "The date of the Event (Format DD.MM.YYYY)",
       "event_time_desc": "The time of the Event (Format HH:MM in UTC)",
       "event_count_desc": "The number of recent events to check"
+    },
+    "vacation": {
+      "start": {
+        "description": "Marks a player as on vacation",
+        "success": {
+          "title": "Vacation started",
+          "description": "Successfully marked <@$0> as on vacation."
+        }
+      },
+      "end": {
+        "description": "Unmarks a player as from vacation",
+        "success": {
+          "title": "Vacation ended",
+          "description": "Successfully unmarked <@$0> from vacation."
+        }
+      },
+      "remove": {
+        "description": "Revmoes the latest vacation entry for a player",
+        "success": {
+          "title": "Vacation removed",
+          "description": "Successfully removed <@$0>'s most recent vacation."
+        }
+      },
+      "options": {
+        "user": "Discord User"
+      },
+      "error": {
+        "title": "Internal Error",
+        "description": "Something went wrong. I could not communicate with the database."
+      },
+      "user_error": {
+        "title": "User not found",
+        "description": "Could not find user <@$0>."
+      }
     }
   },
   "interactions": {
