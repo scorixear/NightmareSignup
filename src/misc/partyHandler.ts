@@ -33,7 +33,12 @@ export default class PartyHandler {
     console.log("Retrieving Discord Users")
     const discordUsers: { userId: string, date: number, roles: string[] }[] = [];
     for (const user of users) {
-      const member = await discordHandler.fetchMember(user.userId, guild);
+      let member;
+      try {
+        member = await discordHandler.fetchMember(user.userId, guild);
+      } catch (err) {
+        continue;
+      }
       const roles  = await sqlHandler.getSqlRole().getRoles(user.userId);
       if (member) {
         discordUsers.push({ userId: user.userId, date: user.date, roles });
