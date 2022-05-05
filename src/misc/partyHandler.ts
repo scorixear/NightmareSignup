@@ -2,6 +2,7 @@ import { BMSettings } from "../model/BMSettings";
 import { GlobalRole } from "../model/GlobalRole";
 import { Role } from "../model/Role";
 import messageHandler from "./messageHandler";
+import { Guild } from 'discord.js';
 
 export default class PartyHandler {
 
@@ -21,6 +22,11 @@ export default class PartyHandler {
   public static async getCategories(event: number) {
     const users = await sqlHandler.getSqlSignup().getSignups(event);
     const guild = await discordHandler.fetchGuild((await sqlHandler.getSqlDiscord().getDiscordMessage(event)).guildId);
+    return this.formCategories(users, guild)
+  }
+
+
+  public static async formCategories(users: {userId: string, date: number}[], guild: Guild) {
     if (!guild) {
       return undefined;
     }

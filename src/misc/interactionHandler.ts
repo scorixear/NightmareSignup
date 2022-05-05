@@ -24,6 +24,7 @@ import StartVacation from '../commands/RoleManagement/startVacation';
 import EndVacation from '../commands/RoleManagement/endVacation';
 import RemoveVacation from '../commands/RoleManagement/removeVacation';
 import CheckVacation from '../commands/RoleManagement/checkVacation';
+import OptimalParty from '../commands/Moderation/optimalParty';
 
 
 export default class InteractionHandler {
@@ -53,6 +54,7 @@ export default class InteractionHandler {
       new EndVacation(),
       new RemoveVacation(),
       new CheckVacation(),
+      new OptimalParty(),
       help,
     ];
     help.init(this.commandInteractions);

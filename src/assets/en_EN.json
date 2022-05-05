@@ -189,6 +189,11 @@
         "title": "User not found",
         "description": "Could not find user <@$0>."
       }
+    },
+    "optimalparty": {
+      "title": "Optimal Party Setup",
+      "description": "Returns the optimal party setup if every registered player signed up.",
+      "desc": "This is the optimal Party Setup if $0 players signed up."
     }
   },
   "interactions": {
