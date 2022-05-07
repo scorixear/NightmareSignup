@@ -83,8 +83,10 @@ export default class InteractionHandler {
       }));
       this.commandInteractions.forEach(interaction => {
         if(interaction.requirePermissions) {
+          discordHandler.client
           const applicationCommand = guildCommands.find(appCommand => appCommand.name === interaction.command);
           applicationCommand.permissions.set({
+
             permissions: permissionsObject,
           });
         }

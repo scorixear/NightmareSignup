@@ -1,5 +1,6 @@
 import { SlashCommandIntegerOption, SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandChannelOption, SlashCommandStringOption, SlashCommandUserOption } from "@discordjs/builders";
 import { CommandInteraction, GuildMember, GuildMemberRoleManager, Role } from "discord.js";
+import config from '../config';
 
 abstract class CommandInteractionHandle {
   public command: string;
@@ -47,17 +48,10 @@ abstract class CommandInteractionHandle {
         if(member.user.id === process.env.OWNER_ID) {
           return;
         }
-        const memberRoles = (member.roles as GuildMemberRoleManager).cache;
-        let found: boolean = false;
-        for(const memberRole of memberRoles.values()) {
-          if(await applicationCommand.permissions.has({permissionId: memberRole})) {
-            found = true;
-            break;
-          }
+        if(member.roles.cache.find((role)=>config.signupRoles.includes(role.name))) {
+          return;
         }
-        if(!found) {
-          throw Error('No permission');
-        }
+        throw Error('No permission');
       }
     }
   }
