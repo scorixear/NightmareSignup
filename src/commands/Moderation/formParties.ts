@@ -32,7 +32,8 @@ export default class FormParties extends CommandInteractionHandle {
     console.log("starting party form");
     const eventName = interaction.options.getString('event_name');
     const eventDate = interaction.options.getString('event_date');
-    const eventTime = interaction.options.getString('event_time');
+    let eventTime = interaction.options.getString('event_time');
+    eventTime = eventTime.match(/\d\d?:\d\d/g)[0];
     const postPrivate = interaction.options.getBoolean('post_private');
     let eventTimestamp: number;
     try {

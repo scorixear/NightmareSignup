@@ -37,7 +37,8 @@ export default class CheckAttendance extends CommandInteractionHandle {
     }
     const eventName = interaction.options.getString('event-name');
     const eventDate = interaction.options.getString('event-date');
-    const eventTime = interaction.options.getString('event-time');
+    let eventTime = interaction.options.getString('event-time');
+    eventTime = eventTime.match(/\d\d?:\d\d/g)[0];
     const eventCount = interaction.options.getInteger('event-count');
     let events;
     let description;
