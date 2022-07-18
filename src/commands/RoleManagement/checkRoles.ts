@@ -3,19 +3,18 @@ import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
 
 export default class CheckRoles extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
-    commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(languageHandler.language.commands.roles.options.user).setRequired(true));
+    commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.roles.options.user).setRequired(true));
     super(
       'checkroles',
-      ()=>languageHandler.replaceArgs(languageHandler.language.commands.roles.check.description, [config.botPrefix]),
+      ()=>LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.check.description, [config.botPrefix]),
       'checkroles @Scorix',
       'RoleManagement',
       'checkroles <user>',
@@ -36,7 +35,7 @@ export default class CheckRoles extends CommandInteractionHandle {
     interaction.reply(await messageHandler.getRichTextExplicitDefault({
       guild: interaction.guild,
       author: interaction.user,
-      title: languageHandler.replaceArgs(languageHandler.language.commands.roles.check.title, [user.username]),
+      title: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.check.title, [user.username]),
       description: rolestring,
     }));
   }

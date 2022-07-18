@@ -2,7 +2,6 @@ import DiscordHandler from './misc/discordHandler';
 import InteractionHandler from './misc/interactionHandler';
 import SqlHandler from './misc/sqlHandler';
 import dotenv from 'dotenv';
-import { LanguageHandler } from './misc/languageHandler';
 import { IntervalHandlers } from './misc/intervalHandler';
 import GoogleSheetsHandler from './misc/googleSheetsHandler';
 import { DefaultMariaDB } from './interfaces/IMariaDb';
@@ -16,11 +15,9 @@ dotenv.config();
 declare global {
   var discordHandler: IDiscordHandler;
   var sqlHandler: ISqlHandler;
-  var languageHandler: LanguageHandler;
   var interactionHandler: InteractionHandler;
   var googleSheetsHandler: IGoogleSheetsHandler;
 }
-global.languageHandler = new LanguageHandler();
 global.googleSheetsHandler = new GoogleSheetsHandler();
 global.interactionHandler = new InteractionHandler(global.googleSheetsHandler);
 global.discordHandler = new DiscordHandler();

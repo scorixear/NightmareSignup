@@ -4,13 +4,14 @@ import { SlashCommandBooleanOption, SlashCommandStringOption } from "@discordjs/
 import dateHandler from "../../misc/dateHandler";
 import messageHandler from "../../misc/messageHandler";
 import PartyHandler from "../../misc/partyHandler";
+import { LanguageHandler } from "../../misc/languageHandler";
 
 export default class OptimalParty extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[]= [];
     super(
     'optimalparty',
-      ()=>languageHandler.language.commands.optimalparty.description,
+      ()=>LanguageHandler.language.commands.optimalparty.description,
       'optimalparty',
       'Moderation',
       'optimalparty',
@@ -34,8 +35,8 @@ export default class OptimalParty extends CommandInteractionHandle {
     await PartyHandler.updateComposition();
     const categories = await PartyHandler.formCategories(users, interaction.guild);
     await interaction.followUp(await messageHandler.getRichTextExplicitDefault({
-      title: languageHandler.language.commands.optimalparty.title,
-      description: languageHandler.replaceArgs(languageHandler.language.commands.optimalparty.desc, [users.length.toString()]),
+      title: LanguageHandler.language.commands.optimalparty.title,
+      description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.optimalparty.desc, [users.length.toString()]),
       categories,
       author: interaction.user,
     }));

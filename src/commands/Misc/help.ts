@@ -3,20 +3,18 @@ import config from '../../config.js';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { SlashCommandStringOption } from '@discordjs/builders';
 import { ApplicationCommand, CommandInteraction, GuildMember, GuildMemberRoleManager } from 'discord.js';
-import { LanguageHandler } from '../../misc/languageHandler.js';
-
-declare const languageHandler: LanguageHandler;
+import { LanguageHandler } from '../../misc/LanguageHandler.js';
 
 export default class Help extends CommandInteractionHandle {
   commands: CommandInteractionHandle[];
   constructor() {
     super(
       'help',
-      ()=>languageHandler.language.commands.help.description,
+      ()=>LanguageHandler.language.commands.help.description,
       'help\nhelp signup',
       'Misc',
-      `help [${languageHandler.language.commands.help.labels.command.toLowerCase()}]`,
-      [new SlashCommandStringOption().setName('command').setDescription(languageHandler.language.commands.help.options.command).setRequired(false)],
+      `help [${LanguageHandler.language.commands.help.labels.command.toLowerCase()}]`,
+      [new SlashCommandStringOption().setName('command').setDescription(LanguageHandler.language.commands.help.options.command).setRequired(false)],
       false
     );
   }
@@ -54,7 +52,7 @@ export default class Help extends CommandInteractionHandle {
             title: 'Help Info',
             categories: [{
               title: 'Info',
-              text: languageHandler.replaceArgs(languageHandler.language.commands.help.error.unknown, [config.botPrefix])
+              text: LanguageHandler.replaceArgs(LanguageHandler.language.commands.help.error.unknown, [config.botPrefix])
             }],
           }));
           return;
@@ -68,21 +66,21 @@ export default class Help extends CommandInteractionHandle {
             guild: interaction.guild,
             author: interaction.user,
             categories: [{
-              title: languageHandler.language.commands.help.labels.command,
+              title: LanguageHandler.language.commands.help.labels.command,
               text: `\`${config.botPrefix}${commandHandle.command}\``,
               inline: true,
             },
             {
-              title: languageHandler.language.general.description,
+              title: LanguageHandler.language.general.description,
               text: commandHandle.description(),
               inline: true,
             },
             {
-              title: languageHandler.language.general.usage,
+              title: LanguageHandler.language.general.usage,
               text: `\`\`\`${config.botPrefix}${commandHandle.usage}\`\`\``,
             },
             {
-              title: languageHandler.language.general.example,
+              title: LanguageHandler.language.general.example,
               text: example,
             },
             ],
@@ -94,7 +92,7 @@ export default class Help extends CommandInteractionHandle {
           title: 'Help Info',
           categories: [{
             title: 'Info',
-            text: languageHandler.replaceArgs(languageHandler.language.commands.help.error.unknown, [config.botPrefix])
+            text: LanguageHandler.replaceArgs(LanguageHandler.language.commands.help.error.unknown, [config.botPrefix])
           }],
         }));
 
@@ -128,7 +126,7 @@ export default class Help extends CommandInteractionHandle {
     }
     const embededCategories: {title: string, text: string, inline?: boolean}[] =[{
       title: 'Info',
-      text: languageHandler.replaceArgs(languageHandler.language.commands.help.success.type, [config.botPrefix, languageHandler.language.commands.help.labels.command]),
+      text: LanguageHandler.replaceArgs(LanguageHandler.language.commands.help.success.type, [config.botPrefix, LanguageHandler.language.commands.help.labels.command]),
     }];
     categories.forEach((value, key, map) => {
       const commands = '\`' + config.botPrefix + value

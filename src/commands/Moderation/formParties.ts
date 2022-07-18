@@ -4,13 +4,14 @@ import { SlashCommandBooleanOption, SlashCommandStringOption } from "@discordjs/
 import dateHandler from "../../misc/dateHandler";
 import messageHandler from "../../misc/messageHandler";
 import PartyHandler from "../../misc/partyHandler";
+import { LanguageHandler } from "../../misc/languageHandler";
 
 export default class FormParties extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[]= [];
-    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(languageHandler.language.commands.signup.options.event_name).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(languageHandler.language.commands.signup.options.event_date).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(languageHandler.language.commands.signup.options.event_time).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(LanguageHandler.language.commands.signup.options.event_date).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(LanguageHandler.language.commands.signup.options.event_time).setRequired(true));
     commandOptions.push(new SlashCommandBooleanOption().setName('post_private').setDescription('Post here privately').setRequired(false));
     super(
     'formparties',
@@ -43,8 +44,8 @@ export default class FormParties extends CommandInteractionHandle {
         interaction.reply(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           author: interaction.user,
-          title: languageHandler.language.commands.deletesignup.error.formatTitle,
-          description: languageHandler.language.commands.deletesignup.error.formatDesc,
+          title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
+          description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
         }));
         return;
@@ -54,8 +55,8 @@ export default class FormParties extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.deletesignup.error.formatTitle,
-        description: languageHandler.language.commands.deletesignup.error.formatDesc,
+        title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
+        description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
         color: 0xcc0000,
       }));
       return;
@@ -80,8 +81,8 @@ export default class FormParties extends CommandInteractionHandle {
                 guild: interaction.guild,
                 author: interaction.user,
                 channel: interaction.channel,
-                title: languageHandler.language.handlers.party.title,
-                description: languageHandler.language.handlers.party.description,
+                title: LanguageHandler.language.handlers.party.title,
+                description: LanguageHandler.language.handlers.party.description,
                 categories: partyCategories
               });
               return;
@@ -91,8 +92,8 @@ export default class FormParties extends CommandInteractionHandle {
               await msg.reply(await messageHandler.getRichTextExplicitDefault({
                 guild: msg.guild,
                 author: msg.author,
-                title: languageHandler.language.handlers.party.title,
-                description: languageHandler.language.handlers.party.description,
+                title: LanguageHandler.language.handlers.party.title,
+                description: LanguageHandler.language.handlers.party.description,
                 categories: partyCategories
               }));
             } catch {
@@ -100,8 +101,8 @@ export default class FormParties extends CommandInteractionHandle {
                 guild: interaction.guild,
                 author: interaction.user,
                 channel: interaction.channel,
-                title: languageHandler.language.handlers.party.title,
-                description: languageHandler.language.handlers.party.description,
+                title: LanguageHandler.language.handlers.party.title,
+                description: LanguageHandler.language.handlers.party.description,
                 categories: partyCategories
               });
             }
@@ -119,8 +120,8 @@ export default class FormParties extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.deletesignup.error.sql_title,
-        description: languageHandler.language.commands.deletesignup.error.sql_desc,
+        title: LanguageHandler.language.commands.deletesignup.error.sql_title,
+        description: LanguageHandler.language.commands.deletesignup.error.sql_desc,
         color: 0xcc0000,
       }));
     }

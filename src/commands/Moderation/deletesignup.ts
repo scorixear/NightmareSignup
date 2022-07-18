@@ -4,23 +4,22 @@ import config from '../../config';
 import dateHandler from '../../misc/dateHandler';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { SlashCommandBooleanOption, SlashCommandStringOption } from '@discordjs/builders';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import SqlHandler from '../../misc/sqlHandler';
 import DiscordHandler from '../../misc/discordHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: SqlHandler;
 declare const discordHandler: DiscordHandler;
 
 export default class Deletesignup extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
-    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(languageHandler.language.commands.signup.options.event_name).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(languageHandler.language.commands.signup.options.event_date).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(languageHandler.language.commands.signup.options.event_time).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(LanguageHandler.language.commands.signup.options.event_date).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(LanguageHandler.language.commands.signup.options.event_time).setRequired(true));
     super(
       'deletesignup',
-      ()=>languageHandler.replaceArgs(languageHandler.language.commands.deletesignup.description, [config.botPrefix]),
+      ()=>LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.description, [config.botPrefix]),
       'deletesignup "Everfall Push" 14.10.2021 12:00',
       'Moderation',
       'deletesignup <eventName> <date> <UTC Time>',
@@ -47,8 +46,8 @@ export default class Deletesignup extends CommandInteractionHandle {
         interaction.reply(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           author: interaction.user,
-          title: languageHandler.language.commands.deletesignup.error.formatTitle,
-          description: languageHandler.language.commands.deletesignup.error.formatDesc,
+          title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
+          description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
         }));
         return;
@@ -58,8 +57,8 @@ export default class Deletesignup extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.deletesignup.error.formatTitle,
-        description: languageHandler.language.commands.deletesignup.error.formatDesc,
+        title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
+        description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
         color: 0xcc0000,
       }));
       return;
@@ -82,16 +81,16 @@ export default class Deletesignup extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.deletesignup.success.title,
-        description: languageHandler.replaceArgs(languageHandler.language.commands.deletesignup.success.desc, [eventName]),
+        title: LanguageHandler.language.commands.deletesignup.success.title,
+        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.success.desc, [eventName]),
       }));
       console.log(`Deleted event ${eventName} ${eventTimestamp}`);
     } else {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.deletesignup.error.sql_title,
-        description: languageHandler.language.commands.deletesignup.error.sql_desc,
+        title: LanguageHandler.language.commands.deletesignup.error.sql_title,
+        description: LanguageHandler.language.commands.deletesignup.error.sql_desc,
         color: 0xcc0000,
       }));
     }

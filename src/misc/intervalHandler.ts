@@ -3,6 +3,7 @@ import dateHandler from "./dateHandler";
 import messageHandler from "./messageHandler";
 import PartyHandler from "./partyHandler";
 import SqlHandler from "./sqlHandler";
+import { LanguageHandler } from "./languageHandler";
 
 declare const sqlHandler: SqlHandler;
 
@@ -74,8 +75,8 @@ export class IntervalHandlers {
             msg.reply(await messageHandler.getRichTextExplicitDefault({
               guild: msg.guild,
               author: msg.author,
-              title: languageHandler.language.handlers.party.title,
-              description: languageHandler.language.handlers.party.description,
+              title: LanguageHandler.language.handlers.party.title,
+              description: LanguageHandler.language.handlers.party.description,
               categories: partyCategories
             }));
           } else {

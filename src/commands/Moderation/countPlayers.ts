@@ -2,10 +2,9 @@ import { CommandInteraction } from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
 
 export default class CountPlayers extends CommandInteractionHandle {
@@ -13,7 +12,7 @@ export default class CountPlayers extends CommandInteractionHandle {
     const commandOptions: any[] = [];
     super(
       'countplayers',
-      () => languageHandler.replaceArgs(languageHandler.language.commands.countplayers.description, [config.botPrefix]),
+      () => LanguageHandler.replaceArgs(LanguageHandler.language.commands.countplayers.description, [config.botPrefix]),
       'countplayers',
       'Moderation',
       'countplayers',
@@ -30,9 +29,9 @@ export default class CountPlayers extends CommandInteractionHandle {
     }
 
     const users: string[] = (await sqlHandler.getSqlUser().getUsers()).map(u => '- <@'+u.userid+'>');
-    const categories = messageHandler.splitInCategories(users, languageHandler.language.commands.countplayers.success.list);
+    const categories = messageHandler.splitInCategories(users, LanguageHandler.language.commands.countplayers.success.list);
     categories.unshift({
-      title: languageHandler.language.commands.countplayers.success.count,
+      title: LanguageHandler.language.commands.countplayers.success.count,
       text: users.length.toString(),
       inline: false
     });
@@ -40,7 +39,7 @@ export default class CountPlayers extends CommandInteractionHandle {
       await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.countplayers.success.title,
+        title: LanguageHandler.language.commands.countplayers.success.title,
         categories,
       }));
     } catch {
@@ -48,7 +47,7 @@ export default class CountPlayers extends CommandInteractionHandle {
         guild: interaction.guild,
         author: interaction.user,
         channel: interaction.channel,
-        title: languageHandler.language.commands.countplayers.success.title,
+        title: LanguageHandler.language.commands.countplayers.success.title,
         categories,
       });
     }

@@ -3,24 +3,23 @@ import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { SlashCommandIntegerOption, SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import dateHandler from '../../misc/dateHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
 
 export default class CheckAttendance extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [
-      new SlashCommandIntegerOption().setName('event-count').setDescription(languageHandler.language.commands.attendance.event_count_desc).setRequired(false),
-      new SlashCommandStringOption().setName('event-name').setDescription(languageHandler.language.commands.attendance.event_name_desc).setRequired(false),
-      new SlashCommandStringOption().setName('event-date').setDescription(languageHandler.language.commands.attendance.event_date_desc).setRequired(false),
-      new SlashCommandStringOption().setName('event-time').setDescription(languageHandler.language.commands.attendance.event_time_desc).setRequired(false),
+      new SlashCommandIntegerOption().setName('event-count').setDescription(LanguageHandler.language.commands.attendance.event_count_desc).setRequired(false),
+      new SlashCommandStringOption().setName('event-name').setDescription(LanguageHandler.language.commands.attendance.event_name_desc).setRequired(false),
+      new SlashCommandStringOption().setName('event-date').setDescription(LanguageHandler.language.commands.attendance.event_date_desc).setRequired(false),
+      new SlashCommandStringOption().setName('event-time').setDescription(LanguageHandler.language.commands.attendance.event_time_desc).setRequired(false),
     ];
     super(
       'checkattendance',
-      ()=>languageHandler.replaceArgs(languageHandler.language.commands.attendance.description, [config.botPrefix]),
+      ()=>LanguageHandler.replaceArgs(LanguageHandler.language.commands.attendance.description, [config.botPrefix]),
       'checkattendance\ncheckattendance event-count: 3\ncheckattendance event-name: Test Event event-date: 24.03.2022 event-time: 12:00',
       'RoleManagement',
       'checkattendance [event-count] | [[event-name] [event-date] [event-time]]',
@@ -46,7 +45,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
     if(eventName || eventDate || eventTime) {
       if (!eventName || !eventDate || !eventTime) {
         await interaction.reply({
-          content: languageHandler.language.commands.attendance.missing_parameter,
+          content: LanguageHandler.language.commands.attendance.missing_parameter,
           ephemeral: true,
         });
         return;
@@ -57,7 +56,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
           eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
           if (isNaN(eventTimestamp)) {
             await interaction.reply({
-              content: languageHandler.language.commands.attendance.error.formatDesc,
+              content: LanguageHandler.language.commands.attendance.error.formatDesc,
               ephemeral: true,
             });
             return;
@@ -65,7 +64,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
         } catch (err) {
           console.error(err);
           await interaction.reply({
-            content: languageHandler.language.commands.deletesignup.error.formatDesc,
+            content: LanguageHandler.language.commands.deletesignup.error.formatDesc,
             ephemeral: true,
           });
           return;
@@ -73,7 +72,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
         const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
         if (!eventId) {
           await interaction.reply({
-            content: languageHandler.language.commands.attendance.error.event_not_found,
+            content: LanguageHandler.language.commands.attendance.error.event_not_found,
             ephemeral: true,
           });
           return;
@@ -82,7 +81,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
           id: eventId,
           date: eventTimestamp,
         }];
-        description = languageHandler.replaceArgs(languageHandler.language.commands.attendance.description_event, [eventName, eventDate, eventTime]);
+        description = LanguageHandler.replaceArgs(LanguageHandler.language.commands.attendance.description_event, [eventName, eventDate, eventTime]);
         limit = 0;
       }
     } else if (eventCount) {
@@ -94,11 +93,11 @@ export default class CheckAttendance extends CommandInteractionHandle {
       } else {
         count = events.length;
       }
-      description = languageHandler.replaceArgs(languageHandler.language.commands.attendance.success.limit_desc, [count.toString()]);
+      description = LanguageHandler.replaceArgs(LanguageHandler.language.commands.attendance.success.limit_desc, [count.toString()]);
       limit = 1;
     } else {
       events = await sqlHandler.getSqlEvent().findEventObjects('9999999999');
-      description = languageHandler.language.commands.attendance.success.description;
+      description = LanguageHandler.language.commands.attendance.success.description;
       limit = 1;
     }
     interaction.deferReply();
@@ -147,13 +146,13 @@ export default class CheckAttendance extends CommandInteractionHandle {
         lines.push(`${member.nickname?member.nickname:member.user.username}: ${pair[1].max - pair[1].reacted} / ${pair[1].max}`);
       }
     }
-    const categories = messageHandler.splitInCategories(lines, languageHandler.language.commands.attendance.success.list);
+    const categories = messageHandler.splitInCategories(lines, LanguageHandler.language.commands.attendance.success.list);
 
     await messageHandler.sendRichTextDefaultExplicit({
       guild: interaction.guild,
       author: interaction.user,
       channel: interaction.channel,
-      title: languageHandler.language.commands.attendance.success.title,
+      title: LanguageHandler.language.commands.attendance.success.title,
       description,
       categories,
     });

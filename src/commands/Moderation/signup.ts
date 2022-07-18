@@ -6,11 +6,10 @@ import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import {  SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandStringOption } from '@discordjs/builders';
 import { ChannelType } from 'discord-api-types/v10';
 import signup from '../../interactions/signup';
-import { LanguageHandler } from '../../misc/languageHandler.js';
+import { LanguageHandler } from '../../misc/LanguageHandler.js';
 import SqlHandler from '../../misc/sqlHandler.js';
 import InteractionHandler from '../../misc/interactionHandler.js';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: SqlHandler;
 declare const interactionHandler: InteractionHandler;
 
@@ -92,17 +91,17 @@ export async function updateUnavailable(eventId: number) {
 export default class SignupCommand extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
-    const channelOption: SlashCommandChannelOption = new SlashCommandChannelOption().setName('channel').setDescription(languageHandler.language.commands.signup.options.channel).setRequired(true);
+    const channelOption: SlashCommandChannelOption = new SlashCommandChannelOption().setName('channel').setDescription(LanguageHandler.language.commands.signup.options.channel).setRequired(true);
     channelOption.addChannelType(ChannelType.GuildText);
     commandOptions.push(channelOption);
-    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(languageHandler.language.commands.signup.options.event_name).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(languageHandler.language.commands.signup.options.event_date).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(languageHandler.language.commands.signup.options.event_time).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_description').setDescription(languageHandler.language.commands.signup.options.event_desc).setRequired(true));
-    commandOptions.push(new SlashCommandBooleanOption().setName('event_is_cta').setDescription(languageHandler.language.commands.signup.options.event_is_cta).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(LanguageHandler.language.commands.signup.options.event_date).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(LanguageHandler.language.commands.signup.options.event_time).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_description').setDescription(LanguageHandler.language.commands.signup.options.event_desc).setRequired(true));
+    commandOptions.push(new SlashCommandBooleanOption().setName('event_is_cta').setDescription(LanguageHandler.language.commands.signup.options.event_is_cta).setRequired(true));
     super(
       'signup',
-      ()=>global.languageHandler.language.commands.signup.description,
+      ()=>LanguageHandler.language.commands.signup.description,
       'signup #announcements "CTA" 14.10.2021 12:00 "Sign Up for the upcoming CTA" true',
       'Moderation',
       'signup <#channel> <eventName> <date> <UTC Time> <Description> <isCta>',
@@ -134,8 +133,8 @@ export default class SignupCommand extends CommandInteractionHandle {
         interaction.reply(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           author: interaction.user,
-          title: languageHandler.language.commands.deletesignup.error.formatTitle,
-          description: languageHandler.language.commands.deletesignup.error.formatDesc,
+          title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
+          description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
         }));
         return;
@@ -145,8 +144,8 @@ export default class SignupCommand extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.signup.error.formatTitle,
-        description: languageHandler.language.commands.signup.error.formatDesc,
+        title: LanguageHandler.language.commands.signup.error.formatTitle,
+        description: LanguageHandler.language.commands.signup.error.formatDesc,
         color: 0xcc0000,
       }));
       return;
@@ -158,8 +157,8 @@ export default class SignupCommand extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.signup.error.eventTitle,
-        description: languageHandler.replaceArgs(languageHandler.language.commands.signup.error.eventDesc, [eventName, eventDate + ' ' + eventTime, config.botPrefix]),
+        title: LanguageHandler.language.commands.signup.error.eventTitle,
+        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.signup.error.eventDesc, [eventName, eventDate + ' ' + eventTime, config.botPrefix]),
         color: 0xcc0000,
       }));
       return;

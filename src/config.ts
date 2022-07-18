@@ -1,6 +1,11 @@
 import fs from 'fs';
 
-const config = JSON.parse(fs.readFileSync('./src/config.json').toString());
-config.version = JSON.parse(fs.readFileSync('package.json').toString()).version;
+const version = JSON.parse(fs.readFileSync('package.json').toString()).version;
 
-export default config;
+export default {
+  version,
+  repository: "https://github.com/scorixear/n1ghtmaresignup/",
+  botPrefix: "/",
+  signupRoles: ["Arch Corps GM"],
+  armyRole: "Arch Corps"
+}

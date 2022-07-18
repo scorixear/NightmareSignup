@@ -2,11 +2,10 @@ import { CommandInteraction } from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import PartyHandler from '../../misc/partyHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
 
 export default class CountRoles extends CommandInteractionHandle {
@@ -14,7 +13,7 @@ export default class CountRoles extends CommandInteractionHandle {
     const commandOptions: any[] = [];
     super(
       'countroles',
-      () => languageHandler.replaceArgs(languageHandler.language.commands.countroles.description, [config.botPrefix]),
+      () => LanguageHandler.replaceArgs(LanguageHandler.language.commands.countroles.description, [config.botPrefix]),
       'countroles',
       'Moderation',
       'countroles',
@@ -42,13 +41,13 @@ export default class CountRoles extends CommandInteractionHandle {
         roles.push({role: role.RoleName, count: 0});
       }
     }
-    const categories = messageHandler.splitInCategories(roles.map(r=>r.role+": "+r.count), languageHandler.language.commands.countroles.success.list);
+    const categories = messageHandler.splitInCategories(roles.map(r=>r.role+": "+r.count), LanguageHandler.language.commands.countroles.success.list);
 
     if(react) {
       await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.countroles.success.title,
+        title: LanguageHandler.language.commands.countroles.success.title,
         categories,
       }));
     } else {
@@ -56,7 +55,7 @@ export default class CountRoles extends CommandInteractionHandle {
         guild: interaction.guild,
         channel: interaction.channel,
         author: interaction.user,
-        title: languageHandler.language.commands.countroles.success.title,
+        title: LanguageHandler.language.commands.countroles.success.title,
         categories,
       });
     }

@@ -3,23 +3,22 @@ import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
 import PartyHandler from '../../misc/partyHandler';
 import dateHandler from '../../misc/dateHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: ISqlHandler;
 
 export default class AddRole extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
-    commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(languageHandler.language.commands.roles.options.user).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('zvzrole').setDescription(languageHandler.language.commands.roles.options.zvzrole).setRequired(true));
+    commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.roles.options.user).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('zvzrole').setDescription(LanguageHandler.language.commands.roles.options.zvzrole).setRequired(true));
     super(
       'addrole',
-      ()=>languageHandler.replaceArgs(languageHandler.language.commands.roles.add.description, [config.botPrefix]),
+      ()=>LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.description, [config.botPrefix]),
       'addrole @Scorix Camlann\naddrole @Scorix Camlann,Grovekeeper',
       'RoleManagement',
       'addrole <user> <zvzrole[s]>',
@@ -64,8 +63,8 @@ export default class AddRole extends CommandInteractionHandle {
         await interaction.reply(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           author: interaction.user,
-          title: languageHandler.language.commands.roles.add.error.role_title,
-          description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.role_desc, ["- "+ nonExistent.join("\n- ")]),
+          title: LanguageHandler.language.commands.roles.add.error.role_title,
+          description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.role_desc, ["- "+ nonExistent.join("\n- ")]),
           color: 0xcc0000,
         }));
       } else {
@@ -73,8 +72,8 @@ export default class AddRole extends CommandInteractionHandle {
           guild,
           channel,
           author,
-          title: languageHandler.language.commands.roles.add.error.role_title,
-          description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.role_desc, ["- " + nonExistent.join("\n- ")]),
+          title: LanguageHandler.language.commands.roles.add.error.role_title,
+          description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.role_desc, ["- " + nonExistent.join("\n- ")]),
           color: 0xcc0000,
         });
       }
@@ -96,15 +95,15 @@ export default class AddRole extends CommandInteractionHandle {
       await interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild,
         author,
-        title: languageHandler.language.commands.roles.add.title,
-        description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
+        title: LanguageHandler.language.commands.roles.add.title,
+        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
         categories: [
           {
-            title: languageHandler.language.commands.roles.add.success.added,
+            title: LanguageHandler.language.commands.roles.add.success.added,
             text: '- '+addedRoles.join('\n- '),
           },
           {
-            title: languageHandler.language.commands.roles.add.success.ignored,
+            title: LanguageHandler.language.commands.roles.add.success.ignored,
             text: '- '+ignoredRoles.join('\n- '),
           },
         ],
@@ -114,15 +113,15 @@ export default class AddRole extends CommandInteractionHandle {
         guild: interaction.guild,
         channel: interaction.channel,
         author: interaction.user,
-        title: languageHandler.language.commands.roles.add.title,
-        description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
+        title: LanguageHandler.language.commands.roles.add.title,
+        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
         categories: [
           {
-            title: languageHandler.language.commands.roles.add.success.added,
+            title: LanguageHandler.language.commands.roles.add.success.added,
             text: '- '+addedRoles.join('\n- '),
           },
           {
-            title: languageHandler.language.commands.roles.add.success.ignored,
+            title: LanguageHandler.language.commands.roles.add.success.ignored,
             text: '- '+ignoredRoles.join('\n- '),
           },
         ],
@@ -144,8 +143,8 @@ export default class AddRole extends CommandInteractionHandle {
       guild,
       channel,
       author,
-      title: languageHandler.language.commands.roles.add.error.discord,
-      description: languageHandler.replaceArgs(languageHandler.language.commands.roles.add.error.discorddesc, ['<@' + user.id + '>']),
+      title: LanguageHandler.language.commands.roles.add.error.discord,
+      description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.discorddesc, ['<@' + user.id + '>']),
       color: 0xcc0000,
     });
   }

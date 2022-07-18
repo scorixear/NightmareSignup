@@ -3,6 +3,7 @@ import { GlobalRole } from "../model/GlobalRole";
 import { Role } from "../model/Role";
 import messageHandler from "./messageHandler";
 import { Guild } from 'discord.js';
+import { LanguageHandler } from "./languageHandler";
 
 export default class PartyHandler {
 
@@ -157,7 +158,7 @@ export default class PartyHandler {
           partyLines.push(`<@${user.userId}> - ${user.role}`);
         }
       }
-      const partyCategories = messageHandler.splitInCategories(partyLines, languageHandler.replaceArgs(languageHandler.language.handlers.party.partyTitle,[partyIndex.toString()]));
+      const partyCategories = messageHandler.splitInCategories(partyLines, LanguageHandler.replaceArgs(LanguageHandler.language.handlers.party.partyTitle,[partyIndex.toString()]));
       categories.push(...partyCategories);
       partyIndex++;
     }

@@ -1,14 +1,13 @@
 import { ButtonInteractionHandle } from "../model/ButtonInteractionHandle";
 import { ButtonInteraction, Guild, GuildMember } from "discord.js";
 import InteractionHandler from "../misc/interactionHandler";
-import { LanguageHandler } from "../misc/languageHandler";
+import { LanguageHandler } from "../misc/LanguageHandler";
 import SqlHandler from "../misc/sqlHandler";
 import { updateUnavailable, updateSignupMessage } from '../commands/Moderation/signup';
 import messageHandler from '../misc/messageHandler';
 import dateHandler from "../misc/dateHandler";
 
 declare const sqlHandler: SqlHandler;
-declare const languageHandler: LanguageHandler;
 declare const interactionHandler: InteractionHandler;
 
 class UnavailableEvent extends ButtonInteractionHandle {
@@ -49,8 +48,8 @@ class SignupEvent extends ButtonInteractionHandle {
         // send already signed up message to user
         await channel.send(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
-          title: languageHandler.language.interactions.signup.already_signed_up_title,
-          description: languageHandler.language.interactions.signup.already_signed_up_desc,
+          title: LanguageHandler.language.interactions.signup.already_signed_up_title,
+          description: LanguageHandler.language.interactions.signup.already_signed_up_desc,
           color: 0xFF8888,
         }));
       } catch (err) {
@@ -58,7 +57,7 @@ class SignupEvent extends ButtonInteractionHandle {
         try {
           await interaction.deferUpdate();
         } catch {}
-        await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
+        await interaction.followUp({ content: LanguageHandler.replaceArgs(LanguageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
       }
       // else sign up user
     } else {
@@ -72,8 +71,8 @@ class SignupEvent extends ButtonInteractionHandle {
         try {
           await channel.send(await messageHandler.getRichTextExplicitDefault({
             guild: interaction.guild,
-            title: languageHandler.language.interactions.signup.success.title,
-            description: languageHandler.language.interactions.signup.success.description,
+            title: LanguageHandler.language.interactions.signup.success.title,
+            description: LanguageHandler.language.interactions.signup.success.description,
             color: 0x00cc00,
           }));
         } catch (err) {
@@ -81,14 +80,14 @@ class SignupEvent extends ButtonInteractionHandle {
           try {
             await interaction.deferUpdate();
           } catch {}
-          await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
+          await interaction.followUp({ content: LanguageHandler.replaceArgs(LanguageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
         }
       } else {
         try {
           await channel.send(await messageHandler.getRichTextExplicitDefault({
             guild: interaction.guild,
-            title: languageHandler.language.interactions.signup.error.sql,
-            description: languageHandler.language.interactions.signup.error.sql_desc,
+            title: LanguageHandler.language.interactions.signup.error.sql,
+            description: LanguageHandler.language.interactions.signup.error.sql_desc,
             color: 0xFF8888,
           }));
         } catch (err) {
@@ -96,7 +95,7 @@ class SignupEvent extends ButtonInteractionHandle {
           try {
             await interaction.deferUpdate();
           } catch {}
-          await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
+          await interaction.followUp({ content: LanguageHandler.replaceArgs(LanguageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
         }
       }
     }
@@ -119,8 +118,8 @@ class SignoutEvent extends ButtonInteractionHandle {
         try {
           // send Confirmation message to channel that user was signed out
           await channel.send(await messageHandler.getRichTextExplicitDefault({
-            title: languageHandler.language.interactions.signout.error_title,
-            description: languageHandler.language.interactions.signout.error_desc,
+            title: LanguageHandler.language.interactions.signout.error_title,
+            description: LanguageHandler.language.interactions.signout.error_desc,
             color: 0xFF8888,
           }));
         } catch (err) {
@@ -128,7 +127,7 @@ class SignoutEvent extends ButtonInteractionHandle {
           try {
             await interaction.deferUpdate();
           } catch {}
-          await interaction.followUp({ content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
+          await interaction.followUp({ content: LanguageHandler.replaceArgs(LanguageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true });
         }
         return;
       }
@@ -141,8 +140,8 @@ class SignoutEvent extends ButtonInteractionHandle {
     try {
       await channel.send(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
-        title: languageHandler.language.interactions.signout.confirmation_title,
-        description: languageHandler.language.interactions.signout.confirmation_desc,
+        title: LanguageHandler.language.interactions.signout.confirmation_title,
+        description: LanguageHandler.language.interactions.signout.confirmation_desc,
         color: 0x00cc00,
       }));
       console.log('User signed out', userId, event);
@@ -151,7 +150,7 @@ class SignoutEvent extends ButtonInteractionHandle {
       try {
         await interaction.deferUpdate();
       } catch {}
-      await interaction.followUp({content: languageHandler.replaceArgs(languageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true});
+      await interaction.followUp({content: LanguageHandler.replaceArgs(LanguageHandler.language.interactions.signup.error.dmChannel, [userId]), ephemeral: true});
     }
   }
 }

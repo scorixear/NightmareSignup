@@ -4,21 +4,20 @@ import config from '../../config';
 import dateHandler from '../../misc/dateHandler';
 import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
 import { SlashCommandStringOption } from '@discordjs/builders';
-import { LanguageHandler } from '../../misc/languageHandler';
+import { LanguageHandler } from '../../misc/LanguageHandler';
 import SqlHandler from '../../misc/sqlHandler';
 
-declare const languageHandler: LanguageHandler;
 declare const sqlHandler: SqlHandler;
 
 export default class Unavailable extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
-    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(languageHandler.language.commands.signup.options.event_name).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(languageHandler.language.commands.signup.options.event_date).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(languageHandler.language.commands.signup.options.event_time).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(LanguageHandler.language.commands.signup.options.event_date).setRequired(true));
+    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(LanguageHandler.language.commands.signup.options.event_time).setRequired(true));
     super(
       'unavailable',
-      ()=>languageHandler.replaceArgs(languageHandler.language.commands.unavailable.description, [config.botPrefix]),
+      ()=>LanguageHandler.replaceArgs(LanguageHandler.language.commands.unavailable.description, [config.botPrefix]),
       'unavailable "Everfall Push" 14.10.2021 12:00',
       'Moderation',
       'unavailable <eventName> <date> <CET/CEST Time>',
@@ -45,8 +44,8 @@ export default class Unavailable extends CommandInteractionHandle {
         interaction.reply(await messageHandler.getRichTextExplicitDefault({
           guild: interaction.guild,
           author: interaction.user,
-          title: languageHandler.language.commands.deletesignup.error.formatTitle,
-          description: languageHandler.language.commands.deletesignup.error.formatDesc,
+          title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
+          description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
         }));
         return;
@@ -55,8 +54,8 @@ export default class Unavailable extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.unavailable.error.formatTitle,
-        description: languageHandler.language.commands.unavailable.error.formatDesc,
+        title: LanguageHandler.language.commands.unavailable.error.formatTitle,
+        description: LanguageHandler.language.commands.unavailable.error.formatDesc,
         color: 0xcc0000,
       }));
       return;
@@ -72,15 +71,15 @@ export default class Unavailable extends CommandInteractionHandle {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.unavailable.success.title,
+        title: LanguageHandler.language.commands.unavailable.success.title,
         description: result,
       }));
     } else {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,
         author: interaction.user,
-        title: languageHandler.language.commands.unavailable.error.sql_title,
-        description: languageHandler.language.commands.unavailable.error.sql_desc,
+        title: LanguageHandler.language.commands.unavailable.error.sql_title,
+        description: LanguageHandler.language.commands.unavailable.error.sql_desc,
         color: 0xcc0000,
       }));
     }
