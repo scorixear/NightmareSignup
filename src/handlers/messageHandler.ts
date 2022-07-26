@@ -114,9 +114,9 @@ async function sendRichTextExplicit(guild: Guild, channel: TextBasedChannel, aut
   if (url) {
     richText.setURL(url);
   }
-  
+
   if (components) {
-    return channel.send({embeds: [richText], components: components});
+    return channel.send({embeds: [richText], components});
   }
   return channel.send({embeds: [richText]});
 }

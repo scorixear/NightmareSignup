@@ -33,9 +33,6 @@ declare const interactionHandler: InteractionHandler;
         newEmbed.setColor(embed.color);
         newEmbed.setFooter(embed.footer);
         newEmbed.setAuthor(embed.author);
-        newEmbed.setThumbnail(embed.thumbnail.url);
-        newEmbed.setImage(embed.image.url);
-        newEmbed.setURL(embed.url);
         let newFields: {name: string, value: string, inline?: boolean}[] = [];
         newFields = [embed.fields[0], embed.fields[1], embed.fields[2], embed.fields[embed.fields.length-1]];
 
@@ -72,8 +69,10 @@ declare const interactionHandler: InteractionHandler;
           }
         }
         newEmbed.addFields(newFields);
-        msg.edit({embeds: [newEmbed], components: msg.components});
-      } catch (err) {}
+        await msg.edit({embeds: [newEmbed], components: msg.components});
+      } catch (err) {
+        Logger.Error("Could not update signup message", err, WARNINGLEVEL.ERROR);
+      }
     } catch (err) {}
   } catch (err) {}
 }

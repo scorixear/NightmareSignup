@@ -115,7 +115,7 @@ export default class InteractionHandler {
         const commandInteraction: AutocompleteInteraction = interaction as AutocompleteInteraction;
         const handler = this.commandInteractions.find(interactionHandler => interactionHandler.command === commandInteraction.commandName && interactionHandler instanceof AutocompleteCommandInteractionHandle);
         if(handler) {
-          await (handler as AutocompleteCommandInteractionHandle).handleAutocomplete(commandInteraction) 
+          await (handler as AutocompleteCommandInteractionHandle).handleAutocomplete(commandInteraction)
         }
       } else {
         return;

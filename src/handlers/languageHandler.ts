@@ -230,6 +230,10 @@ export class LanguageHandler {
         success: {
           title: "Successfully marked as unavailable",
           description: "We successfully marked you as unavailable for the upcoming event."
+        },
+        error: {
+          title: "Already unavailable",
+          description: "You are already marked as unavailable for this event."
         }
       }
     },

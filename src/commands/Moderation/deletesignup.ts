@@ -37,7 +37,7 @@ export default class Deletesignup extends CommandInteractionHandle {
     const eventName = interaction.options.getString('event_name');
     const eventDate = interaction.options.getString('event_date');
     const eventTime = interaction.options.getString('event_time');
-    let eventTimeRegex = eventTime.match(/\d\d?:\d\d/g)[0];
+    const eventTimeRegex = eventTime.match(/\d\d?:\d\d/g)[0];
     let eventTimestamp: number;
     try {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTimeRegex);

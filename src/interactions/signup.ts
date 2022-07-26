@@ -25,13 +25,20 @@ class UnavailableEvent extends ButtonInteractionHandle {
       }
       await sqlHandler.getSqlUnavailable().setUnavailable(event, userId);
       await updateUnavailable(event);
-      messageHandler.replyRichText({
+      await messageHandler.replyRichText({
         interaction,
         title: LanguageHandler.language.interactions.unavailable.success.title,
         description: LanguageHandler.language.interactions.unavailable.success.description,
         ephemeral: true,
       });
       Logger.Log(`${(interaction.member.user as User).tag} has signed out of event ${event} [Unavailable]`, WARNINGLEVEL.INFO);
+    } else {
+      Logger.Log(`${(interaction.member.user as User).tag} marked twice as unavailable ${event} [Unavailable]`, WARNINGLEVEL.INFO);
+      await messageHandler.replyRichErrorText({
+        interaction,
+        title: LanguageHandler.language.interactions.unavailable.error.title,
+        description: LanguageHandler.language.interactions.unavailable.error.description,
+      });
     }
   }
 }
@@ -102,7 +109,7 @@ class SignoutEvent extends ButtonInteractionHandle {
 
     const userId = interaction.member.user.id;
     const event = parseInt(interaction.customId.slice(this.id.length), 10);
-    
+
     // retrieve Players data from google sheets
 
     if (await sqlHandler.getSqlSignup().isSignedIn(event, userId)) {
