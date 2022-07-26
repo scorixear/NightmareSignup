@@ -2,7 +2,7 @@ import {ChatInputCommandInteraction, CommandInteraction, SlashCommandUserOption}
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
-import { LanguageHandler } from '../../handlers/LanguageHandler';
+import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;

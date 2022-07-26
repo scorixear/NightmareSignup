@@ -1,7 +1,7 @@
 import { ButtonInteractionHandle } from "../model/ButtonInteractionHandle";
 import { ButtonInteraction, Guild, GuildMember, User } from "discord.js";
 import InteractionHandler from "../handlers/interactionHandler";
-import { LanguageHandler } from "../handlers/LanguageHandler";
+import { LanguageHandler } from "../handlers/languageHandler";
 import SqlHandler from "../handlers/sqlHandler";
 import { updateUnavailable, updateSignupMessage } from '../commands/Moderation/signup';
 import messageHandler from '../handlers/messageHandler';

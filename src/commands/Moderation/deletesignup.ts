@@ -3,7 +3,7 @@ import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import dateHandler from '../../handlers/dateHandler';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
-import { LanguageHandler } from '../../handlers/LanguageHandler';
+import { LanguageHandler } from '../../handlers/languageHandler';
 import SqlHandler from '../../handlers/sqlHandler';
 import DiscordHandler from '../../handlers/discordHandler';
 import { Logger, WARNINGLEVEL } from '../../helpers/Logger';

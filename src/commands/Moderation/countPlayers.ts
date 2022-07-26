@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import { LanguageHandler } from '../../handlers/LanguageHandler';
+import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 

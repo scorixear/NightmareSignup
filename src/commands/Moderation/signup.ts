@@ -5,7 +5,7 @@ import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, EmbedBuil
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { ButtonStyle, ChannelType } from 'discord-api-types/v10';
 import signup from '../../interactions/signup';
-import { LanguageHandler } from '../../handlers/LanguageHandler';
+import { LanguageHandler } from '../../handlers/languageHandler';
 import SqlHandler from '../../handlers/sqlHandler';
 import InteractionHandler from '../../handlers/interactionHandler';
 import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
