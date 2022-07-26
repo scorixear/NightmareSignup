@@ -1,4 +1,4 @@
-import {DMChannel, Guild, Message, MessageActionRow, MessageEmbed, TextBasedChannel, TextChannel, User, UserResolvable, CommandInteraction, Interaction} from 'discord.js';
+import {DMChannel, Guild, Message, TextBasedChannel, TextChannel, User, UserResolvable, CommandInteraction, Interaction, ButtonInteraction, ActionRowComponent, ActionRowBuilder, EmbedBuilder, ButtonBuilder} from 'discord.js';
 
 /**
  * Prints a MessageEmbed
@@ -12,7 +12,7 @@ import {DMChannel, Guild, Message, MessageActionRow, MessageEmbed, TextBasedChan
   description?: string,
   thumbnail?: string,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
 }) {
   return await sendRichText(param0.msg, param0.title, param0.categories, param0.color, param0.description, param0.thumbnail, param0.url, param0.components);
 }
@@ -30,37 +30,46 @@ async function sendRichTextDefaultExplicit(param0: {
   description?: string,
   thumbnail?: string,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
 }) {
   return await sendRichTextExplicit(param0.guild, param0.channel, param0.author, param0.title, param0.categories, param0.color, param0.description, param0.thumbnail, param0.url, param0.components);
 }
 
 async function replyRichErrorText(param0: {
-  interaction: CommandInteraction,
+  interaction: CommandInteraction | ButtonInteraction,
   title?: string,
   categories?: {title: string, text?: string, inline?: boolean}[],
   description?: string,
   thumbnail?: string,
   color?: number,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
 }) {
-  return await param0.interaction.reply(await getRichErrorTextInteraction(param0));
+  if(param0.interaction.deferred) {
+    return await param0.interaction.editReply(await getRichErrorTextInteraction(param0));
+  } else {
+    return await param0.interaction.reply(await getRichErrorTextInteraction(param0));
+  }
 }
+
 
 async function replyRichText(param0: {
-  interaction: CommandInteraction,
+  interaction: CommandInteraction | ButtonInteraction,
   title?: string,
   categories?: {title: string, text?: string, inline?: boolean}[],
   description?: string,
   thumbnail?: string,
   color?: number,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
+  ephemeral?: boolean
 }) {
-  return await param0.interaction.reply(await getRichTextInteraction(param0));
+  if(param0.interaction.deferred) {
+    return await param0.interaction.editReply(await getRichTextInteraction(param0));
+  } else {
+    return await param0.interaction.reply(await getRichTextInteraction(param0));
+  }
 }
-
 /**
  * Prints a Message Embed
  * @param guild the Guild to print to
@@ -74,17 +83,17 @@ async function replyRichText(param0: {
  * @param url an url
  * @param buttons
  */
-async function sendRichTextExplicit(guild: Guild, channel: TextBasedChannel, author: User, title: string, categories: {title: string, text?: string, inline?: boolean}[], color: number, description: string, thumbnail: string, url: string, components: MessageActionRow[]) {
+async function sendRichTextExplicit(guild: Guild, channel: TextBasedChannel, author: User, title: string, categories: {title: string, text?: string, inline?: boolean}[], color: number, description: string, thumbnail: string, url: string, components: ActionRowBuilder<ButtonBuilder>[]) {
   channel.sendTyping();
-  const richText: MessageEmbed = new MessageEmbed();
+  const richText: EmbedBuilder = new EmbedBuilder();
   if (title) {
     richText.setTitle(title);
   }
 
   if (categories) {
-    categories.forEach((category) => {
-      richText.addField(category.title, category.text || '\u200b', category.inline || false);
-    });
+    richText.addFields(categories.map(category => {
+      return  {name: category.title, value: category.text || '\u200b', inline: category.inline || false};
+    }));
   }
   if (color) {
     richText.setColor(color);
@@ -105,22 +114,23 @@ async function sendRichTextExplicit(guild: Guild, channel: TextBasedChannel, aut
   if (url) {
     richText.setURL(url);
   }
-
+  
   if (components) {
-    return channel.send({embeds: [richText], components});
+    return channel.send({embeds: [richText], components: components});
   }
   return channel.send({embeds: [richText]});
 }
 
 async function getRichTextInteraction(param0: {
-  interaction: Interaction,
+  interaction: CommandInteraction | ButtonInteraction,
   title?: string,
   categories?: {title: string, text?: string, inline?: boolean}[],
   description?: string,
   thumbnail?: string,
   color?: number,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
+  ephemeral?: boolean
 }) {
   return getRichTextExplicitDefault({
     guild: param0.interaction.guild??undefined,
@@ -131,19 +141,20 @@ async function getRichTextInteraction(param0: {
     description: param0.description,
     thumbnail: param0.thumbnail,
     url: param0.url,
-    components: param0.components
+    components: param0.components,
+    ephemeral: param0.ephemeral
   });
 }
 
 async function getRichErrorTextInteraction(param0: {
-  interaction: Interaction,
+  interaction: CommandInteraction | ButtonInteraction,
   title?: string,
   categories?: {title: string, text?: string, inline?: boolean}[],
   description?: string,
   thumbnail?: string,
   color?: number,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
 }) {
   return getRichTextExplicitDefault({
     guild: param0.interaction.guild??undefined,
@@ -172,22 +183,22 @@ async function getRichErrorTextInteraction(param0: {
   description?: string,
   thumbnail?: string,
   url?: string,
-  components?: MessageActionRow[],
+  components?: ActionRowBuilder<ButtonBuilder>[],
   ephemeral?: boolean,
 }) {
   return getRichTextExplicit(param0.guild, param0.author, param0.title, param0.categories, param0.color, param0.description, param0.thumbnail, param0.url, param0.components, param0.ephemeral);
 }
 
-async function getRichTextExplicit(guild?: Guild, author?: User, title?: string, categories?: {title: string, text?: string, inline?: boolean}[], color?: number, description?: string, thumbnail?: string, url?: string, components?: MessageActionRow[], ephemeral?: boolean) {
-  const richText: MessageEmbed = new MessageEmbed();
+async function getRichTextExplicit(guild?: Guild, author?: User, title?: string, categories?: {title: string, text?: string, inline?: boolean}[], color?: number, description?: string, thumbnail?: string, url?: string, components?: ActionRowBuilder<ButtonBuilder>[], ephemeral?: boolean) {
+  const richText: EmbedBuilder = new EmbedBuilder();
   if (title) {
     richText.setTitle(title);
   }
 
   if (categories) {
-    categories.forEach((category) => {
-      richText.addField(category.title, category.text || '\u200b', category.inline || false);
-    });
+    richText.addFields(categories.map(category => {
+      return  {name: category.title, value: category.text || '\u200b', inline: category.inline || false};
+    }));
   }
   if (color) {
     richText.setColor(color);
@@ -210,7 +221,7 @@ async function getRichTextExplicit(guild?: Guild, author?: User, title?: string,
   }
   const eph = ephemeral || false;
 
-  let returnValue: {embeds: MessageEmbed[], ephemeral: boolean, components?: MessageActionRow[]} = {embeds: [richText], ephemeral: eph};
+  let returnValue: {embeds: EmbedBuilder[], ephemeral: boolean, components?: ActionRowBuilder<ButtonBuilder>[]} = {embeds: [richText], ephemeral: eph};
 
   if (components) {
     returnValue = {embeds: [richText], ephemeral: eph, components};
@@ -230,7 +241,7 @@ async function getRichTextExplicit(guild?: Guild, author?: User, title?: string,
  * @param url
  * @param buttons
  */
-async function sendRichText(msg: Message, title: string, categories: {title: string, text?: string, inline?: boolean}[], color: number, description: string, thumbnail: string, url: string, components: MessageActionRow[]) {
+async function sendRichText(msg: Message, title: string, categories: {title: string, text?: string, inline?: boolean}[], color: number, description: string, thumbnail: string, url: string, components: ActionRowBuilder<ButtonBuilder>[]) {
   return await sendRichTextExplicit(msg.guild, msg.channel, msg.author,
       title, categories, color, description, thumbnail, url, components);
 }

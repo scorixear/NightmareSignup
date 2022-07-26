@@ -1,14 +1,14 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import PartyHandler from '../../misc/partyHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CountRoles extends CommandInteractionHandle {
+export default class CountRoles extends ChatInputCommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     super(
@@ -22,7 +22,7 @@ export default class CountRoles extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch (err) {
@@ -30,10 +30,7 @@ export default class CountRoles extends CommandInteractionHandle {
     }
 
     const roles= await sqlHandler.getSqlRole().getUsersWithRoles();
-    let react = true;
     if(!PartyHandler.Roles) {
-      react = false;
-      interaction.deferReply();
       await PartyHandler.updateComposition();
     }
     for(const role of PartyHandler.Roles) {
@@ -42,24 +39,10 @@ export default class CountRoles extends CommandInteractionHandle {
       }
     }
     const categories = messageHandler.splitInCategories(roles.map(r=>r.role+": "+r.count), LanguageHandler.language.commands.countroles.success.list);
-
-    if(react) {
-      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
-        title: LanguageHandler.language.commands.countroles.success.title,
-        categories,
-      }));
-    } else {
-      await messageHandler.sendRichTextDefaultExplicit({
-        guild: interaction.guild,
-        channel: interaction.channel,
-        author: interaction.user,
-        title: LanguageHandler.language.commands.countroles.success.title,
-        categories,
-      });
-    }
-
-
+    await messageHandler.replyRichText({
+      interaction,
+      title: LanguageHandler.language.commands.countroles.success.title,
+      categories,
+    });
   }
 }

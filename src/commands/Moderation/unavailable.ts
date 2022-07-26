@@ -1,15 +1,14 @@
-import {CommandInteraction} from 'discord.js';
+import {ChatInputCommandInteraction, CommandInteraction, SlashCommandStringOption} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import dateHandler from '../../misc/dateHandler';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import SqlHandler from '../../misc/sqlHandler';
 
 declare const sqlHandler: SqlHandler;
 
-export default class Unavailable extends CommandInteractionHandle {
+export default class Unavailable extends ChatInputCommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
@@ -26,7 +25,7 @@ export default class Unavailable extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -41,23 +40,21 @@ export default class Unavailable extends CommandInteractionHandle {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
-        interaction.reply(await messageHandler.getRichTextExplicitDefault({
-          guild: interaction.guild,
-          author: interaction.user,
+        await messageHandler.replyRichErrorText({
+          interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
           description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
-        }));
+        });
         return;
       }
     } catch (err) {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.unavailable.error.formatTitle,
         description: LanguageHandler.language.commands.unavailable.error.formatDesc,
         color: 0xcc0000,
-      }));
+      });
       return;
     }
     const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
@@ -68,20 +65,18 @@ export default class Unavailable extends CommandInteractionHandle {
             return guildMember.nickname?guildMember.nickname:guildMember.user.username;
           })))
           .join('\n');
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichText({
+        interaction,
         title: LanguageHandler.language.commands.unavailable.success.title,
         description: result,
-      }));
+      });
     } else {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.unavailable.error.sql_title,
         description: LanguageHandler.language.commands.unavailable.error.sql_desc,
         color: 0xcc0000,
-      }));
+      });
     }
   }
 }

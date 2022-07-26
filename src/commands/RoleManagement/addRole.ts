@@ -1,8 +1,7 @@
-import {CommandInteraction} from 'discord.js';
+import {ChatInputCommandInteraction, CommandInteraction, SlashCommandStringOption, SlashCommandUserOption} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
@@ -11,7 +10,7 @@ import dateHandler from '../../misc/dateHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class AddRole extends CommandInteractionHandle {
+export default class AddRole extends ChatInputCommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.roles.options.user).setRequired(true));
@@ -27,7 +26,7 @@ export default class AddRole extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -45,10 +44,7 @@ export default class AddRole extends CommandInteractionHandle {
     const channel = interaction.channel;
     const author = interaction.user;
     const roles = await guild.roles.fetch();
-    let react = true;
     if(!PartyHandler.Roles) {
-      react = false;
-      interaction.deferReply();
       await PartyHandler.updateComposition();
     }
     const nonExistent = [];
@@ -59,24 +55,12 @@ export default class AddRole extends CommandInteractionHandle {
       }
     }
     if(nonExistent.length > 0) {
-      if (react) {
-        await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-          guild: interaction.guild,
-          author: interaction.user,
-          title: LanguageHandler.language.commands.roles.add.error.role_title,
-          description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.role_desc, ["- "+ nonExistent.join("\n- ")]),
-          color: 0xcc0000,
-        }));
-      } else {
-        await messageHandler.sendRichTextDefaultExplicit({
-          guild,
-          channel,
-          author,
-          title: LanguageHandler.language.commands.roles.add.error.role_title,
-          description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.role_desc, ["- " + nonExistent.join("\n- ")]),
-          color: 0xcc0000,
-        });
-      }
+      await messageHandler.replyRichErrorText({
+        interaction,
+        title: LanguageHandler.language.commands.roles.add.error.role_title,
+        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.role_desc, ["- "+ nonExistent.join("\n- ")]),
+        color: 0xcc0000,
+      });
       return;
     }
     const addedRoles = [];
@@ -91,42 +75,21 @@ export default class AddRole extends CommandInteractionHandle {
         ignoredRoles.push(zrole.trim());
       }
     }
-    try {
-      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild,
-        author,
-        title: LanguageHandler.language.commands.roles.add.title,
-        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
-        categories: [
-          {
-            title: LanguageHandler.language.commands.roles.add.success.added,
-            text: '- '+addedRoles.join('\n- '),
-          },
-          {
-            title: LanguageHandler.language.commands.roles.add.success.ignored,
-            text: '- '+ignoredRoles.join('\n- '),
-          },
-        ],
-      }));
-    } catch {
-      await messageHandler.sendRichTextDefaultExplicit({
-        guild: interaction.guild,
-        channel: interaction.channel,
-        author: interaction.user,
-        title: LanguageHandler.language.commands.roles.add.title,
-        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
-        categories: [
-          {
-            title: LanguageHandler.language.commands.roles.add.success.added,
-            text: '- '+addedRoles.join('\n- '),
-          },
-          {
-            title: LanguageHandler.language.commands.roles.add.success.ignored,
-            text: '- '+ignoredRoles.join('\n- '),
-          },
-        ],
-      });
-    }
+    await messageHandler.replyRichText({
+      interaction,
+      title: LanguageHandler.language.commands.roles.add.title,
+      description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.successdesc, ['<@' + user.id + '>']),
+      categories: [
+        {
+          title: LanguageHandler.language.commands.roles.add.success.added,
+          text: '- '+addedRoles.join('\n- '),
+        },
+        {
+          title: LanguageHandler.language.commands.roles.add.success.ignored,
+          text: '- '+ignoredRoles.join('\n- '),
+        },
+      ],
+    });
     const member = await discordHandler.fetchMember(user.id, guild);
     const role = roles.find(r => r.name === config.armyRole);
     if (member && role) {
@@ -139,13 +102,11 @@ export default class AddRole extends CommandInteractionHandle {
     } else {
       console.error("Couldn't find member or role");
     }
-    await messageHandler.sendRichTextDefaultExplicit({
-      guild,
-      channel,
-      author,
+    await interaction.followUp(await messageHandler.getRichTextInteraction({
+      interaction,
       title: LanguageHandler.language.commands.roles.add.error.discord,
       description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.add.error.discorddesc, ['<@' + user.id + '>']),
       color: 0xcc0000,
-    });
+    }));
   }
 }

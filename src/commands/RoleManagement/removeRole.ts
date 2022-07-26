@@ -1,15 +1,12 @@
-import {CommandInteraction} from 'discord.js';
+import {SlashCommandStringOption, SlashCommandUserOption, ChatInputCommandInteraction} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
-import SqlHandler from '../../misc/sqlHandler';
-import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;
-export default class RemoveRole extends CommandInteractionHandle {
+export default class RemoveRole extends ChatInputCommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.roles.options.user).setRequired(true));
@@ -25,30 +22,28 @@ export default class RemoveRole extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
       return;
     }
-    const user = interaction.options.getUser('user');
-    const zvzrole = interaction.options.getString('zvzrole').trim();
+    const user = interaction.options.getUser('user', true);
+    const zvzrole = interaction.options.getString('zvzrole', true).trim();
     const removed = await sqlHandler.getSqlRole().removeRole(user.id, zvzrole);
     if (removed) {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichText({
+        interaction,
         title: LanguageHandler.language.commands.roles.remove.title,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.remove.successdesc, ['<@' + user.id + '>', zvzrole]),
-      }));
+      });
     } else {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.roles.error.sql_title,
         description: LanguageHandler.language.commands.roles.error.sql_desc,
         color: 0xcc0000,
-      }));
+      });
     }
   }
 }

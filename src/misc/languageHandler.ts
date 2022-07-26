@@ -29,7 +29,8 @@ export class LanguageHandler {
           formatDesc: "Your Date and/or Time are in the wrong format.\nMake sure you follow DD.MM.YYYY HH:MM"
         },
         success:{
-          
+          title: "Event created",
+          description: "The Event `$0` at `$1` has been created.\nTo delete the event, please execute `$2deletesignup \"$0\" $1`\n The message can be found under $3",
         },
         options: {
           channel: "The channel the Event will be posted in",
@@ -53,6 +54,12 @@ export class LanguageHandler {
         success: {
           title: "Event deleted",
           desc: "Successfully deleted `$0`."
+        }
+      },
+      formParties: {
+        success: {
+          title: "Message posted",
+          description: "Successfully posted the message in <#$0>."
         }
       },
       unavailable: {
@@ -218,6 +225,12 @@ export class LanguageHandler {
         confirmation_desc: "We have successfully signed you out from the upcoming event!",
         error_title: "Error while signing out!",
         error_desc: "There was an error while signing you out."
+      },
+      unavailable: {
+        success: {
+          title: "Successfully marked as unavailable",
+          description: "We successfully marked you as unavailable for the upcoming event."
+        }
       }
     },
     handlers: {

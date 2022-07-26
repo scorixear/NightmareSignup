@@ -1,14 +1,13 @@
-import {CommandInteraction} from 'discord.js';
+import {ChatInputCommandInteraction, CommandInteraction, SlashCommandUserOption} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class ClearRoles extends CommandInteractionHandle {
+export default class ClearRoles extends ChatInputCommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.roles.options.user).setRequired(true));
@@ -23,7 +22,7 @@ export default class ClearRoles extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -34,12 +33,11 @@ export default class ClearRoles extends CommandInteractionHandle {
       &&(await sqlHandler.getSqlUser().removeUser(user.id))
       &&(await sqlHandler.getSqlVacation().clearVacation(user.id));
     if (cleared) {
-      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichText({
+        interaction,
         title: LanguageHandler.language.commands.roles.clear.title,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.clear.successdesc, ['<@'+user.id+'>']),
-      }));
+      });
       const member = await discordHandler.fetchMember(user.id, interaction.guild);
       const roles = await interaction.guild.roles.fetch();
       const role = roles.find(r => r.name === config.armyRole);
@@ -56,14 +54,13 @@ export default class ClearRoles extends CommandInteractionHandle {
       } else {
         console.error("Couldn't find member or role");
       }
-      await messageHandler.sendRichTextDefaultExplicit({
-        guild: interaction.guild,
-        channel: interaction.channel,
-        author: interaction.user,
+
+      await interaction.followUp(await messageHandler.getRichTextInteraction({
+        interaction,
         title: LanguageHandler.language.commands.roles.clear.error.discord,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.roles.clear.error.discorddesc, ['<@' + user.id + '>']),
         color: 0xcc0000,
-      });
+      }));
     } else {
       interaction.reply(await messageHandler.getRichTextExplicitDefault({
         guild: interaction.guild,

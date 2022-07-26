@@ -1,7 +1,8 @@
-import { ApplicationCommandPermissionData, ButtonInteraction, CommandInteraction, Interaction, SelectMenuInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction, CommandInteraction, Interaction, SelectMenuInteraction } from 'discord.js';
 
 import { ButtonInteractionHandle } from '../model/ButtonInteractionHandle';
-import { CommandInteractionHandle } from '../model/CommandInteractionHandle';
+import CommandInteractionHandle from '../model/commands/CommandInteractionHandle';
+import ChatInputCommandInteractionHandle from '../model/commands/ChatInputCommandInteractionHandle';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import config from '../config';
@@ -67,7 +68,7 @@ export default class InteractionHandler {
       }
     }
     const commands = this.commandInteractions.map(command => command.slashCommandBuilder.toJSON());
-    const rest = new REST( {version: '9'}).setToken(process.env.DISCORD_TOKEN);
+    const rest = new REST( {version: '10'}).setToken(process.env.DISCORD_TOKEN);
 
     global.discordHandler.getGuilds().forEach(async guild=> {
       await rest.put(Routes.applicationGuildCommands(process.env.CLIENTID, guild.id), {body: commands})
@@ -104,11 +105,11 @@ export default class InteractionHandler {
         if(interactionHandle) {
           await interactionHandle.handle(buttonInteraction);
         }
-      } else if (interaction.isCommand()) {
-        const commandInteraction: CommandInteraction = interaction as CommandInteraction;
-        const handler = this.commandInteractions.find(interactionHandle => interactionHandle.command === commandInteraction.commandName);
+      } else if (interaction.isChatInputCommand()) {
+        const commandInteraction: ChatInputCommandInteraction = interaction as ChatInputCommandInteraction;
+        const handler = this.commandInteractions.find(interactionHandle => interactionHandle instanceof ChatInputCommandInteractionHandle && interactionHandle.command === commandInteraction.commandName);
         if (handler) {
-          await handler.handle(commandInteraction);
+          await (handler as ChatInputCommandInteractionHandle).handle(commandInteraction);
         }
       } else {
         return;

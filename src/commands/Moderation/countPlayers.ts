@@ -1,13 +1,13 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CountPlayers extends CommandInteractionHandle {
+export default class CountPlayers extends ChatInputCommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     super(
@@ -21,7 +21,7 @@ export default class CountPlayers extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch (err) {
@@ -35,23 +35,10 @@ export default class CountPlayers extends CommandInteractionHandle {
       text: users.length.toString(),
       inline: false
     });
-    try{
-      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
-        title: LanguageHandler.language.commands.countplayers.success.title,
-        categories,
-      }));
-    } catch {
-      await messageHandler.sendRichTextDefaultExplicit({
-        guild: interaction.guild,
-        author: interaction.user,
-        channel: interaction.channel,
-        title: LanguageHandler.language.commands.countplayers.success.title,
-        categories,
-      });
-    }
-
-
+    await messageHandler.replyRichText({
+      interaction,
+      title: LanguageHandler.language.commands.countplayers.success.title,
+      categories,
+    });
   }
 }

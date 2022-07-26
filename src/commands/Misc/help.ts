@@ -1,11 +1,11 @@
 import messageHandler from '../../misc/messageHandler.js';
 import config from '../../config.js';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption } from '@discordjs/builders';
-import { ApplicationCommand, CommandInteraction, GuildMember, GuildMemberRoleManager } from 'discord.js';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, SlashCommandStringOption } from 'discord.js';
 import { LanguageHandler } from '../../misc/LanguageHandler.js';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 
-export default class Help extends CommandInteractionHandle {
+export default class Help extends ChatInputCommandInteractionHandle {
   commands: CommandInteractionHandle[];
   constructor() {
     super(
@@ -23,7 +23,7 @@ export default class Help extends CommandInteractionHandle {
     this.commands = commands;
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -46,15 +46,14 @@ export default class Help extends CommandInteractionHandle {
           }
         }
         if(!found) {
-          interaction.reply(await messageHandler.getRichTextExplicitDefault({
-            guild: interaction.guild,
-            author: interaction.user,
+          await messageHandler.replyRichErrorText({
+            interaction,
             title: 'Help Info',
             categories: [{
               title: 'Info',
               text: LanguageHandler.replaceArgs(LanguageHandler.language.commands.help.error.unknown, [config.botPrefix])
             }],
-          }));
+          });
           return;
         }
         const example = '\`\`\`' + config.botPrefix +
@@ -62,9 +61,8 @@ export default class Help extends CommandInteractionHandle {
                 .split('\n')
                 .reduce((acc, val) => acc + '\`\`\`\n\`\`\`' + config.botPrefix + val) + '\`\`\`';
 
-         interaction.reply(await messageHandler.getRichTextExplicitDefault({
-            guild: interaction.guild,
-            author: interaction.user,
+         await messageHandler.replyRichText({
+            interaction,
             categories: [{
               title: LanguageHandler.language.commands.help.labels.command,
               text: `\`${config.botPrefix}${commandHandle.command}\``,
@@ -84,17 +82,16 @@ export default class Help extends CommandInteractionHandle {
               text: example,
             },
             ],
-        }));
+        });
       } else {
-        interaction.reply(await messageHandler.getRichTextExplicitDefault({
-          guild: interaction.guild,
-          author: interaction.user,
+        await messageHandler.replyRichErrorText({
+          interaction,
           title: 'Help Info',
           categories: [{
             title: 'Info',
             text: LanguageHandler.replaceArgs(LanguageHandler.language.commands.help.error.unknown, [config.botPrefix])
           }],
-        }));
+        });
 
       }
       return;
@@ -137,12 +134,11 @@ export default class Help extends CommandInteractionHandle {
         inline: true,
       });
     });
-    interaction.reply(await messageHandler.getRichTextExplicitDefault({
-      guild: interaction.guild,
-      author: interaction.user,
+    await messageHandler.replyRichText({
+      interaction,
       title: 'Help Info',
       categories: embededCategories,
       color: 0x616161
-    }));
+    });
   }
 }

@@ -1,12 +1,13 @@
-import {Client, Guild, Intents, Awaitable} from 'discord.js';
+import {Client, Guild, GatewayIntentBits, Partials,  Awaitable} from 'discord.js';
 import { IDiscordHandler } from '../interfaces/IDiscordHandler';
 
 export default class DiscordHandler  implements IDiscordHandler{
   private client: Client;
   constructor() {
     this.client = new Client({
-      partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'],
-      intents: [Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS]});
+      partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.User],
+      intents: [GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.Guilds]
+    });
   }
   public getFirstGuild() {
     return this.client.guilds.cache.first();

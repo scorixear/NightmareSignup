@@ -1,14 +1,13 @@
-import {CommandInteraction} from 'discord.js';
+import {ChatInputCommandInteraction, CommandInteraction, SlashCommandUserOption} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class EndVacation extends CommandInteractionHandle {
+export default class EndVacation extends ChatInputCommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.vacation.options.user).setRequired(true));
@@ -23,7 +22,7 @@ export default class EndVacation extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -33,27 +32,27 @@ export default class EndVacation extends CommandInteractionHandle {
     const user = interaction.options.getUser('user');
     if(await sqlHandler.getSqlUser().getUser(user.id)) {
       if(await sqlHandler.getSqlVacation().updateVacation(user.id, Date.now())) {
-        await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+        await messageHandler.replyRichText({
+          interaction,
           title: LanguageHandler.language.commands.vacation.end.success.title,
           description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.vacation.end.success.description, [user.id]),
-          author: interaction.user,
           color: 0x00CC00
-        }));
+        });
       } else {
-        await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+        await messageHandler.replyRichErrorText({
+          interaction,
           title: LanguageHandler.language.commands.vacation.error.title,
           description: LanguageHandler.language.commands.vacation.error.description,
-          author: interaction.user,
           color: 0xCC0000
-        }));
+        });
       }
     } else {
-      await interaction.reply(await messageHandler.getRichTextExplicitDefault({
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.vacation.user_error.title,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.vacation.user_error.description, [user.id]),
-        author: interaction.user,
         color: 0xCC0000
-      }));
+      });
     }
   }
 }

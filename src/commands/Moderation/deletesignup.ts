@@ -1,9 +1,8 @@
-import {CommandInteraction, TextChannel} from 'discord.js';
+import {ChatInputCommandInteraction, SlashCommandStringOption, TextChannel} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
 import dateHandler from '../../misc/dateHandler';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandBooleanOption, SlashCommandStringOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import SqlHandler from '../../misc/sqlHandler';
 import DiscordHandler from '../../misc/discordHandler';
@@ -11,7 +10,7 @@ import DiscordHandler from '../../misc/discordHandler';
 declare const sqlHandler: SqlHandler;
 declare const discordHandler: DiscordHandler;
 
-export default class Deletesignup extends CommandInteractionHandle {
+export default class Deletesignup extends ChatInputCommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
@@ -28,7 +27,7 @@ export default class Deletesignup extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -43,24 +42,22 @@ export default class Deletesignup extends CommandInteractionHandle {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
-        interaction.reply(await messageHandler.getRichTextExplicitDefault({
-          guild: interaction.guild,
-          author: interaction.user,
+        await messageHandler.replyRichErrorText({
+          interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
           description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
-        }));
+        });
         return;
       }
     } catch (err) {
       console.error(err);
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
         description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
         color: 0xcc0000,
-      }));
+      });
       return;
     }
     const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
@@ -78,21 +75,19 @@ export default class Deletesignup extends CommandInteractionHandle {
       } catch (err) {}
 
       await sqlHandler.getSqlEvent().deleteEvent(eventName, eventTimestamp.toString());
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichText({
+        interaction,
         title: LanguageHandler.language.commands.deletesignup.success.title,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.success.desc, [eventName]),
-      }));
+      });
       console.log(`Deleted event ${eventName} ${eventTimestamp}`);
     } else {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.deletesignup.error.sql_title,
         description: LanguageHandler.language.commands.deletesignup.error.sql_desc,
         color: 0xcc0000,
-      }));
+      });
     }
   }
 }

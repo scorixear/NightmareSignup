@@ -1,15 +1,14 @@
-import {CommandInteraction} from 'discord.js';
+import {ChatInputCommandInteraction, CommandInteraction, SlashCommandIntegerOption, SlashCommandStringOption} from 'discord.js';
 import messageHandler from '../../misc/messageHandler';
 import config from '../../config';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import { SlashCommandIntegerOption, SlashCommandStringOption, SlashCommandUserOption } from '@discordjs/builders';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { LanguageHandler } from '../../misc/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import dateHandler from '../../misc/dateHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CheckAttendance extends CommandInteractionHandle {
+export default class CheckAttendance extends ChatInputCommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [
       new SlashCommandIntegerOption().setName('event-count').setDescription(LanguageHandler.language.commands.attendance.event_count_desc).setRequired(false),
@@ -28,7 +27,7 @@ export default class CheckAttendance extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -100,7 +99,6 @@ export default class CheckAttendance extends CommandInteractionHandle {
       description = LanguageHandler.language.commands.attendance.success.description;
       limit = 1;
     }
-    interaction.deferReply();
     const users: {userid: string, register: number}[] = (await sqlHandler.getSqlUser().getUsers())
     const userCounts = new Map<string, {reacted: number, max: number}>();
 
@@ -148,10 +146,8 @@ export default class CheckAttendance extends CommandInteractionHandle {
     }
     const categories = messageHandler.splitInCategories(lines, LanguageHandler.language.commands.attendance.success.list);
 
-    await messageHandler.sendRichTextDefaultExplicit({
-      guild: interaction.guild,
-      author: interaction.user,
-      channel: interaction.channel,
+    await messageHandler.replyRichText({
+      interaction,
       title: LanguageHandler.language.commands.attendance.success.title,
       description,
       categories,

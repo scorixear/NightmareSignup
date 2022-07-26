@@ -1,12 +1,11 @@
-import { CommandInteractionHandle } from "../../model/CommandInteractionHandle";
-import { CommandInteraction, TextChannel } from "discord.js";
-import { SlashCommandBooleanOption, SlashCommandStringOption } from "@discordjs/builders";
+import ChatInputCommandInteractionHandle from "../../model/commands/ChatInputCommandInteractionHandle";
+import { ChatInputCommandInteraction, CommandInteraction, SlashCommandBooleanOption, SlashCommandStringOption, TextChannel } from "discord.js";
 import dateHandler from "../../misc/dateHandler";
 import messageHandler from "../../misc/messageHandler";
 import PartyHandler from "../../misc/partyHandler";
 import { LanguageHandler } from "../../misc/languageHandler";
 
-export default class FormParties extends CommandInteractionHandle {
+export default class FormParties extends ChatInputCommandInteractionHandle {
   constructor() {
     const commandOptions: any[]= [];
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
@@ -24,7 +23,7 @@ export default class FormParties extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -41,24 +40,22 @@ export default class FormParties extends CommandInteractionHandle {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
-        interaction.reply(await messageHandler.getRichTextExplicitDefault({
-          guild: interaction.guild,
-          author: interaction.user,
+        await messageHandler.replyRichErrorText({
+          interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
           description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
-        }));
+        });
         return;
       }
     } catch (err) {
       console.error(err);
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
         description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
         color: 0xcc0000,
-      }));
+      });
       return;
     }
     const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
@@ -77,10 +74,8 @@ export default class FormParties extends CommandInteractionHandle {
           const partyCategories = await PartyHandler.getCategories(eventId);
           if(partyCategories) {
             if(postPrivate) {
-              await messageHandler.sendRichTextDefaultExplicit({
-                guild: interaction.guild,
-                author: interaction.user,
-                channel: interaction.channel,
+              await messageHandler.replyRichText({
+                interaction,
                 title: LanguageHandler.language.handlers.party.title,
                 description: LanguageHandler.language.handlers.party.description,
                 categories: partyCategories
@@ -106,9 +101,14 @@ export default class FormParties extends CommandInteractionHandle {
                 categories: partyCategories
               });
             }
+            await messageHandler.replyRichText({
+              interaction,
+              title: LanguageHandler.language.commands.formParties.success.title,
+              description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.formParties.success.description,[msg.channel.id]),
+            });
             return;
           } else {
-            console.log('Couldn\'t create parties for event '+event);
+            console.log('Couldn\'t create parties for event ' + eventId);
           }
         } catch(err){
           console.error(err);
@@ -117,13 +117,12 @@ export default class FormParties extends CommandInteractionHandle {
         console.error(err);
       }
     } else {
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.deletesignup.error.sql_title,
         description: LanguageHandler.language.commands.deletesignup.error.sql_desc,
         color: 0xcc0000,
-      }));
+      });
     }
 
   }

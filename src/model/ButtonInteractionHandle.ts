@@ -10,7 +10,7 @@ abstract class ButtonInteractionHandle {
     // set interaction as handled
     setTimeout(async ()=> {
       try {
-        await interaction.deferUpdate()
+        await interaction.deferReply({ephemeral: true});
       } catch {}
     }, 2000);
   }

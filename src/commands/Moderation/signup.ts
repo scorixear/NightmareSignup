@@ -1,10 +1,9 @@
 import config from '../../config.js';
 import messageHandler from '../../misc/messageHandler.js';
 import dateHandler from '../../misc/dateHandler.js';
-import { CommandInteraction, TextChannel, MessageActionRow, MessageButton, UserFlags } from 'discord.js';
-import { CommandInteractionHandle } from '../../model/CommandInteractionHandle';
-import {  SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandStringOption } from '@discordjs/builders';
-import { ChannelType } from 'discord-api-types/v10';
+import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandStringOption, TextChannel } from 'discord.js';
+import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import { ButtonStyle, ChannelType } from 'discord-api-types/v10';
 import signup from '../../interactions/signup';
 import { LanguageHandler } from '../../misc/LanguageHandler.js';
 import SqlHandler from '../../misc/sqlHandler.js';
@@ -27,9 +26,19 @@ declare const interactionHandler: InteractionHandler;
         const msg = await channel.messages.fetch(eventMessage.messageId);
         const embed = msg.embeds[0];
         const signups = await global.sqlHandler.getSqlSignup().getSignups(eventId);
-        embed.fields = [embed.fields[0], embed.fields[1], embed.fields[2], embed.fields[embed.fields.length-1]];
+        const newEmbed = new EmbedBuilder();
+        newEmbed.setTitle(embed.title);
+        newEmbed.setDescription(embed.description);
+        newEmbed.setColor(embed.color);
+        newEmbed.setFooter(embed.footer);
+        newEmbed.setAuthor(embed.author);
+        newEmbed.setThumbnail(embed.thumbnail.url);
+        newEmbed.setImage(embed.image.url);
+        newEmbed.setURL(embed.url);
+        let newFields: {name: string, value: string, inline?: boolean}[] = [];
+        newFields = [embed.fields[0], embed.fields[1], embed.fields[2], embed.fields[embed.fields.length-1]];
 
-        embed.fields[2].value = signups.length.toString();
+        newFields[2].value = signups.length.toString();
 
         let fieldIndex = 3;
         let currentCount = 0;
@@ -42,26 +51,27 @@ declare const interactionHandler: InteractionHandler;
           }
           if (currentCount < 20) {
             if (currentCount === 0) {
-              embed.fields.splice(fieldIndex, 0, {
+              newFields.splice(fieldIndex, 0, {
                 name: 'Members',
                 value: name,
                 inline: true,
               });
             } else {
-              embed.fields[fieldIndex].value += "\n" + name;
+              newFields[fieldIndex].value += "\n" + name;
             }
             currentCount++;
           } else {
             currentCount = 1;
             fieldIndex++;
-            embed.fields.splice(fieldIndex, 0, {
+            newFields.splice(fieldIndex, 0, {
               name: '\u200b',
               value: name,
               inline: true,
             });
           }
         }
-        msg.edit({embeds: [embed], components: msg.components});
+        newEmbed.addFields(newFields);
+        msg.edit({embeds: [newEmbed], components: msg.components});
       } catch (err) {}
     } catch (err) {}
   } catch (err) {}
@@ -88,11 +98,11 @@ export async function updateUnavailable(eventId: number) {
   } catch (err) {}
 }
 
-export default class SignupCommand extends CommandInteractionHandle {
+export default class SignupCommand extends ChatInputCommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     const channelOption: SlashCommandChannelOption = new SlashCommandChannelOption().setName('channel').setDescription(LanguageHandler.language.commands.signup.options.channel).setRequired(true);
-    channelOption.addChannelType(ChannelType.GuildText);
+    channelOption.addChannelTypes(ChannelType.GuildText);
     commandOptions.push(channelOption);
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
     commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(LanguageHandler.language.commands.signup.options.event_date).setRequired(true));
@@ -110,7 +120,7 @@ export default class SignupCommand extends CommandInteractionHandle {
     );
   }
 
-  override async handle(interaction: CommandInteraction) {
+  override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
     } catch(err) {
@@ -130,55 +140,52 @@ export default class SignupCommand extends CommandInteractionHandle {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
-        interaction.reply(await messageHandler.getRichTextExplicitDefault({
-          guild: interaction.guild,
-          author: interaction.user,
+        await messageHandler.replyRichErrorText({
+          interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
           description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
           color: 0xcc0000,
-        }));
+        });
         return;
       }
     } catch (err) {
       console.error(err);
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.signup.error.formatTitle,
         description: LanguageHandler.language.commands.signup.error.formatDesc,
         color: 0xcc0000,
-      }));
+      });
       return;
     }
 
     const eventId = await sqlHandler.getSqlEvent().createEvent(eventName, eventTimestamp.toString(), eventIsCta);
     if (eventId === -1) {
       console.error('Failed to load event id with values: ', eventName, eventTimestamp);
-      interaction.reply(await messageHandler.getRichTextExplicitDefault({
-        guild: interaction.guild,
-        author: interaction.user,
+      await messageHandler.replyRichErrorText({
+        interaction,
         title: LanguageHandler.language.commands.signup.error.eventTitle,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.signup.error.eventDesc, [eventName, eventDate + ' ' + eventTime, config.botPrefix]),
         color: 0xcc0000,
-      }));
+      });
       return;
     }
 
     // Create two Buttons for the signup message
-    const row = new MessageActionRow()
+    const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId(interactionHandler.buttonInteractions.typeGet(signup.SignupEvent)+eventId)
                 .setLabel('Sign up')
-                .setStyle('SUCCESS'),
-            new MessageButton()
+                .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
                 .setCustomId(interactionHandler.buttonInteractions.typeGet(signup.SignoutEvent)+eventId)
                 .setLabel('Sign out')
-                .setStyle('DANGER'),
-            new MessageButton()
+                .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
                 .setCustomId(interactionHandler.buttonInteractions.typeGet(signup.UnavailableEvent)+eventId)
                 .setLabel('Unavailable')
-                .setStyle('SECONDARY'),
+                .setStyle(ButtonStyle.Secondary),
         );
 
     const categories: {title: string, text?: string, inline?: boolean}[]  = [
@@ -214,7 +221,12 @@ export default class SignupCommand extends CommandInteractionHandle {
       components: [row],
     });
     await sqlHandler.getSqlDiscord().createDiscordMessage(eventId, message.id, channel.id, message.guild.id);
-    interaction.reply('Message created: '+message.url);
+    await messageHandler.replyRichText({
+      interaction,
+      title: LanguageHandler.language.commands.signup.success.title,
+      description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.signup.success.description, [eventName, eventDate + ' ' + eventTime, config.botPrefix, message.url]),
+      color: 0x00cc00,
+    });
     console.log(`Created Event ${eventName} ${eventTimestamp}`);
   }
 }
