@@ -1,8 +1,8 @@
-import messageHandler from '../../misc/messageHandler.js';
+import messageHandler from '../../handlers/messageHandler.js';
 import config from '../../config.js';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, SlashCommandStringOption } from 'discord.js';
-import { LanguageHandler } from '../../misc/LanguageHandler.js';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 
 export default class Help extends ChatInputCommandInteractionHandle {

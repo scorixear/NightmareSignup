@@ -1,4 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class SqlUnavailable {
   private pool: IPool;
@@ -16,7 +17,7 @@ export default class SqlUnavailable {
       }
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve unavailable", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -32,7 +33,7 @@ export default class SqlUnavailable {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't create unavailable", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -48,7 +49,7 @@ export default class SqlUnavailable {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't delete unavailable", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -68,7 +69,7 @@ export default class SqlUnavailable {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve unavailables", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -86,7 +87,7 @@ export default class SqlUnavailable {
       }
     } catch (err) {
       returnValue = undefined;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve unavailables", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

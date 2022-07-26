@@ -1,13 +1,14 @@
-import DiscordHandler from './misc/discordHandler';
-import InteractionHandler from './misc/interactionHandler';
-import SqlHandler from './misc/sqlHandler';
+import DiscordHandler from './handlers/discordHandler';
+import InteractionHandler from './handlers/interactionHandler';
+import SqlHandler from './handlers/sqlHandler';
 import dotenv from 'dotenv';
-import { IntervalHandlers } from './misc/intervalHandler';
-import GoogleSheetsHandler from './misc/googleSheetsHandler';
+import { IntervalHandlers } from './handlers/intervalHandler';
+import GoogleSheetsHandler from './handlers/googleSheetsHandler';
 import { DefaultMariaDB } from './interfaces/IMariaDb';
 import { IGoogleSheetsHandler } from './interfaces/IGoogleSheetsHandler';
 import { ISqlHandler} from './interfaces/ISqlHandler';
 import { IDiscordHandler } from './interfaces/IDiscordHandler';
+import { Logger, WARNINGLEVEL } from './helpers/Logger';
 
 // initialize configuration
 dotenv.config();
@@ -30,16 +31,16 @@ discordHandler.on('interactionCreate', (interaction)=> global.interactionHandler
 
 
 process.on('uncaughtException', (err: Error) => {
-  console.error('Unhandled exception', err);
+  Logger.Error('Uncaught Exception', err, WARNINGLEVEL.ERROR);
 });
 process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection', reason);
+  Logger.Error('Unhandled Rejection', reason, WARNINGLEVEL.ERROR);
 });
 
 sqlHandler.initDB().then(async () => {
   await discordHandler.login(process.env.DISCORD_TOKEN);
   await interactionHandler.Init();
-  console.log('N1ghtmare Signup Bot live!')
+  Logger.Log('Bot is ready', WARNINGLEVEL.INFO);
 
   IntervalHandlers.initInterval();
 });

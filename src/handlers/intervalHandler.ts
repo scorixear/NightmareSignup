@@ -4,6 +4,7 @@ import messageHandler from "./messageHandler";
 import PartyHandler from "./partyHandler";
 import SqlHandler from "./sqlHandler";
 import { LanguageHandler } from "./languageHandler";
+import { Logger, WARNINGLEVEL } from "../helpers/Logger";
 
 declare const sqlHandler: SqlHandler;
 
@@ -26,9 +27,9 @@ export class IntervalHandlers {
       if(msg) {
         try {
           await msg.delete();
-          console.log('Deleted message for event ' + event);
+          Logger.Log("Deleted message for event", WARNINGLEVEL.INFO, event);
         } catch (err) {
-          console.error(`Couldn't delete message for event ${event}`, err);
+          Logger.Error("Couldn't delete message for event", err, WARNINGLEVEL.WARN, event);
         }
       }
       sqlHandler.getSqlEvent().updateEventFlags(event, true, undefined, undefined);
@@ -50,10 +51,10 @@ export class IntervalHandlers {
                     .setStyle(ButtonStyle.Danger)
                     .setDisabled(true));
             await msg.edit({embeds: msg.embeds, components: [row]});
-            console.log('Removed Buttons for event ' + event);
+            Logger.Log("Closed event", WARNINGLEVEL.INFO, event);
           }
         } catch (err) {
-          console.error(`Couldn't remove buttons for event ${event}`, err);
+          Logger.Error("Couldn't close event", err, WARNINGLEVEL.WARN, event);
           continue;
         }
       }
@@ -80,10 +81,10 @@ export class IntervalHandlers {
               categories: partyCategories
             }));
           } else {
-            console.log('Couldn\'t create parties for event '+event);
+            Logger.Log("Couldn't get party categories for event", WARNINGLEVEL.WARN, event);
           }
-        } catch {
-          console.log('Couldn\'t send party message');
+        } catch(err) {
+          Logger.Error("Couldn't send party message for event", err, WARNINGLEVEL.WARN, event);
         }
       }
       sqlHandler.getSqlEvent().updateEventFlags(event, undefined, true, undefined);
@@ -103,13 +104,13 @@ export class IntervalHandlers {
         try {
           return await channel.messages.fetch(messageId);
         } catch (err) {
-          console.log('Couldn\'t find message for event ' + eventId);
+          Logger.Error("Couldn't fetch message for event", err, WARNINGLEVEL.WARN, eventId);
         }
       } catch (err) {
-        console.log('Couldn\'t find channel for event ' + eventId);
+        Logger.Error("Couldn't fetch channel for event", err, WARNINGLEVEL.WARN, eventId);
       }
     } catch (err) {
-      console.log('Couldn\'t find guild for event '+ eventId);
+      Logger.Error("Couldn't fetch guild for event", err, WARNINGLEVEL.WARN, eventId);
     }
     return undefined;
   }

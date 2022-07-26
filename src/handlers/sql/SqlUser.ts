@@ -1,4 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class SqlUser {
   private pool: IPool;
@@ -19,7 +20,7 @@ export default class SqlUser {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve users", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -35,7 +36,7 @@ export default class SqlUser {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't add user", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -53,7 +54,7 @@ export default class SqlUser {
       }
     } catch (err) {
       returnValue = undefined;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve user", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -69,7 +70,7 @@ export default class SqlUser {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't delete user", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

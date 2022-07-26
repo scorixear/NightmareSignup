@@ -1,4 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class SqlVacation {
   private pool: IPool;
@@ -22,7 +23,7 @@ export default class SqlVacation {
       }
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve vacation", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -42,7 +43,7 @@ export default class SqlVacation {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve vacations", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -58,7 +59,7 @@ export default class SqlVacation {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't create vacation", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -74,7 +75,7 @@ export default class SqlVacation {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't update vacation", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -94,7 +95,7 @@ export default class SqlVacation {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't delete vacation", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -110,7 +111,7 @@ export default class SqlVacation {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't delete vacation (user)", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

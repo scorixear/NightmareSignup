@@ -1,9 +1,10 @@
 import ChatInputCommandInteractionHandle from "../../model/commands/ChatInputCommandInteractionHandle";
 import { ChatInputCommandInteraction, CommandInteraction, SlashCommandBooleanOption, SlashCommandStringOption, TextChannel } from "discord.js";
-import dateHandler from "../../misc/dateHandler";
-import messageHandler from "../../misc/messageHandler";
-import PartyHandler from "../../misc/partyHandler";
-import { LanguageHandler } from "../../misc/languageHandler";
+import dateHandler from "../../handlers/dateHandler";
+import messageHandler from "../../handlers/messageHandler";
+import PartyHandler from "../../handlers/partyHandler";
+import { LanguageHandler } from "../../handlers/languageHandler";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class FormParties extends ChatInputCommandInteractionHandle {
   constructor() {
@@ -29,17 +30,18 @@ export default class FormParties extends ChatInputCommandInteractionHandle {
     } catch(err) {
       return;
     }
-    console.log("starting party form");
+    Logger.Log("FormParties: Request received", WARNINGLEVEL.INFO);
     const eventName = interaction.options.getString('event_name');
     const eventDate = interaction.options.getString('event_date');
-    let eventTime = interaction.options.getString('event_time');
-    eventTime = eventTime.match(/\d\d?:\d\d/g)[0];
+    const eventTime = interaction.options.getString('event_time');
+    let eventTimeRegex = eventTime.match(/\d\d?:\d\d/g)[0];
     const postPrivate = interaction.options.getBoolean('post_private');
     let eventTimestamp: number;
     try {
-      const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
+      const date = dateHandler.getDateFromUTCString(eventDate, eventTimeRegex);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
+        Logger.Log("FormParties: Error: Invalid date/time", WARNINGLEVEL.INFO);
         await messageHandler.replyRichErrorText({
           interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
@@ -49,7 +51,7 @@ export default class FormParties extends ChatInputCommandInteractionHandle {
         return;
       }
     } catch (err) {
-      console.error(err);
+      Logger.Error("FormParties: Error: Crash when parsing date/time", err, WARNINGLEVEL.WARN, eventDate, eventTime);
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
@@ -70,7 +72,7 @@ export default class FormParties extends ChatInputCommandInteractionHandle {
             msg = await channel.messages.fetch(messageEvent.messageId);
           } catch(err){}
           await PartyHandler.updateComposition();
-          console.log("forming parties now");
+          Logger.Log("FormParties: Beginning to form Parties", WARNINGLEVEL.INFO);
           const partyCategories = await PartyHandler.getCategories(eventId);
           if(partyCategories) {
             if(postPrivate) {
@@ -83,7 +85,7 @@ export default class FormParties extends ChatInputCommandInteractionHandle {
               return;
             }
             try {
-              console.log("Replying to message");
+              Logger.Log("FormParties: Posting to channel", WARNINGLEVEL.INFO);
               await msg.reply(await messageHandler.getRichTextExplicitDefault({
                 guild: msg.guild,
                 author: msg.author,
@@ -92,6 +94,7 @@ export default class FormParties extends ChatInputCommandInteractionHandle {
                 categories: partyCategories
               }));
             } catch {
+              Logger.Log("FormParties: Could not reply to message, posting separate", WARNINGLEVEL.WARN);
               await messageHandler.sendRichTextDefaultExplicit({
                 guild: interaction.guild,
                 author: interaction.user,
@@ -108,15 +111,16 @@ export default class FormParties extends ChatInputCommandInteractionHandle {
             });
             return;
           } else {
-            console.log('Couldn\'t create parties for event ' + eventId);
+            Logger.Log("FormParties: Could not create Parties", WARNINGLEVEL.ERROR, eventId);
           }
         } catch(err){
-          console.error(err);
+          Logger.Error("FormParties: Could not fetch channel", err, WARNINGLEVEL.WARN, messageEvent.channelId);
         }
       } catch(err){
-        console.error(err);
+        Logger.Error("FormParties: Could not fetch guild", err, WARNINGLEVEL.WARN, messageEvent.guildId);
       }
     } else {
+      Logger.Log("FormParties: Could not find event", WARNINGLEVEL.INFO, eventName, eventTimestamp);
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.error.sql_title,

@@ -1,4 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class SqlEvent {
   private pool: IPool;
@@ -18,7 +19,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = -1;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't create event", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -40,7 +41,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't delete event", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -58,7 +59,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = undefined;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve event", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -79,7 +80,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't find events", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -100,7 +101,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't find events (objects)", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -124,7 +125,7 @@ export default class SqlEvent {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't update event", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -149,7 +150,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve events", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -167,7 +168,7 @@ export default class SqlEvent {
       }
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve event (CTA-check)", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

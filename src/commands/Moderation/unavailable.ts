@@ -1,10 +1,10 @@
 import {ChatInputCommandInteraction, CommandInteraction, SlashCommandStringOption} from 'discord.js';
-import messageHandler from '../../misc/messageHandler';
+import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import dateHandler from '../../misc/dateHandler';
+import dateHandler from '../../handlers/dateHandler';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { LanguageHandler } from '../../misc/LanguageHandler';
-import SqlHandler from '../../misc/sqlHandler';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
+import SqlHandler from '../../handlers/sqlHandler';
 
 declare const sqlHandler: SqlHandler;
 

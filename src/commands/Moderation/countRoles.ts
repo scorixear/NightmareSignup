@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
-import messageHandler from '../../misc/messageHandler';
+import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { LanguageHandler } from '../../misc/LanguageHandler';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
-import PartyHandler from '../../misc/partyHandler';
+import PartyHandler from '../../handlers/partyHandler';
 
 declare const sqlHandler: ISqlHandler;
 

@@ -1,8 +1,8 @@
 import {ChatInputCommandInteraction, CommandInteraction, SlashCommandUserOption} from 'discord.js';
-import messageHandler from '../../misc/messageHandler';
+import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { LanguageHandler } from '../../misc/LanguageHandler';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;

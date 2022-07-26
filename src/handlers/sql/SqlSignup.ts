@@ -1,4 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class SqlSignup {
   private pool: IPool;
@@ -17,7 +18,7 @@ export default class SqlSignup {
       }
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve signup", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -37,7 +38,7 @@ export default class SqlSignup {
       }
     } catch (err) {
       returnValue=false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't create signup", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -57,7 +58,7 @@ export default class SqlSignup {
       }
     } catch (err) {
       returnValue=false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't delete signup", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -77,7 +78,7 @@ export default class SqlSignup {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve signups", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

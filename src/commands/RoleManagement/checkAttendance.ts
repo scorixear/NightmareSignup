@@ -1,10 +1,11 @@
 import {ChatInputCommandInteraction, CommandInteraction, SlashCommandIntegerOption, SlashCommandStringOption} from 'discord.js';
-import messageHandler from '../../misc/messageHandler';
+import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { LanguageHandler } from '../../misc/LanguageHandler';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
-import dateHandler from '../../misc/dateHandler';
+import dateHandler from '../../handlers/dateHandler';
+import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 
 declare const sqlHandler: ISqlHandler;
 
@@ -43,6 +44,7 @@ export default class CheckAttendance extends ChatInputCommandInteractionHandle {
     let limit;
     if(eventName || eventDate || eventTime) {
       if (!eventName || !eventDate || !eventTime) {
+        Logger.Log("CheckAttendance: Missing Parameters", WARNINGLEVEL.INFO);
         await interaction.reply({
           content: LanguageHandler.language.commands.attendance.missing_parameter,
           ephemeral: true,
@@ -54,6 +56,7 @@ export default class CheckAttendance extends ChatInputCommandInteractionHandle {
           const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
           eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
           if (isNaN(eventTimestamp)) {
+            Logger.Log("CheckAttendance: Invalid Date", WARNINGLEVEL.INFO);
             await interaction.reply({
               content: LanguageHandler.language.commands.attendance.error.formatDesc,
               ephemeral: true,
@@ -61,7 +64,7 @@ export default class CheckAttendance extends ChatInputCommandInteractionHandle {
             return;
           }
         } catch (err) {
-          console.error(err);
+          Logger.Error("CheckAttendance: Date Parsing crash", err, WARNINGLEVEL.WARN);
           await interaction.reply({
             content: LanguageHandler.language.commands.deletesignup.error.formatDesc,
             ephemeral: true,
@@ -70,6 +73,7 @@ export default class CheckAttendance extends ChatInputCommandInteractionHandle {
         }
         const eventId = await sqlHandler.getSqlEvent().getEventId(eventName, eventTimestamp.toString());
         if (!eventId) {
+          Logger.Log("CheckAttendance: Event not found", WARNINGLEVEL.INFO);
           await interaction.reply({
             content: LanguageHandler.language.commands.attendance.error.event_not_found,
             ephemeral: true,
@@ -145,7 +149,7 @@ export default class CheckAttendance extends ChatInputCommandInteractionHandle {
       }
     }
     const categories = messageHandler.splitInCategories(lines, LanguageHandler.language.commands.attendance.success.list);
-
+    Logger.Log("CheckAttendance: Success", WARNINGLEVEL.INFO);
     await messageHandler.replyRichText({
       interaction,
       title: LanguageHandler.language.commands.attendance.success.title,

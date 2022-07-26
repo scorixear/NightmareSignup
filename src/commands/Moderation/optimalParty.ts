@@ -1,8 +1,8 @@
 import ChatInputCommandInteractionHandle from "../../model/commands/ChatInputCommandInteractionHandle";
 import { ChatInputCommandInteraction, CommandInteraction } from "discord.js";
-import messageHandler from "../../misc/messageHandler";
-import PartyHandler from "../../misc/partyHandler";
-import { LanguageHandler } from "../../misc/languageHandler";
+import messageHandler from "../../handlers/messageHandler";
+import PartyHandler from "../../handlers/partyHandler";
+import { LanguageHandler } from "../../handlers/languageHandler";
 
 export default class OptimalParty extends ChatInputCommandInteractionHandle {
   constructor() {

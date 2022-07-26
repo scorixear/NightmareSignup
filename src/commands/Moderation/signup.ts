@@ -1,13 +1,14 @@
-import config from '../../config.js';
-import messageHandler from '../../misc/messageHandler.js';
-import dateHandler from '../../misc/dateHandler.js';
+import config from '../../config';
+import messageHandler from '../../handlers/messageHandler';
+import dateHandler from '../../handlers/dateHandler';
 import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandStringOption, TextChannel } from 'discord.js';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
 import { ButtonStyle, ChannelType } from 'discord-api-types/v10';
 import signup from '../../interactions/signup';
-import { LanguageHandler } from '../../misc/LanguageHandler.js';
-import SqlHandler from '../../misc/sqlHandler.js';
-import InteractionHandler from '../../misc/interactionHandler.js';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
+import SqlHandler from '../../handlers/sqlHandler';
+import InteractionHandler from '../../handlers/interactionHandler';
+import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 
 declare const sqlHandler: SqlHandler;
 declare const interactionHandler: InteractionHandler;
@@ -124,7 +125,7 @@ export default class SignupCommand extends ChatInputCommandInteractionHandle {
     try {
       await super.handle(interaction);
     } catch(err) {
-      console.error(err);
+      Logger.Error("SignupCommand: Super crashed", err, WARNINGLEVEL.ERROR);
       return;
     }
 
@@ -140,6 +141,7 @@ export default class SignupCommand extends ChatInputCommandInteractionHandle {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
+        Logger.Log("SignupCommand: Invalid date", WARNINGLEVEL.INFO);
         await messageHandler.replyRichErrorText({
           interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
@@ -149,7 +151,7 @@ export default class SignupCommand extends ChatInputCommandInteractionHandle {
         return;
       }
     } catch (err) {
-      console.error(err);
+      Logger.Error("SignupCommand: Date parsing crashed", err, WARNINGLEVEL.ERROR);
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.signup.error.formatTitle,
@@ -161,7 +163,7 @@ export default class SignupCommand extends ChatInputCommandInteractionHandle {
 
     const eventId = await sqlHandler.getSqlEvent().createEvent(eventName, eventTimestamp.toString(), eventIsCta);
     if (eventId === -1) {
-      console.error('Failed to load event id with values: ', eventName, eventTimestamp);
+      Logger.Log("SignupCommand: Event creation failed", WARNINGLEVEL.ERROR, eventName, eventTimestamp);
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.signup.error.eventTitle,
@@ -227,6 +229,6 @@ export default class SignupCommand extends ChatInputCommandInteractionHandle {
       description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.signup.success.description, [eventName, eventDate + ' ' + eventTime, config.botPrefix, message.url]),
       color: 0x00cc00,
     });
-    console.log(`Created Event ${eventName} ${eventTimestamp}`);
+    Logger.Log("SignupCommand: Created Event", WARNINGLEVEL.INFO, eventName, eventTimestamp);
   }
 }

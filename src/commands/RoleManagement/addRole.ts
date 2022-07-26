@@ -1,12 +1,12 @@
-import {ChatInputCommandInteraction, CommandInteraction, SlashCommandStringOption, SlashCommandUserOption} from 'discord.js';
-import messageHandler from '../../misc/messageHandler';
+import {ChatInputCommandInteraction, SlashCommandStringOption, SlashCommandUserOption} from 'discord.js';
+import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { LanguageHandler } from '../../misc/LanguageHandler';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
-import { IGoogleSheetsHandler } from '../../interfaces/IGoogleSheetsHandler';
-import PartyHandler from '../../misc/partyHandler';
-import dateHandler from '../../misc/dateHandler';
+import PartyHandler from '../../handlers/partyHandler';
+import dateHandler from '../../handlers/dateHandler';
+import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 
 declare const sqlHandler: ISqlHandler;
 
@@ -55,6 +55,7 @@ export default class AddRole extends ChatInputCommandInteractionHandle {
       }
     }
     if(nonExistent.length > 0) {
+      Logger.Log("AddRole: Could not find roles", WARNINGLEVEL.INFO, nonExistent.join("\n- "));
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.roles.add.error.role_title,
@@ -96,11 +97,11 @@ export default class AddRole extends ChatInputCommandInteractionHandle {
       try {
           await member.roles.add(role.id);
           return;
-      } catch {
-        console.error("Couldn't add role to user");
+      } catch(err) {
+        Logger.Error("AddRole: Could not add discord role", err, WARNINGLEVEL.WARN);
       }
     } else {
-      console.error("Couldn't find member or role");
+      Logger.Log("AddRole: Could not find discord member or role", WARNINGLEVEL.WARN);
     }
     await interaction.followUp(await messageHandler.getRichTextInteraction({
       interaction,

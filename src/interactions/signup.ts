@@ -1,11 +1,12 @@
 import { ButtonInteractionHandle } from "../model/ButtonInteractionHandle";
-import { ButtonInteraction, Guild, GuildMember } from "discord.js";
-import InteractionHandler from "../misc/interactionHandler";
-import { LanguageHandler } from "../misc/LanguageHandler";
-import SqlHandler from "../misc/sqlHandler";
+import { ButtonInteraction, Guild, GuildMember, User } from "discord.js";
+import InteractionHandler from "../handlers/interactionHandler";
+import { LanguageHandler } from "../handlers/LanguageHandler";
+import SqlHandler from "../handlers/sqlHandler";
 import { updateUnavailable, updateSignupMessage } from '../commands/Moderation/signup';
-import messageHandler from '../misc/messageHandler';
-import dateHandler from "../misc/dateHandler";
+import messageHandler from '../handlers/messageHandler';
+import dateHandler from "../handlers/dateHandler";
+import { Logger, WARNINGLEVEL } from "../helpers/Logger";
 
 declare const sqlHandler: SqlHandler;
 declare const interactionHandler: InteractionHandler;
@@ -30,7 +31,7 @@ class UnavailableEvent extends ButtonInteractionHandle {
         description: LanguageHandler.language.interactions.unavailable.success.description,
         ephemeral: true,
       });
-      console.log('User signed out', userId, event);
+      Logger.Log(`${(interaction.member.user as User).tag} has signed out of event ${event} [Unavailable]`, WARNINGLEVEL.INFO);
     }
   }
 }
@@ -43,7 +44,7 @@ class SignupEvent extends ButtonInteractionHandle {
 
     // create or retrieve Discord direct Message Channel between user and bot
     const event = parseInt(interaction.customId.slice(this.id.length), 10);
-    console.log('Signup request received', userId, event);
+    Logger.Log(`${(interaction.member.user as User).tag} has signed up for event ${event} [Signup]`, WARNINGLEVEL.INFO);
     // If player already registered himself once
 
     // check if sql database has him signed up
@@ -57,7 +58,7 @@ class SignupEvent extends ButtonInteractionHandle {
         });
         // send already signed up message to user
       } catch (err) {
-        console.error('Error sending Reply');
+        Logger.Error("Error while sending already signed up message", err, WARNINGLEVEL.WARN);
       }
       // else sign up user
     } else {
@@ -77,7 +78,7 @@ class SignupEvent extends ButtonInteractionHandle {
             ephemeral: true,
           });
         } catch (err) {
-          console.error('Error sending Reply');
+          Logger.Error("Error while sending sign up message", err, WARNINGLEVEL.WARN);
         }
       } else {
         try {
@@ -88,7 +89,7 @@ class SignupEvent extends ButtonInteractionHandle {
             color: 0xFF8888,
           });
         } catch (err) {
-          console.error('Error sending Reply');
+          Logger.Error("Error while sending sign up error message", err, WARNINGLEVEL.WARN);
         }
       }
     }
@@ -101,7 +102,7 @@ class SignoutEvent extends ButtonInteractionHandle {
 
     const userId = interaction.member.user.id;
     const event = parseInt(interaction.customId.slice(this.id.length), 10);
-    console.log('User signout received', userId, event);
+    
     // retrieve Players data from google sheets
 
     if (await sqlHandler.getSqlSignup().isSignedIn(event, userId)) {
@@ -115,7 +116,7 @@ class SignoutEvent extends ButtonInteractionHandle {
             color: 0xFF8888,
           });
         } catch (err) {
-          console.error('Error sending Reply');
+          Logger.Error("Error while sending sign out error message", err, WARNINGLEVEL.WARN);
         }
         return;
       }
@@ -133,9 +134,9 @@ class SignoutEvent extends ButtonInteractionHandle {
         color: 0x00cc00,
         ephemeral: true,
       });
-      console.log('User signed out', userId, event);
+      Logger.Log(`${(interaction.member.user as User).tag} has signed out of event ${event} [Signout]`, WARNINGLEVEL.INFO);
     } catch (err) {
-      console.error('Error sending Reply');
+      Logger.Error("Error while sending sign out confirmation message", err, WARNINGLEVEL.WARN);
     }
   }
 }

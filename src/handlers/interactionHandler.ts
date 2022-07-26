@@ -1,17 +1,16 @@
-import { ButtonInteraction, ChatInputCommandInteraction, CommandInteraction, Interaction, SelectMenuInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction, Interaction } from 'discord.js';
 
 import { ButtonInteractionHandle } from '../model/ButtonInteractionHandle';
 import CommandInteractionHandle from '../model/commands/CommandInteractionHandle';
 import ChatInputCommandInteractionHandle from '../model/commands/ChatInputCommandInteractionHandle';
 import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
-import config from '../config';
+import { Routes } from 'discord-api-types/v10';
 import Deletesignup from '../commands/Moderation/deletesignup';
 import Unavailable from '../commands/Moderation/unavailable';
 import SignupCommand from '../commands/Moderation/signup';
 import Help from '../commands/Misc/help';
 import signup from '../interactions/signup';
-import TwoWayMap from './../model/TwoWayMap';
+import TwoWayMap from '../model/TwoWayMap';
 import FormParties from '../commands/Moderation/formParties';
 import AddRole from '../commands/RoleManagement/addRole';
 import CheckRoles from '../commands/RoleManagement/checkRoles';
@@ -26,6 +25,7 @@ import EndVacation from '../commands/RoleManagement/endVacation';
 import RemoveVacation from '../commands/RoleManagement/removeVacation';
 import CheckVacation from '../commands/RoleManagement/checkVacation';
 import OptimalParty from '../commands/Moderation/optimalParty';
+import { Logger, WARNINGLEVEL } from '../helpers/Logger';
 
 
 export default class InteractionHandler {
@@ -72,7 +72,7 @@ export default class InteractionHandler {
 
     global.discordHandler.getGuilds().forEach(async guild=> {
       await rest.put(Routes.applicationGuildCommands(process.env.CLIENTID, guild.id), {body: commands})
-      console.log('Successfully registered application commands for guild', guild.id);
+      Logger.Log("Successfully registered application commands for guild", WARNINGLEVEL.INFO, guild.name);
       /*const guildRoles = await global.discordHandler.getRolesOfGuild(guild);
       const guildCommands = await guild.commands.fetch();
       const signupRoles = guildRoles.filter(role => config.signupRoles.includes(role.name));
@@ -115,7 +115,7 @@ export default class InteractionHandler {
         return;
       }
     } catch (err) {
-      console.error('Error handling Interaction', err);
+      Logger.Error("Error while handling interaction", err, WARNINGLEVEL.ERROR);
     }
 
   }

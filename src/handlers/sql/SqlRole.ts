@@ -1,4 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
 export default class SqlRole {
   private pool: IPool;
@@ -15,7 +16,7 @@ export default class SqlRole {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't create role", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -31,7 +32,7 @@ export default class SqlRole {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't remove role", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -50,7 +51,7 @@ export default class SqlRole {
       }
     } catch (err) {
       returnValue = [];
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve roles", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -65,7 +66,7 @@ export default class SqlRole {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't remove roles", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -81,8 +82,9 @@ export default class SqlRole {
       for(const row of rows) {
         returnValue.push({role: row.role, count: row.count});
       }
-    } catch {
+    } catch(err) {
       returnValue = [];
+      Logger.Error("SQL: Couldn't retrieve role (users)", err, WARNINGLEVEL.WARN);
     }
     return returnValue;
   }

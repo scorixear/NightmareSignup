@@ -4,6 +4,7 @@ import { Role } from "../model/Role";
 import messageHandler from "./messageHandler";
 import { Guild } from 'discord.js';
 import { LanguageHandler } from "./languageHandler";
+import { Logger, WARNINGLEVEL } from "../helpers/Logger";
 
 export default class PartyHandler {
 
@@ -31,7 +32,7 @@ export default class PartyHandler {
     if (!guild) {
       return undefined;
     }
-    console.log("Retrieving Discord Users")
+    Logger.Log("PartyHandler: Retrieving Discord Users", WARNINGLEVEL.INFO);
     const discordUsers: { userId: string, date: number, roles: string[] }[] = [];
     for (const user of users) {
       let member;
@@ -47,22 +48,22 @@ export default class PartyHandler {
     }
     discordUsers.sort((a, b) => a.date - b.date);
 
-    console.log("Calculating Party Settings");
+    Logger.Log("PartyHandler: Calculating Party Settings", WARNINGLEVEL.INFO);
     const numberOfParties = Math.ceil((discordUsers.length + 1) / 20.0);
     let bms = Math.max(PartyHandler.BmSettings.Minimum, Math.floor(numberOfParties / PartyHandler.BmSettings.BmEveryParty) * PartyHandler.BmSettings.BmPerParty);
     bms = Math.min(bms, discordUsers.filter((user) => user.roles.find((role, index) => role === "Battlemount") !== undefined).length);
     const parties: { userId: string, date: number, role: string }[][] = Array.from(new Array(numberOfParties), ()=>[]);
 
     let missingPlayers = 19;
-    console.log(numberOfParties);
+    Logger.Log("PartyHandler: Number of Parties:", WARNINGLEVEL.INFO, numberOfParties);
     for (let i = 0; i < numberOfParties; i++) {
-      console.log("Forming Party "+ i);
-      // console.log("================== DISCORD USERS =====================");
-      // console.log(discordUsers.length);
-      // console.log("Party Index: " + i);
-      // console.log(parties[i]);
+      Logger.Log("PartyHandler: Forming Party " + (i + 1) + "/" + numberOfParties, WARNINGLEVEL.INFO);
+      // Logger.Log("================== DISCORD USERS =====================");
+      // Logger.Log(discordUsers.length);
+      // Logger.Log("Party Index: " + i);
+      // Logger.Log(parties[i]);
       // add bms
-      console.log("Adding BMs");
+      Logger.Log("PartyHandler: Adding Battlemounts", WARNINGLEVEL.INFO);
       for (let bmi = 0; bmi < PartyHandler.BmSettings.BmPerParty && bmi < bms; bmi++) {
         const reply = this.retrieveBattleMountUser(discordUsers);
         if(reply.player) {
@@ -78,7 +79,7 @@ export default class PartyHandler {
       missingPlayers -= parties[i].length;
       // add required roles
 
-      console.log("Adding Required Roles");
+      Logger.Log("PartyHandler: Adding Required Roles", WARNINGLEVEL.INFO);
       for (const role of PartyHandler.Roles) {
         if (role.Required && role.Required > 0) {
           for (let roleIndex = 0; roleIndex < role.Required; roleIndex++) {
@@ -91,15 +92,14 @@ export default class PartyHandler {
                 role: role.RoleName
               });
               missingPlayers--;
-              // console.log("Player Added: "+reply.player.userId);
-              // console.log("Discord User Length: " + discordUsers.length);
-              // console.log("Removed at index: " + reply.index);
+              // Logger.Log("Player Added: "+reply.player.userId);
+              // Logger.Log("Discord User Length: " + discordUsers.length);
+              // Logger.Log("Removed at index: " + reply.index);
             }
           }
         }
       }
-
-      console.log("Adding Global Roles");
+      Logger.Log("PartyHandler: Adding Global Roles", WARNINGLEVEL.INFO);
       for(const globalRole of PartyHandler.GlobalRoles) {
           for(let gI = this.countGlobalRole(globalRole, parties[i]); gI < globalRole.Required; gI++) {
             if(missingPlayers === 0) {
@@ -120,7 +120,7 @@ export default class PartyHandler {
           }
       }
 
-      console.log("Filling up Global Roles")
+      Logger.Log("PartyHandler: Adding Random Roles", WARNINGLEVEL.INFO);
       for(const globalRole of PartyHandler.GlobalRoles) {
         while(missingPlayers > 0 && discordUsers.length > 0) {
           const reply = this.addUserToParty(discordUsers, parties, i, globalRole);
@@ -137,14 +137,14 @@ export default class PartyHandler {
           }
         }
       }
-      // console.log("Finished Party " + i);
-      // console.log(parties[i]);
+      // Logger.Log("Finished Party " + i);
+      // Logger.Log(parties[i]);
       missingPlayers = 20;
     }
 
-    // console.log("================== PARTIES =====================");
-    // console.log(parties);
-    console.log("Creating Discord Message");
+    // Logger.Log("================== PARTIES =====================");
+    // Logger.Log(parties);
+    Logger.Log("PartyHandler: Forming Discord Messages", WARNINGLEVEL.INFO);
     const categories: {title: string, text: string, inline: boolean}[] = [];
     let partyIndex = 1;
     for(let party of parties) {
@@ -162,7 +162,7 @@ export default class PartyHandler {
       categories.push(...partyCategories);
       partyIndex++;
     }
-    console.log("Party Forming complete");
+    Logger.Log("PartyHandler: Party Forming Complete", WARNINGLEVEL.INFO);
     return categories;
 
   }

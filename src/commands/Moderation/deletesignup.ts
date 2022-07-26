@@ -1,11 +1,12 @@
 import {ChatInputCommandInteraction, SlashCommandStringOption, TextChannel} from 'discord.js';
-import messageHandler from '../../misc/messageHandler';
+import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import dateHandler from '../../misc/dateHandler';
+import dateHandler from '../../handlers/dateHandler';
 import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { LanguageHandler } from '../../misc/LanguageHandler';
-import SqlHandler from '../../misc/sqlHandler';
-import DiscordHandler from '../../misc/discordHandler';
+import { LanguageHandler } from '../../handlers/LanguageHandler';
+import SqlHandler from '../../handlers/sqlHandler';
+import DiscordHandler from '../../handlers/discordHandler';
+import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 
 declare const sqlHandler: SqlHandler;
 declare const discordHandler: DiscordHandler;
@@ -35,13 +36,14 @@ export default class Deletesignup extends ChatInputCommandInteractionHandle {
     }
     const eventName = interaction.options.getString('event_name');
     const eventDate = interaction.options.getString('event_date');
-    let eventTime = interaction.options.getString('event_time');
-    eventTime = eventTime.match(/\d\d?:\d\d/g)[0];
+    const eventTime = interaction.options.getString('event_time');
+    let eventTimeRegex = eventTime.match(/\d\d?:\d\d/g)[0];
     let eventTimestamp: number;
     try {
-      const date = dateHandler.getDateFromUTCString(eventDate, eventTime);
+      const date = dateHandler.getDateFromUTCString(eventDate, eventTimeRegex);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
+        Logger.Log("Deletesignup: Deletesignup: Error: Invalid date/time", WARNINGLEVEL.INFO);
         await messageHandler.replyRichErrorText({
           interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
@@ -51,7 +53,7 @@ export default class Deletesignup extends ChatInputCommandInteractionHandle {
         return;
       }
     } catch (err) {
-      console.error(err);
+      Logger.Error("Deletesignup: Error while parsing date", err, WARNINGLEVEL.WARN, eventDate, eventTime);
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
@@ -80,8 +82,9 @@ export default class Deletesignup extends ChatInputCommandInteractionHandle {
         title: LanguageHandler.language.commands.deletesignup.success.title,
         description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.success.desc, [eventName]),
       });
-      console.log(`Deleted event ${eventName} ${eventTimestamp}`);
+      Logger.Log(`Deletesignup: Deleted signup for ${eventName} on ${eventDate} at ${eventTimeRegex}`, WARNINGLEVEL.INFO);
     } else {
+      Logger.Log(`Deletesignup: Error: No signup found for ${eventName} on ${eventDate} at ${eventTimeRegex}`, WARNINGLEVEL.INFO);
       await messageHandler.replyRichErrorText({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.error.sql_title,

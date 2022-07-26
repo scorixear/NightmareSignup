@@ -1,3 +1,4 @@
+import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 import { IPool } from "../../interfaces/IMariaDb";
 
 export default class SqlDiscord {
@@ -15,7 +16,7 @@ export default class SqlDiscord {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't create discord message", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -37,7 +38,7 @@ export default class SqlDiscord {
       }
     } catch (err) {
       returnValue = {};
-      // console.error(err);
+      Logger.Error("SQL: Couldn't retrieve discord message", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -53,7 +54,7 @@ export default class SqlDiscord {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      // console.error(err);
+      Logger.Error("SQL: Couldn't remove discord message", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

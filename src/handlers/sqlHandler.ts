@@ -1,3 +1,4 @@
+import { Logger, WARNINGLEVEL } from '../helpers/Logger';
 import { IMariaDB, IPool} from '../interfaces/IMariaDb';
 import { ISqlHandler } from '../interfaces/ISqlHandler';
 import SqlDiscord from './sql/SqlDiscord';
@@ -35,7 +36,7 @@ export default class SqlHandler implements ISqlHandler {
     let conn;
     try {
       conn = await this.pool.getConnection();
-      console.log('DB Connection established');
+      Logger.Log("Database connected", WARNINGLEVEL.INFO);
       await conn.query('CREATE TABLE IF NOT EXISTS `signup` (`event` INT, `userid` VARCHAR(255), `date` BIGINT, PRIMARY KEY (`event`,`userid`))');
       await conn.query('CREATE TABLE IF NOT EXISTS `events` (`id` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `date` BIGINT, `is_closed` BIT DEFAULT 0, `is_formed` BIT DEFAULT 0, `is_cta` BIT DEFAULT 1, PRIMARY KEY(`id`), CONSTRAINT UC_CTA UNIQUE (name,date))');
       await conn.query('CREATE TABLE IF NOT EXISTS `discordEventMessages` (`eventId` INT, `messageId` VARCHAR(255), `channelId` VARCHAR(255), `guildId` VARCHAR(255), PRIMARY KEY(`eventId`))');
