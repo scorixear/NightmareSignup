@@ -1,10 +1,10 @@
-import ChatInputCommandInteractionHandle from "../../model/commands/ChatInputCommandInteractionHandle";
+import CommandInteractionHandle from "../../model/commands/CommandInteractionHandle";
 import { ChatInputCommandInteraction, CommandInteraction } from "discord.js";
 import messageHandler from "../../handlers/messageHandler";
 import PartyHandler from "../../handlers/partyHandler";
 import { LanguageHandler } from "../../handlers/languageHandler";
 
-export default class OptimalParty extends ChatInputCommandInteractionHandle {
+export default class OptimalParty extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[]= [];
     super(

@@ -38,7 +38,7 @@ export default abstract class CommandInteractionHandle {
     }
   }
 
-  public async handle(interaction: CommandInteraction) {
+  public async handle(interaction: ChatInputCommandInteraction) {
     setTimeout(()=>{
       if(!interaction.replied) {
         interaction.deferReply();

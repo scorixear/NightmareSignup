@@ -2,7 +2,7 @@ import {ChatInputCommandInteraction, SlashCommandStringOption, TextChannel} from
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import dateHandler from '../../handlers/dateHandler';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import SqlHandler from '../../handlers/sqlHandler';
 import DiscordHandler from '../../handlers/discordHandler';
@@ -11,7 +11,7 @@ import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 declare const sqlHandler: SqlHandler;
 declare const discordHandler: DiscordHandler;
 
-export default class Deletesignup extends ChatInputCommandInteractionHandle {
+export default class Deletesignup extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));

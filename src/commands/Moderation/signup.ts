@@ -2,7 +2,7 @@ import config from '../../config';
 import messageHandler from '../../handlers/messageHandler';
 import dateHandler from '../../handlers/dateHandler';
 import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandStringOption, TextChannel } from 'discord.js';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { ButtonStyle, ChannelType } from 'discord-api-types/v10';
 import signup from '../../interactions/signup';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
@@ -99,7 +99,7 @@ export async function updateUnavailable(eventId: number) {
   } catch (err) {}
 }
 
-export default class SignupCommand extends ChatInputCommandInteractionHandle {
+export default class SignupCommand extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     const channelOption: SlashCommandChannelOption = new SlashCommandChannelOption().setName('channel').setDescription(LanguageHandler.language.commands.signup.options.channel).setRequired(true);

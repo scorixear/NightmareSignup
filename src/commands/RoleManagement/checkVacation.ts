@@ -1,13 +1,13 @@
 import {ChatInputCommandInteraction, CommandInteraction, SlashCommandUserOption} from 'discord.js';
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CheckVacation extends ChatInputCommandInteractionHandle {
+export default class CheckVacation extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.vacation.options.user).setRequired(true));

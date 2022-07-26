@@ -1,10 +1,9 @@
-import { ButtonInteraction, ChatInputCommandInteraction, Interaction } from 'discord.js';
+import { AutocompleteInteraction, ButtonInteraction, ChatInputCommandInteraction, Interaction } from 'discord.js';
 
 import { ButtonInteractionHandle } from '../model/ButtonInteractionHandle';
 import CommandInteractionHandle from '../model/commands/CommandInteractionHandle';
-import ChatInputCommandInteractionHandle from '../model/commands/ChatInputCommandInteractionHandle';
 import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v10';
+import { InteractionType, Routes } from 'discord-api-types/v10';
 import Deletesignup from '../commands/Moderation/deletesignup';
 import Unavailable from '../commands/Moderation/unavailable';
 import SignupCommand from '../commands/Moderation/signup';
@@ -26,6 +25,7 @@ import RemoveVacation from '../commands/RoleManagement/removeVacation';
 import CheckVacation from '../commands/RoleManagement/checkVacation';
 import OptimalParty from '../commands/Moderation/optimalParty';
 import { Logger, WARNINGLEVEL } from '../helpers/Logger';
+import AutocompleteCommandInteractionHandle from '../model/commands/AutocompleteCommandInteractionHandle';
 
 
 export default class InteractionHandler {
@@ -107,9 +107,15 @@ export default class InteractionHandler {
         }
       } else if (interaction.isChatInputCommand()) {
         const commandInteraction: ChatInputCommandInteraction = interaction as ChatInputCommandInteraction;
-        const handler = this.commandInteractions.find(interactionHandle => interactionHandle instanceof ChatInputCommandInteractionHandle && interactionHandle.command === commandInteraction.commandName);
+        const handler = this.commandInteractions.find(interactionHandle => interactionHandle.command === commandInteraction.commandName);
         if (handler) {
-          await (handler as ChatInputCommandInteractionHandle).handle(commandInteraction);
+          await handler.handle(commandInteraction);
+        }
+      } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
+        const commandInteraction: AutocompleteInteraction = interaction as AutocompleteInteraction;
+        const handler = this.commandInteractions.find(interactionHandler => interactionHandler.command === commandInteraction.commandName && interactionHandler instanceof AutocompleteCommandInteractionHandle);
+        if(handler) {
+          await (handler as AutocompleteCommandInteractionHandle).handleAutocomplete(commandInteraction) 
         }
       } else {
         return;

@@ -1,4 +1,4 @@
-import ChatInputCommandInteractionHandle from "../../model/commands/ChatInputCommandInteractionHandle";
+import CommandInteractionHandle from "../../model/commands/CommandInteractionHandle";
 import { ChatInputCommandInteraction, CommandInteraction, SlashCommandBooleanOption, SlashCommandStringOption, TextChannel } from "discord.js";
 import dateHandler from "../../handlers/dateHandler";
 import messageHandler from "../../handlers/messageHandler";
@@ -6,7 +6,7 @@ import PartyHandler from "../../handlers/partyHandler";
 import { LanguageHandler } from "../../handlers/languageHandler";
 import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
 
-export default class FormParties extends ChatInputCommandInteractionHandle {
+export default class FormParties extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[]= [];
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));

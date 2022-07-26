@@ -1,14 +1,14 @@
 import {ChatInputCommandInteraction, CommandInteraction, SlashCommandUserOption} from 'discord.js';
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class ClearRoles extends ChatInputCommandInteractionHandle {
+export default class ClearRoles extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandUserOption().setName('user').setDescription(LanguageHandler.language.commands.roles.options.user).setRequired(true));

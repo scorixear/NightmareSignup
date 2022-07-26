@@ -1,11 +1,11 @@
 import messageHandler from '../../handlers/messageHandler.js';
 import config from '../../config.js';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
-import { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, SlashCommandStringOption } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, SlashCommandStringOption, AutocompleteInteraction } from 'discord.js';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
+import AutocompleteCommandInteractionHandle from '../../model/commands/AutocompleteCommandInteractionHandle.js';
 
-export default class Help extends ChatInputCommandInteractionHandle {
+export default class Help extends AutocompleteCommandInteractionHandle {
   commands: CommandInteractionHandle[];
   constructor() {
     super(
@@ -14,13 +14,19 @@ export default class Help extends ChatInputCommandInteractionHandle {
       'help\nhelp signup',
       'Misc',
       `help [${LanguageHandler.language.commands.help.labels.command.toLowerCase()}]`,
-      [new SlashCommandStringOption().setName('command').setDescription(LanguageHandler.language.commands.help.options.command).setRequired(false)],
+      [new SlashCommandStringOption().setName('command').setDescription(LanguageHandler.language.commands.help.options.command).setAutocomplete(true).setRequired(false)],
       false
     );
   }
 
   init(commands: CommandInteractionHandle[]) {
     this.commands = commands;
+  }
+
+  override async  handleAutocomplete(interaction: AutocompleteInteraction) {
+    const focusedCommand = interaction.options.getFocused();
+    const choices = this.commands.filter(handlers => handlers.command.startsWith(focusedCommand));
+    await interaction.respond(choices.map(choice => ({name: choice.command, value: choice.command})));
   }
 
   override async handle(interaction: ChatInputCommandInteraction) {

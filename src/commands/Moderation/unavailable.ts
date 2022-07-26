@@ -2,13 +2,13 @@ import {ChatInputCommandInteraction, CommandInteraction, SlashCommandStringOptio
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
 import dateHandler from '../../handlers/dateHandler';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import SqlHandler from '../../handlers/sqlHandler';
 
 declare const sqlHandler: SqlHandler;
 
-export default class Unavailable extends ChatInputCommandInteractionHandle {
+export default class Unavailable extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));

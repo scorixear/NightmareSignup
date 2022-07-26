@@ -1,14 +1,14 @@
 import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import PartyHandler from '../../handlers/partyHandler';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CountRoles extends ChatInputCommandInteractionHandle {
+export default class CountRoles extends CommandInteractionHandle {
   constructor() {
     const commandOptions: any[] = [];
     super(

@@ -1,7 +1,7 @@
 import {ChatInputCommandInteraction, CommandInteraction, SlashCommandIntegerOption, SlashCommandStringOption} from 'discord.js';
 import messageHandler from '../../handlers/messageHandler';
 import config from '../../config';
-import ChatInputCommandInteractionHandle from '../../model/commands/ChatInputCommandInteractionHandle';
+import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/LanguageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import dateHandler from '../../handlers/dateHandler';
@@ -9,7 +9,7 @@ import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CheckAttendance extends ChatInputCommandInteractionHandle {
+export default class CheckAttendance extends CommandInteractionHandle {
    constructor() {
     const commandOptions: any[] = [
       new SlashCommandIntegerOption().setName('event-count').setDescription(LanguageHandler.language.commands.attendance.event_count_desc).setRequired(false),
