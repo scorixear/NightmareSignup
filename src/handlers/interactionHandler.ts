@@ -24,7 +24,7 @@ import EndVacation from '../commands/RoleManagement/endVacation';
 import RemoveVacation from '../commands/RoleManagement/removeVacation';
 import CheckVacation from '../commands/RoleManagement/checkVacation';
 import OptimalParty from '../commands/Moderation/optimalParty';
-import { Logger, WARNINGLEVEL } from '../helpers/Logger';
+import { Logger, WARNINGLEVEL } from '../helpers/logger';
 import AutocompleteCommandInteractionHandle from '../model/commands/AutocompleteCommandInteractionHandle';
 
 

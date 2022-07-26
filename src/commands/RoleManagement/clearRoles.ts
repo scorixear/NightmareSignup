@@ -4,7 +4,7 @@ import config from '../../config';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
-import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
+import { Logger, WARNINGLEVEL } from '../../helpers/logger';
 
 declare const sqlHandler: ISqlHandler;
 

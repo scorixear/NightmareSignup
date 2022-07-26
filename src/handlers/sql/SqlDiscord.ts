@@ -1,4 +1,4 @@
-import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
+import { Logger, WARNINGLEVEL } from "../../helpers/logger";
 import { IPool } from "../../interfaces/IMariaDb";
 
 export default class SqlDiscord {

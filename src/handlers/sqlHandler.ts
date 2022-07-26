@@ -1,4 +1,4 @@
-import { Logger, WARNINGLEVEL } from '../helpers/Logger';
+import { Logger, WARNINGLEVEL } from '../helpers/logger';
 import { IMariaDB, IPool} from '../interfaces/IMariaDb';
 import { ISqlHandler } from '../interfaces/ISqlHandler';
 import SqlDiscord from './sql/SqlDiscord';

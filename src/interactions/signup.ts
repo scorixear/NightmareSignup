@@ -6,7 +6,7 @@ import SqlHandler from "../handlers/sqlHandler";
 import { updateUnavailable, updateSignupMessage } from '../commands/Moderation/signup';
 import messageHandler from '../handlers/messageHandler';
 import dateHandler from "../handlers/dateHandler";
-import { Logger, WARNINGLEVEL } from "../helpers/Logger";
+import { Logger, WARNINGLEVEL } from "../helpers/logger";
 
 declare const sqlHandler: SqlHandler;
 declare const interactionHandler: InteractionHandler;

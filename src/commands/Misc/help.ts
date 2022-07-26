@@ -1,7 +1,7 @@
 import messageHandler from '../../handlers/messageHandler.js';
 import config from '../../config.js';
 import { ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager, SlashCommandStringOption, AutocompleteInteraction } from 'discord.js';
-import { LanguageHandler } from '../../handlers/LanguageHandler';
+import { LanguageHandler } from '../../handlers/languageHandler';
 import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 import AutocompleteCommandInteractionHandle from '../../model/commands/AutocompleteCommandInteractionHandle.js';
 

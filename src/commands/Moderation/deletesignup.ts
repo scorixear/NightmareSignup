@@ -6,7 +6,7 @@ import CommandInteractionHandle from '../../model/commands/CommandInteractionHan
 import { LanguageHandler } from '../../handlers/languageHandler';
 import SqlHandler from '../../handlers/sqlHandler';
 import DiscordHandler from '../../handlers/discordHandler';
-import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
+import { Logger, WARNINGLEVEL } from '../../helpers/logger';
 
 declare const sqlHandler: SqlHandler;
 declare const discordHandler: DiscordHandler;

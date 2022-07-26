@@ -4,7 +4,7 @@ import { Role } from "../model/Role";
 import messageHandler from "./messageHandler";
 import { Guild } from 'discord.js';
 import { LanguageHandler } from "./languageHandler";
-import { Logger, WARNINGLEVEL } from "../helpers/Logger";
+import { Logger, WARNINGLEVEL } from "../helpers/logger";
 
 export default class PartyHandler {
 

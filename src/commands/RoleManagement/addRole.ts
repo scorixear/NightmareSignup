@@ -6,7 +6,7 @@ import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import PartyHandler from '../../handlers/partyHandler';
 import dateHandler from '../../handlers/dateHandler';
-import { Logger, WARNINGLEVEL } from '../../helpers/Logger';
+import { Logger, WARNINGLEVEL } from '../../helpers/logger';
 
 declare const sqlHandler: ISqlHandler;
 

@@ -1,5 +1,5 @@
 import { IPool } from "../../interfaces/IMariaDb";
-import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
+import { Logger, WARNINGLEVEL } from "../../helpers/logger";
 
 export default class SqlRole {
   private pool: IPool;

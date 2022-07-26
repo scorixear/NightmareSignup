@@ -8,7 +8,7 @@ import { DefaultMariaDB } from './interfaces/IMariaDb';
 import { IGoogleSheetsHandler } from './interfaces/IGoogleSheetsHandler';
 import { ISqlHandler} from './interfaces/ISqlHandler';
 import { IDiscordHandler } from './interfaces/IDiscordHandler';
-import { Logger, WARNINGLEVEL } from './helpers/Logger';
+import { Logger, WARNINGLEVEL } from './helpers/logger';
 
 // initialize configuration
 dotenv.config();

@@ -4,7 +4,7 @@ import messageHandler from "./messageHandler";
 import PartyHandler from "./partyHandler";
 import SqlHandler from "./sqlHandler";
 import { LanguageHandler } from "./languageHandler";
-import { Logger, WARNINGLEVEL } from "../helpers/Logger";
+import { Logger, WARNINGLEVEL } from "../helpers/logger";
 
 declare const sqlHandler: SqlHandler;
 

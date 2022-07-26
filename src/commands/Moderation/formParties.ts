@@ -4,7 +4,7 @@ import dateHandler from "../../handlers/dateHandler";
 import messageHandler from "../../handlers/messageHandler";
 import PartyHandler from "../../handlers/partyHandler";
 import { LanguageHandler } from "../../handlers/languageHandler";
-import { Logger, WARNINGLEVEL } from "../../helpers/Logger";
+import { Logger, WARNINGLEVEL } from "../../helpers/logger";
 
 export default class FormParties extends CommandInteractionHandle {
   constructor() {
