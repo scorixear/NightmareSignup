@@ -1,37 +1,50 @@
-import {ChatInputCommandInteraction, SlashCommandStringOption, TextChannel} from 'discord.js';
-import messageHandler from '../../handlers/messageHandler';
+import { ChatInputCommandInteraction, SlashCommandStringOption, TextChannel } from 'discord.js';
+import { DiscordHandler, CommandInteractionModel, Logger, MessageHandler, WARNINGLEVEL } from 'discord.ts-architecture';
+
 import config from '../../config';
 import dateHandler from '../../handlers/dateHandler';
-import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
+
 import { LanguageHandler } from '../../handlers/languageHandler';
 import SqlHandler from '../../handlers/sqlHandler';
-import DiscordHandler from '../../handlers/discordHandler';
-import { Logger, WARNINGLEVEL } from '../../helpers/logger';
 
 declare const sqlHandler: SqlHandler;
 declare const discordHandler: DiscordHandler;
 
-export default class Deletesignup extends CommandInteractionHandle {
+export default class Deletesignup extends CommandInteractionModel {
   constructor() {
     const commandOptions: any[] = [];
-    commandOptions.push(new SlashCommandStringOption().setName('event_name').setDescription(LanguageHandler.language.commands.signup.options.event_name).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_date').setDescription(LanguageHandler.language.commands.signup.options.event_date).setRequired(true));
-    commandOptions.push(new SlashCommandStringOption().setName('event_time').setDescription(LanguageHandler.language.commands.signup.options.event_time).setRequired(true));
+    commandOptions.push(
+      new SlashCommandStringOption()
+        .setName('event_name')
+        .setDescription(LanguageHandler.language.commands.signup.options.event_name)
+        .setRequired(true)
+    );
+    commandOptions.push(
+      new SlashCommandStringOption()
+        .setName('event_date')
+        .setDescription(LanguageHandler.language.commands.signup.options.event_date)
+        .setRequired(true)
+    );
+    commandOptions.push(
+      new SlashCommandStringOption()
+        .setName('event_time')
+        .setDescription(LanguageHandler.language.commands.signup.options.event_time)
+        .setRequired(true)
+    );
     super(
       'deletesignup',
-      ()=>LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.description, [config.botPrefix]),
+      LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.description, [config.botPrefix]),
       'deletesignup "Everfall Push" 14.10.2021 12:00',
       'Moderation',
       'deletesignup <eventName> <date> <UTC Time>',
-      commandOptions,
-      true
+      commandOptions
     );
   }
 
   override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
-    } catch(err) {
+    } catch (err) {
       return;
     }
     const eventName = interaction.options.getString('event_name');
@@ -43,22 +56,22 @@ export default class Deletesignup extends CommandInteractionHandle {
       const date = dateHandler.getDateFromUTCString(eventDate, eventTimeRegex);
       eventTimestamp = dateHandler.getUTCTimestampFromDate(date);
       if (isNaN(eventTimestamp)) {
-        Logger.Log("Deletesignup: Deletesignup: Error: Invalid date/time", WARNINGLEVEL.INFO);
-        await messageHandler.replyRichErrorText({
+        Logger.info('Deletesignup: Deletesignup: Error: Invalid date/time');
+        await MessageHandler.replyError({
           interaction,
           title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
           description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
-          color: 0xcc0000,
+          color: 0xcc0000
         });
         return;
       }
     } catch (err) {
-      Logger.Error("Deletesignup: Error while parsing date", err, WARNINGLEVEL.WARN, eventDate, eventTime);
-      await messageHandler.replyRichErrorText({
+      Logger.exception('Deletesignup: Error while parsing date', err, WARNINGLEVEL.WARN, eventDate, eventTime);
+      await MessageHandler.replyError({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.error.formatTitle,
         description: LanguageHandler.language.commands.deletesignup.error.formatDesc,
-        color: 0xcc0000,
+        color: 0xcc0000
       });
       return;
     }
@@ -68,28 +81,33 @@ export default class Deletesignup extends CommandInteractionHandle {
       try {
         const guild = await discordHandler.fetchGuild(messageEvent.guildId);
         try {
-          const channel = await guild.channels.fetch(messageEvent.channelId) as TextChannel;
+          const channel = (await guild.channels.fetch(messageEvent.channelId)) as TextChannel;
           try {
             const msg = await channel.messages.fetch(messageEvent.messageId);
             await msg.delete();
+            // eslint-disable-next-line no-empty
           } catch (err) {}
+          // eslint-disable-next-line no-empty
         } catch (err) {}
+        // eslint-disable-next-line no-empty
       } catch (err) {}
 
       await sqlHandler.getSqlEvent().deleteEvent(eventName, eventTimestamp.toString());
-      await messageHandler.replyRichText({
+      await MessageHandler.reply({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.success.title,
-        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.success.desc, [eventName]),
+        description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.deletesignup.success.desc, [
+          eventName
+        ])
       });
-      Logger.Log(`Deletesignup: Deleted signup for ${eventName} on ${eventDate} at ${eventTimeRegex}`, WARNINGLEVEL.INFO);
+      Logger.info(`Deletesignup: Deleted signup for ${eventName} on ${eventDate} at ${eventTimeRegex}`);
     } else {
-      Logger.Log(`Deletesignup: Error: No signup found for ${eventName} on ${eventDate} at ${eventTimeRegex}`, WARNINGLEVEL.INFO);
-      await messageHandler.replyRichErrorText({
+      Logger.info(`Deletesignup: Error: No signup found for ${eventName} on ${eventDate} at ${eventTimeRegex}`);
+      await MessageHandler.replyError({
         interaction,
         title: LanguageHandler.language.commands.deletesignup.error.sql_title,
         description: LanguageHandler.language.commands.deletesignup.error.sql_desc,
-        color: 0xcc0000,
+        color: 0xcc0000
       });
     }
   }

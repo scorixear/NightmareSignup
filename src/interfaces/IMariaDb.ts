@@ -1,13 +1,13 @@
 import mariadb from 'mariadb';
 export interface IMariaDB {
   createPool(config: {
-    host: string,
-    user: string,
-    password: string,
-    port: number,
-    database: string,
-    multipleStatements: boolean,
-    connectionLimit: number,
+    host: string;
+    user: string;
+    password: string;
+    port: number;
+    database: string;
+    multipleStatements: boolean;
+    connectionLimit: number;
   }): IPool;
 }
 
@@ -23,13 +23,13 @@ export interface IConnection {
 
 export class DefaultMariaDB implements IMariaDB {
   public createPool(config: {
-    host: string,
-    user: string,
-    password: string,
-    port: number,
-    database: string,
-    multipleStatements: boolean,
-    connectionLimit: number,
+    host: string;
+    user: string;
+    password: string;
+    port: number;
+    database: string;
+    multipleStatements: boolean;
+    connectionLimit: number;
   }): IPool {
     return new DefaultPool(mariadb.createPool(config));
   }

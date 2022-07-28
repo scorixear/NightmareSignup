@@ -1,5 +1,5 @@
-import { IPool } from "../../interfaces/IMariaDb";
-import { Logger, WARNINGLEVEL } from "../../helpers/logger";
+import { Logger, WARNINGLEVEL } from 'discord.ts-architecture';
+import { IPool } from '../../interfaces/IMariaDb';
 
 export default class SqlUnavailable {
   private pool: IPool;
@@ -11,13 +11,15 @@ export default class SqlUnavailable {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT eventId FROM unavailable WHERE eventId = ${conn.escape(eventId)} AND userId = ${conn.escape(userId)}`);
+      const rows = await conn.query(
+        `SELECT eventId FROM unavailable WHERE eventId = ${conn.escape(eventId)} AND userId = ${conn.escape(userId)}`
+      );
       if (rows && rows[0]) {
         returnValue = true;
       }
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't retrieve unavailable", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve unavailable", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -29,11 +31,13 @@ export default class SqlUnavailable {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO unavailable (eventId, userId) VALUES(${conn.escape(eventId)}, ${conn.escape(userId)})`);
+      await conn.query(
+        `INSERT INTO unavailable (eventId, userId) VALUES(${conn.escape(eventId)}, ${conn.escape(userId)})`
+      );
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't create unavailable", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't create unavailable", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -45,11 +49,13 @@ export default class SqlUnavailable {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM unavailable WHERE eventId = ${conn.escape(eventId)} AND userId = ${conn.escape(userId)}`);
+      await conn.query(
+        `DELETE FROM unavailable WHERE eventId = ${conn.escape(eventId)} AND userId = ${conn.escape(userId)}`
+      );
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't delete unavailable", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't delete unavailable", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -69,7 +75,7 @@ export default class SqlUnavailable {
       }
     } catch (err) {
       returnValue = [];
-      Logger.Error("SQL: Couldn't retrieve unavailables", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve unavailables", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -81,13 +87,15 @@ export default class SqlUnavailable {
     let returnValue;
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT COUNT(*) AS count FROM unavailable WHERE eventId = ${conn.escape(eventId)}`);
+      const rows = await conn.query(
+        `SELECT COUNT(*) AS count FROM unavailable WHERE eventId = ${conn.escape(eventId)}`
+      );
       if (rows && rows[0]) {
         returnValue = rows[0].count;
       }
     } catch (err) {
       returnValue = undefined;
-      Logger.Error("SQL: Couldn't retrieve unavailables", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve unavailables", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

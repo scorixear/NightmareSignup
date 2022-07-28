@@ -1,23 +1,22 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import messageHandler from '../../handlers/messageHandler';
+import { CommandInteractionModel, MessageHandler } from 'discord.ts-architecture';
+
 import config from '../../config';
 import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
-import CommandInteractionHandle from '../../model/commands/CommandInteractionHandle';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class CountPlayers extends CommandInteractionHandle {
+export default class CountPlayers extends CommandInteractionModel {
   constructor() {
     const commandOptions: any[] = [];
     super(
       'countplayers',
-      () => LanguageHandler.replaceArgs(LanguageHandler.language.commands.countplayers.description, [config.botPrefix]),
+      LanguageHandler.replaceArgs(LanguageHandler.language.commands.countplayers.description, [config.botPrefix]),
       'countplayers',
       'Moderation',
       'countplayers',
-      commandOptions,
-      true,
+      commandOptions
     );
   }
 
@@ -28,17 +27,20 @@ export default class CountPlayers extends CommandInteractionHandle {
       return;
     }
 
-    const users: string[] = (await sqlHandler.getSqlUser().getUsers()).map(u => '- <@'+u.userid+'>');
-    const categories = messageHandler.splitInCategories(users, LanguageHandler.language.commands.countplayers.success.list);
+    const users: string[] = (await sqlHandler.getSqlUser().getUsers()).map((u) => '- <@' + u.userid + '>');
+    const categories = MessageHandler.splitInCategories(
+      users,
+      LanguageHandler.language.commands.countplayers.success.list
+    );
     categories.unshift({
       title: LanguageHandler.language.commands.countplayers.success.count,
       text: users.length.toString(),
       inline: false
     });
-    await messageHandler.replyRichText({
+    await MessageHandler.reply({
       interaction,
       title: LanguageHandler.language.commands.countplayers.success.title,
-      categories,
+      categories
     });
   }
 }

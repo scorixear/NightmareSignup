@@ -1,4 +1,4 @@
-import { GlobalRole } from "./GlobalRole";
+import { GlobalRole } from './GlobalRole';
 
 export class Role {
   RoleName: string;

@@ -1,5 +1,5 @@
-import { IPool } from "../../interfaces/IMariaDb";
-import { Logger, WARNINGLEVEL } from "../../helpers/logger";
+import { Logger, WARNINGLEVEL } from 'discord.ts-architecture';
+import { IPool } from '../../interfaces/IMariaDb';
 
 export default class SqlUser {
   private pool: IPool;
@@ -9,18 +9,18 @@ export default class SqlUser {
 
   public async getUsers() {
     let conn;
-    let returnValue: {userid: string, register: number}[] = [];
+    let returnValue: { userid: string; register: number }[] = [];
     try {
       conn = await this.pool.getConnection();
       const rows = await conn.query(`SELECT userId,date FROM users`);
       if (rows) {
         for (const row of rows) {
-          returnValue.push({userid: row.userId, register: row.date});
+          returnValue.push({ userid: row.userId, register: row.date });
         }
       }
     } catch (err) {
       returnValue = [];
-      Logger.Error("SQL: Couldn't retrieve users", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve users", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -36,7 +36,7 @@ export default class SqlUser {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't add user", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't add user", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -54,7 +54,7 @@ export default class SqlUser {
       }
     } catch (err) {
       returnValue = undefined;
-      Logger.Error("SQL: Couldn't retrieve user", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve user", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -70,12 +70,10 @@ export default class SqlUser {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't delete user", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't delete user", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
     return returnValue;
   }
-
-
 }

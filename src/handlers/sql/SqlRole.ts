@@ -1,5 +1,5 @@
-import { IPool } from "../../interfaces/IMariaDb";
-import { Logger, WARNINGLEVEL } from "../../helpers/logger";
+import { Logger, WARNINGLEVEL } from 'discord.ts-architecture';
+import { IPool } from '../../interfaces/IMariaDb';
 
 export default class SqlRole {
   private pool: IPool;
@@ -16,7 +16,7 @@ export default class SqlRole {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't create role", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't create role", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -32,7 +32,7 @@ export default class SqlRole {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't remove role", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't remove role", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -51,7 +51,7 @@ export default class SqlRole {
       }
     } catch (err) {
       returnValue = [];
-      Logger.Error("SQL: Couldn't retrieve roles", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve roles", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -66,7 +66,7 @@ export default class SqlRole {
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't remove roles", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't remove roles", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -75,16 +75,16 @@ export default class SqlRole {
 
   public async getUsersWithRoles() {
     let conn;
-    let returnValue: {role: string, count: number}[] = [];
+    let returnValue: { role: string; count: number }[] = [];
     try {
       conn = await this.pool.getConnection();
       const rows = await conn.query(`SELECT role,COUNT(*) as count FROM roles GROUP BY role ORDER BY count DESC`);
-      for(const row of rows) {
-        returnValue.push({role: row.role, count: row.count});
+      for (const row of rows) {
+        returnValue.push({ role: row.role, count: row.count });
       }
-    } catch(err) {
+    } catch (err) {
       returnValue = [];
-      Logger.Error("SQL: Couldn't retrieve role (users)", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve role (users)", err, WARNINGLEVEL.WARN);
     }
     return returnValue;
   }

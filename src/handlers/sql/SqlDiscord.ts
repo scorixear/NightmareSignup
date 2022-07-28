@@ -1,5 +1,5 @@
-import { Logger, WARNINGLEVEL } from "../../helpers/logger";
-import { IPool } from "../../interfaces/IMariaDb";
+import { Logger, WARNINGLEVEL } from 'discord.ts-architecture';
+import { IPool } from '../../interfaces/IMariaDb';
 
 export default class SqlDiscord {
   private pool: IPool;
@@ -12,11 +12,15 @@ export default class SqlDiscord {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`INSERT INTO discordEventMessages (eventId, messageId, channelId, guildId) VALUES (${conn.escape(eventId)}, ${conn.escape(messageId)}, ${conn.escape(channelId)}, ${conn.escape(guildId)})`);
+      await conn.query(
+        `INSERT INTO discordEventMessages (eventId, messageId, channelId, guildId) VALUES (${conn.escape(
+          eventId
+        )}, ${conn.escape(messageId)}, ${conn.escape(channelId)}, ${conn.escape(guildId)})`
+      );
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't create discord message", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't create discord message", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -25,20 +29,22 @@ export default class SqlDiscord {
 
   public async getDiscordMessage(eventId: number) {
     let conn;
-    let returnValue: {guildId?: string, channelId?: string, messageId?: string} = {};
+    let returnValue: { guildId?: string; channelId?: string; messageId?: string } = {};
     try {
       conn = await this.pool.getConnection();
-      const rows = await conn.query(`SELECT guildId, channelId, messageId FROM discordEventMessages WHERE eventId = ${conn.escape(eventId)}`);
+      const rows = await conn.query(
+        `SELECT guildId, channelId, messageId FROM discordEventMessages WHERE eventId = ${conn.escape(eventId)}`
+      );
       if (rows && rows[0]) {
         returnValue = {
           guildId: rows[0].guildId,
           channelId: rows[0].channelId,
-          messageId: rows[0].messageId,
+          messageId: rows[0].messageId
         };
       }
     } catch (err) {
       returnValue = {};
-      Logger.Error("SQL: Couldn't retrieve discord message", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't retrieve discord message", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }
@@ -50,11 +56,15 @@ export default class SqlDiscord {
     let returnValue = false;
     try {
       conn = await this.pool.getConnection();
-      await conn.query(`DELETE FROM discordEventMessages WHERE eventId = ${conn.escape(eventId)} AND messageId = ${conn.escape(messageId)} AND channelId = ${conn.escape(channelId)} AND guildId = ${conn.escape(guildId)}`);
+      await conn.query(
+        `DELETE FROM discordEventMessages WHERE eventId = ${conn.escape(eventId)} AND messageId = ${conn.escape(
+          messageId
+        )} AND channelId = ${conn.escape(channelId)} AND guildId = ${conn.escape(guildId)}`
+      );
       returnValue = true;
     } catch (err) {
       returnValue = false;
-      Logger.Error("SQL: Couldn't remove discord message", err, WARNINGLEVEL.WARN);
+      Logger.exception("SQL: Couldn't remove discord message", err, WARNINGLEVEL.WARN);
     } finally {
       if (conn) await conn.end();
     }

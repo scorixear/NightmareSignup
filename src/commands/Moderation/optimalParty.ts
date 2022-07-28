@@ -1,39 +1,42 @@
-import CommandInteractionHandle from "../../model/commands/CommandInteractionHandle";
-import { ChatInputCommandInteraction, CommandInteraction } from "discord.js";
-import messageHandler from "../../handlers/messageHandler";
-import PartyHandler from "../../handlers/partyHandler";
-import { LanguageHandler } from "../../handlers/languageHandler";
+import { ChatInputCommandInteraction } from 'discord.js';
 
-export default class OptimalParty extends CommandInteractionHandle {
+import PartyHandler from '../../handlers/partyHandler';
+import { LanguageHandler } from '../../handlers/languageHandler';
+import { CommandInteractionModel, MessageHandler } from 'discord.ts-architecture';
+
+export default class OptimalParty extends CommandInteractionModel {
   constructor() {
-    const commandOptions: any[]= [];
+    const commandOptions: any[] = [];
     super(
-    'optimalparty',
-      ()=>LanguageHandler.language.commands.optimalparty.description,
+      'optimalparty',
+      LanguageHandler.language.commands.optimalparty.description,
       'optimalparty',
       'Moderation',
       'optimalparty',
-      commandOptions,
-      true
+      commandOptions
     );
   }
 
   override async handle(interaction: ChatInputCommandInteraction) {
     try {
       await super.handle(interaction);
-    } catch(err) {
+    } catch (err) {
       return;
     }
 
     const sqlusers = await sqlHandler.getSqlUser().getUsers();
-    const users: {userId: string, date: number}[] = sqlusers.map(user => {return {userId: user.userid, date: user.register};});
+    const users: { userId: string; date: number }[] = sqlusers.map((user) => {
+      return { userId: user.userid, date: user.register };
+    });
     await PartyHandler.updateComposition();
     const categories = await PartyHandler.formCategories(users, interaction.guild);
-    await messageHandler.replyRichText({
+    await MessageHandler.reply({
       interaction,
       title: LanguageHandler.language.commands.optimalparty.title,
-      description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.optimalparty.desc, [users.length.toString()]),
-      categories,
+      description: LanguageHandler.replaceArgs(LanguageHandler.language.commands.optimalparty.desc, [
+        users.length.toString()
+      ]),
+      categories
     });
   }
 }
