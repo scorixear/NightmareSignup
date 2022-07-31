@@ -47,7 +47,10 @@ export default class AddRole extends AutocompleteInteractionModel {
       return await interaction.respond([]);
     }
     const focused = interaction.options.getFocused();
-    const roles = PartyHandler.Roles.filter((role) => role.RoleName.startsWith(focused)).sort();
+    let roles = PartyHandler.Roles.filter((role) => role.RoleName.startsWith(focused)).sort();
+    if (roles.length > 25) {
+      roles = roles.slice(0, 25);
+    }
     return await interaction.respond(roles.map((role) => ({ name: role.RoleName, value: role.RoleName })));
   }
 
