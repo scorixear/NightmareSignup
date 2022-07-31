@@ -11,7 +11,7 @@ networks:
 services:
   mysql:
     image: mysql:8.0
-    restart: always
+    restart: "unless-stopped"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER:  n1ghtmaresignup
@@ -27,7 +27,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin
-    restart: always
+    restart: "unless-stopped"
     expose:
       - "40001"
     ports:

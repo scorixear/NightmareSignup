@@ -1,4 +1,10 @@
-import { ChatInputCommandInteraction, SlashCommandStringOption, SlashCommandUserOption } from 'discord.js';
+import {
+  AutocompleteInteraction,
+  CacheType,
+  ChatInputCommandInteraction,
+  SlashCommandStringOption,
+  SlashCommandUserOption
+} from 'discord.js';
 
 import config from '../../config';
 
@@ -6,11 +12,11 @@ import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 import PartyHandler from '../../handlers/partyHandler';
 import dateHandler from '../../handlers/dateHandler';
-import { CommandInteractionModel, Logger, MessageHandler, WARNINGLEVEL } from 'discord.ts-architecture';
+import { AutocompleteInteractionModel, Logger, MessageHandler, WARNINGLEVEL } from 'discord.ts-architecture';
 
 declare const sqlHandler: ISqlHandler;
 
-export default class AddRole extends CommandInteractionModel {
+export default class AddRole extends AutocompleteInteractionModel {
   constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(
@@ -24,6 +30,7 @@ export default class AddRole extends CommandInteractionModel {
         .setName('zvzrole')
         .setDescription(LanguageHandler.language.commands.roles.options.zvzrole)
         .setRequired(true)
+        .setAutocomplete(true)
     );
     super(
       'addrole',
@@ -33,6 +40,15 @@ export default class AddRole extends CommandInteractionModel {
       'addrole <user> <zvzrole[s]>',
       commandOptions
     );
+  }
+
+  override async handleAutocomplete(interaction: AutocompleteInteraction<CacheType>): Promise<void> {
+    if (!PartyHandler.Roles) {
+      return await interaction.respond([]);
+    }
+    const focused = interaction.options.getFocused();
+    const roles = PartyHandler.Roles.filter((role) => role.RoleName.startsWith(focused)).sort();
+    return await interaction.respond(roles.map((role) => ({ name: role.RoleName, value: role.RoleName })));
   }
 
   override async handle(interaction: ChatInputCommandInteraction) {

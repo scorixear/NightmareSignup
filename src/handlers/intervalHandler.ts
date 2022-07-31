@@ -16,6 +16,10 @@ export class IntervalHandlers {
       await this.handleButtonRemoval(now);
       await this.handlePartyPost(now);
     }, 1000 * 60);
+    setInterval(async () => {
+      await PartyHandler.updateComposition();
+      Logger.info('Updated Party Composition');
+    }, 1000 * 60 * 60);
   }
 
   private static async handleMessageDeletion(now: Date) {

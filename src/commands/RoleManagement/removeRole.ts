@@ -1,5 +1,11 @@
-import { SlashCommandStringOption, SlashCommandUserOption, ChatInputCommandInteraction } from 'discord.js';
-import { CommandInteractionModel, MessageHandler } from 'discord.ts-architecture';
+import {
+  SlashCommandStringOption,
+  SlashCommandUserOption,
+  ChatInputCommandInteraction,
+  AutocompleteInteraction
+} from 'discord.js';
+import { AutocompleteInteractionModel, MessageHandler } from 'discord.ts-architecture';
+import PartyHandler from '../../handlers/partyHandler';
 
 import config from '../../config';
 
@@ -7,7 +13,7 @@ import { LanguageHandler } from '../../handlers/languageHandler';
 import { ISqlHandler } from '../../interfaces/ISqlHandler';
 
 declare const sqlHandler: ISqlHandler;
-export default class RemoveRole extends CommandInteractionModel {
+export default class RemoveRole extends AutocompleteInteractionModel {
   constructor() {
     const commandOptions: any[] = [];
     commandOptions.push(
@@ -21,6 +27,7 @@ export default class RemoveRole extends CommandInteractionModel {
         .setName('zvzrole')
         .setDescription(LanguageHandler.language.commands.roles.options.zvzrole)
         .setRequired(true)
+        .setAutocomplete(true)
     );
     super(
       'removerole',
@@ -30,6 +37,15 @@ export default class RemoveRole extends CommandInteractionModel {
       'removerole <user> <zvzrole>',
       commandOptions
     );
+  }
+
+  override async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+    if (!PartyHandler.Roles) {
+      return await interaction.respond([]);
+    }
+    const focused = interaction.options.getFocused();
+    const roles = PartyHandler.Roles.filter((role) => role.RoleName.startsWith(focused)).sort();
+    return await interaction.respond(roles.map((role) => ({ name: role.RoleName, value: role.RoleName })));
   }
 
   override async handle(interaction: ChatInputCommandInteraction) {
